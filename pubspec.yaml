@@ -1,0 +1,44 @@
+name: wrixl_frontend
+description: "Web-first Flutter dashboard for smart money tracking and portfolio intelligence."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Core packages
+  http: ^1.3.0
+  provider: ^6.1.2
+  fl_chart: ^0.70.2
+
+  # For basic cross-platform icon support
+  cupertino_icons: ^1.0.8
+
+  # Optional but useful for embedded content (Telegram setup or help docs)
+  webview_flutter: ^4.5.0
+
+  sidebarx: ^0.17.1
+  tiny_charts: ^0.1.0
+  chart_sparkline: ^1.1.1
+  syncfusion_flutter_charts: ^29.1.35
+  gauge_indicator: ^0.4.3
+  marqueer: ^2.0.1
+  crypto_icons_flutter: ^0.0.1
+  flutter_svg: ^2.0.17
+  enum_to_string: ^2.2.1
+
+  shared_preferences: ^2.5.3  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
