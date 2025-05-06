@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:wrixl_frontend/profile/user_profile.dart';
+import 'package:wrixl_frontend/screens/dashboard/dashboard_overview.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/sidebarx_navigation.dart';
 import 'package:wrixl_frontend/utils/constants.dart';
@@ -10,7 +11,7 @@ import 'smart_money_feed.dart';
 import 'mirror_insights.dart';
 import 'market_signals.dart';
 import 'portfolios.dart';
-// import 'dashboard_overview.dart';
+import 'dashboard_overview.dart';
 import 'dashboard_screen2.dart';
 import 'portfolios_screen2.dart';
 import 'market_intelligence.dart';
@@ -29,17 +30,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final SidebarXController _controller = SidebarXController(selectedIndex: 0);
 
   final List<Widget> _screens = [
-//    const DashboardOverview(),
-    const DashboardScreen2(),
-//    const SmartMoneyFeedScreen(),
-    const ActivityScreen(),
-//    const MirrorInsightsScreen(),
-    const CommunityGameScreen(),
-    const MarketIntelligenceScreen(),
-//    const MarketSignalsScreen(),
-//    const PortfoliosScreen(),
-    const PortfoliosScreen2(),
-    const UserProfileScreen(),
+    const DashboardOverview(),            // 0: Old Dashboard
+    const DashboardScreen2(),            // 1: New Dashboard
+    const SmartMoneyFeedScreen(),        // 2: Old Smart Money
+    const MirrorInsightsScreen(),        // 3: Old Mirror Insights
+    const MarketSignalsScreen(),         // 4: Old Market Signals
+    const MarketIntelligenceScreen(),    // 5: New Market Intelligence
+    const PortfoliosScreen(),            // 6: Old Portfolio
+    const PortfoliosScreen2(),           // 7: New Portfolio
+    const CommunityGameScreen(),         // 8: New Community & Gamification
+    const ActivityScreen(),              // 9: New Activity & Alerts
+    const UserProfileScreen(),           // 10: Old Profile
   ];
 
   @override
@@ -77,11 +78,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               unselectedItemColor: AppConstants.secondaryTextColor,
               onTap: (index) => _controller.selectIndex(index),
               items: const [
-                BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-                BottomNavigationBarItem(icon: Icon(Icons.attach_money), label: 'Activity'),
-                BottomNavigationBarItem(icon: Icon(Icons.insights), label: 'Community'),
-                BottomNavigationBarItem(icon: Icon(Icons.signal_cellular_alt), label: 'Inteligence'),
-                BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: 'Portfolios'),
+                BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Old Dashboard'),             // 0
+                BottomNavigationBarItem(icon: Icon(Icons.dashboard_customize), label: 'New Dashboard'),   // 1
+                BottomNavigationBarItem(icon: Icon(Icons.trending_up), label: 'Smart \$'),                // 2
+                BottomNavigationBarItem(icon: Icon(Icons.copy_all), label: 'Mirror'),                     // 3
+                BottomNavigationBarItem(icon: Icon(Icons.auto_graph), label: 'Signals'),                  // 4
+                BottomNavigationBarItem(icon: Icon(Icons.analytics_outlined), label: 'Intelligence'),     // 5
+                BottomNavigationBarItem(icon: Icon(Icons.archive), label: 'Old Portfolio'),               // 6
+                BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: 'New Portfolio'),             // 7
+                BottomNavigationBarItem(icon: Icon(Icons.emoji_events), label: 'Community'),              // 8
+                BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Activity'),                    // 9
+                BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),                      // 10
               ],
             )
           : null,

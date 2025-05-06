@@ -98,11 +98,17 @@ class SidebarXNavigation extends StatelessWidget {
                 selectedItemTextPadding: EdgeInsets.only(left: 16),
               ),
               items: const [
-                SidebarXItem(icon: Icons.dashboard, label: 'Dashboard'),
-                SidebarXItem(icon: Icons.attach_money, label: 'Smart \$'),
-                SidebarXItem(icon: Icons.insights, label: 'Insights'),
-                SidebarXItem(icon: Icons.signal_cellular_alt, label: 'Signals'),
-                SidebarXItem(icon: Icons.pie_chart, label: 'Portfolios'),
+                SidebarXItem(icon: Icons.dashboard, label: 'Old Dashboard'),               // 0
+                SidebarXItem(icon: Icons.dashboard_customize, label: 'New Dashboard'),     // 1
+                SidebarXItem(icon: Icons.trending_up, label: 'Smart \$'),                  // 2
+                SidebarXItem(icon: Icons.copy_all, label: 'Mirror'),                       // 3
+                SidebarXItem(icon: Icons.auto_graph, label: 'Signals'),                    // 4
+                SidebarXItem(icon: Icons.analytics_outlined, label: 'Intelligence'),       // 5
+                SidebarXItem(icon: Icons.archive, label: 'Old Portfolio'),                 // 6
+                SidebarXItem(icon: Icons.pie_chart, label: 'New Portfolio'),               // 7
+                SidebarXItem(icon: Icons.emoji_events, label: 'Community'),                // 8
+                SidebarXItem(icon: Icons.history, label: 'Activity'),                      // 9
+                SidebarXItem(icon: Icons.person, label: 'Profile'),                        // 10
               ],
             ),
           ),
@@ -111,7 +117,7 @@ class SidebarXNavigation extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: IconButton(
-              onPressed: () => controller.selectIndex(5),
+              onPressed: () => controller.selectIndex(10),
               tooltip: 'Profile',
               icon: const CircleAvatar(
                 backgroundColor: AppConstants.accentColor,
