@@ -45,7 +45,6 @@ class _SmartMoneyDriftState extends State<SmartMoneyDrift> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             /// Header: Title and Options Button.
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -89,7 +88,7 @@ class _SmartMoneyDriftState extends State<SmartMoneyDrift> {
             ),
 
             const SizedBox(height: 8),
-            
+
             /// Bubble Chart - fully constrained in layout.
             Expanded(
               child: ScatterChart(
@@ -104,11 +103,13 @@ class _SmartMoneyDriftState extends State<SmartMoneyDrift> {
                   scatterTouchData: ScatterTouchData(
                     enabled: true,
                     handleBuiltInTouches: true,
-                    touchCallback: (FlTouchEvent event, ScatterTouchResponse? response) {
+                    touchCallback:
+                        (FlTouchEvent event, ScatterTouchResponse? response) {
                       if (response == null || response.touchedSpot == null) {
                         setState(() => touchedIndex = null);
                       } else {
-                        final int idx = ((response.touchedSpot!.spot.x / 2.0) - 1).round();
+                        final int idx =
+                            ((response.touchedSpot!.spot.x / 2.0) - 1).round();
                         setState(() => touchedIndex = idx);
                       }
                     },
@@ -136,17 +137,26 @@ class _SmartMoneyDriftState extends State<SmartMoneyDrift> {
                     const double minRadius = 6.0;
                     const double maxRadius = 18.0;
 
-                    final double normalized = ((token.endSize - 15) / (25 - 15)).clamp(0.0, 1.0);
-                    final double radius = minRadius + (maxRadius - minRadius) * normalized;
+                    final double normalized =
+                        ((token.endSize - 15) / (25 - 15)).clamp(0.0, 1.0);
+                    final double radius =
+                        minRadius + (maxRadius - minRadius) * normalized;
 
                     return ScatterSpot(
                       (i + 1) * 2.0,
-                      5 + (i % 2 == 0 ? 1 : -1), // visually pleasing staggered Y
+                      5 +
+                          (i % 2 == 0
+                              ? 1
+                              : -1), // visually pleasing staggered Y
                       dotPainter: FlDotCirclePainter(
                         radius: radius,
-                        color: isExpansion ? Colors.green.shade700 : Colors.red.shade700,
+                        color: isExpansion
+                            ? Colors.green.shade700
+                            : Colors.red.shade700,
                         strokeWidth: 4,
-                        strokeColor: isExpansion ? Colors.green.shade300 : Colors.red.shade300,
+                        strokeColor: isExpansion
+                            ? Colors.green.shade300
+                            : Colors.red.shade300,
                       ),
                     );
                   }),

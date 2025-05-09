@@ -69,8 +69,7 @@ class PortfolioComparisonRadar extends StatelessWidget {
               dataSets: [
                 RadarDataSet(
                   dataEntries: radarData
-                      .map((data) =>
-                          RadarEntry(value: data['value'] ?? 0.0))
+                      .map((data) => RadarEntry(value: data['value'] ?? 0.0))
                       .toList(),
                   fillColor: AppConstants.accentColor.withOpacity(0.3),
                   borderColor: AppConstants.accentColor,
@@ -83,8 +82,7 @@ class PortfolioComparisonRadar extends StatelessWidget {
                 color: AppConstants.accentColor.withOpacity(0.4),
                 width: 1,
               ),
-              tickBorderData:
-                  const BorderSide(color: Colors.grey, width: 1),
+              tickBorderData: const BorderSide(color: Colors.grey, width: 1),
               getTitle: (index, angle) {
                 final metric = radarData[index]['metric'] ?? '';
                 return RadarChartTitle(text: metric, angle: angle);

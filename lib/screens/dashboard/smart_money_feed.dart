@@ -1,4 +1,4 @@
- // lib\screens\dashboard\smart_money_feed.dart
+// lib\screens\dashboard\smart_money_feed.dart
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -57,7 +57,8 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
         ],
       },
       'wallets': ['0xABC...', '0xABC...'],
-      'commentary': 'Wallet showed strong stablecoin positioning in the last 24 hours.',
+      'commentary':
+          'Wallet showed strong stablecoin positioning in the last 24 hours.',
       'totalValue': 5000000.0,
       'confidence': 4,
       'trendType': 'New Trend',
@@ -181,7 +182,8 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
         ],
       },
       'wallets': ['0xEFG...', '0xEFG...'],
-      'commentary': 'Strong DEX performance and low entry points across tokens.',
+      'commentary':
+          'Strong DEX performance and low entry points across tokens.',
       'totalValue': 720000.0,
       'confidence': 5,
       'trendType': 'Trend Confirmation',
@@ -286,8 +288,9 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
   final List<Map<String, dynamic>> feedItems = [
     {
       'insight': 'Hedge funds entering DeFi yield plays',
-      'detail': 'Pendle, Lyra, and Aura saw 17.2M USD inflows from fund-tagged wallets. '
-          'Rotational play suggests confidence in short-term yield optimization.',
+      'detail':
+          'Pendle, Lyra, and Aura saw 17.2M USD inflows from fund-tagged wallets. '
+              'Rotational play suggests confidence in short-term yield optimization.',
       'walletType': 'Fund',
       'confidence': 4,
       'wallets': ['0xF1...', '0xD3...', '0xE4...'],
@@ -308,8 +311,9 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
     },
     {
       'insight': 'Wallet 0x44: 14 profitable days out of 15',
-      'detail': 'GBYTE and FTC have been top gainers for this AI-flagged Smart LP. '
-          'Historical accuracy: 92%. Avg trade gain: 4,900.',
+      'detail':
+          'GBYTE and FTC have been top gainers for this AI-flagged Smart LP. '
+              'Historical accuracy: 92%. Avg trade gain: 4,900.',
       'walletType': 'Smart LP',
       'confidence': 5,
       'wallets': ['0x44...'],
@@ -319,8 +323,9 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
     },
     {
       'insight': 'Fresh wallet hits 100K USD profit in 48 hours',
-      'detail': 'New high-frequency trader surfaced on Base. Executed 38 trades '
-          'with an 82% win rate. Monitoring ongoing behavior.',
+      'detail':
+          'New high-frequency trader surfaced on Base. Executed 38 trades '
+              'with an 82% win rate. Monitoring ongoing behavior.',
       'walletType': 'Fresh Wallet',
       'confidence': 3,
       'wallets': ['0xNew...'],
@@ -330,8 +335,9 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
     },
     {
       'insight': 'Degens rotate from NFTs into yield tokens',
-      'detail': 'NFT-heavy wallets exited JPEGs and moved into L2 LPs (GBYTE, FTC). '
-          'Avg APR: 14.6%. Slippage: minimal.',
+      'detail':
+          'NFT-heavy wallets exited JPEGs and moved into L2 LPs (GBYTE, FTC). '
+              'Avg APR: 14.6%. Slippage: minimal.',
       'walletType': 'Degen',
       'confidence': 2,
       'wallets': ['0xDE...', '0xGN...'],
@@ -341,8 +347,9 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
     },
     {
       'insight': 'Fund cluster frontrunning zkSync narrative',
-      'detail': 'Increased accumulation of XRP and FTC (+36% token flow). AI labels '
-          'this as early-stage narrative positioning.',
+      'detail':
+          'Increased accumulation of XRP and FTC (+36% token flow). AI labels '
+              'this as early-stage narrative positioning.',
       'walletType': 'Fund',
       'confidence': 4,
       'wallets': ['0xZK1...', '0xZK2...'],
@@ -412,8 +419,8 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
         elevation: theme.appBarTheme.elevation,
         title: Text(
           "Smart Money Tracking",
-          style: theme.textTheme.titleLarge
-              ?.copyWith(color: scheme.onBackground),
+          style:
+              theme.textTheme.titleLarge?.copyWith(color: scheme.onBackground),
         ),
       ),
       body: SingleChildScrollView(
@@ -441,4 +448,3 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
     );
   }
 }
-

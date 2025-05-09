@@ -1,4 +1,4 @@
- // import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -16,7 +16,8 @@ class PaymentService {
     } else {
       // TODO: Implement WebView for mobile/desktop platforms if needed.
       return const Center(
-        child: Text('WebView for payment is not implemented for this platform.'),
+        child:
+            Text('WebView for payment is not implemented for this platform.'),
       );
     }
   }

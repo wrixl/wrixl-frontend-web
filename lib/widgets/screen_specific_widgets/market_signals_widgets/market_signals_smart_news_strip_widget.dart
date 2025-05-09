@@ -165,8 +165,7 @@ class _MarketSignalsSmartNewsStripWidgetState
                     options: filters,
                     optionIcons: filterIcons,
                     activeOption: _selectedFilter,
-                    onSelected: (opt) =>
-                        setState(() => _selectedFilter = opt),
+                    onSelected: (opt) => setState(() => _selectedFilter = opt),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -185,8 +184,8 @@ class _MarketSignalsSmartNewsStripWidgetState
             SizedBox(
               height: cardHeight,
               child: ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context)
-                    .copyWith(dragDevices: {
+                behavior:
+                    ScrollConfiguration.of(context).copyWith(dragDevices: {
                   PointerDeviceKind.touch,
                   PointerDeviceKind.mouse,
                 }),
@@ -245,11 +244,9 @@ class _MarketSignalsSmartNewsStripWidgetState
                                     backgroundColor:
                                         scheme.primary.withOpacity(0.2),
                                     child: Text(
-                                      item.source
-                                          .substring(0, 2)
-                                          .toUpperCase(),
-                                      style: theme.textTheme.bodySmall
-                                          ?.copyWith(
+                                      item.source.substring(0, 2).toUpperCase(),
+                                      style:
+                                          theme.textTheme.bodySmall?.copyWith(
                                         color: scheme.onPrimary,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 10,
@@ -316,4 +313,3 @@ class _MarketSignalsSmartNewsStripWidgetState
     );
   }
 }
-

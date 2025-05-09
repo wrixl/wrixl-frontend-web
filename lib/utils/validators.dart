@@ -22,4 +22,3 @@ class Validators {
     return null;
   }
 }
-

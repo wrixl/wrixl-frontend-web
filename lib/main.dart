@@ -27,8 +27,10 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
-        ChangeNotifierProvider<DashboardProvider>(create: (_) => DashboardProvider()),
-        ChangeNotifierProvider<PortfolioProvider>(create: (_) => PortfolioProvider()),
+        ChangeNotifierProvider<DashboardProvider>(
+            create: (_) => DashboardProvider()),
+        ChangeNotifierProvider<PortfolioProvider>(
+            create: (_) => PortfolioProvider()),
         ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
       ],
       child: const MyApp(),

@@ -1,4 +1,4 @@
- // lib\screens\payment\subscription_page.dart
+// lib\screens\payment\subscription_page.dart
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';

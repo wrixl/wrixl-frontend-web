@@ -1,186 +1,184 @@
+// lib/screens/dashboard/dashboard_screen2.dart
+
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/utils/layout_constants.dart';
 import 'package:wrixl_frontend/widgets/common/reusable_widget_layout_card.dart';
 import 'package:wrixl_frontend/utils/responsive.dart';
+import 'package:wrixl_frontend/utils/widget_layout_storage.dart';
+import 'package:wrixl_frontend/widgets/common/draggable_card_wrapper.dart';
 
-class DashboardScreen2 extends StatelessWidget {
-  const DashboardScreen2({Key? key}) : super(key: key);
+class DashboardScreen2 extends StatefulWidget {
+  const DashboardScreen2({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    if (Responsive.isDesktop(context)) {
-      return _buildDesktopLayout();
-    } else if (Responsive.isTablet(context)) {
-      return _buildTabletLayout();
-    } else {
-      return _buildMobileLayout();
+  State<DashboardScreen2> createState() => _DashboardScreen2State();
+}
+
+class _DashboardScreen2State extends State<DashboardScreen2> {
+  bool isEditMode = false;
+  late String selectedPreset;
+  Map<String, List<WidgetLayout>> layoutPresets = {};
+
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPresets();
+  }
+
+  void toggleEditMode() => setState(() => isEditMode = !isEditMode);
+
+  void toggleVisibility(String id) {
+    final layout = _currentLayout().firstWhere((w) => w.id == id);
+    setState(() => layout.visible = !layout.visible);
+    WidgetLayoutStorage.savePreset(selectedPreset, _currentLayout());
+  }
+
+  void updateLayout(WidgetLayout updated) {
+    final index = _currentLayout().indexWhere((w) => w.id == updated.id);
+    if (index != -1) {
+      setState(() => _currentLayout()[index] = updated);
+      WidgetLayoutStorage.savePreset(selectedPreset, _currentLayout());
     }
   }
 
-  Widget _buildDesktopLayout() {
+  List<WidgetLayout> _currentLayout() => layoutPresets[selectedPreset]!;
+
+  void resetPreset() async {
+    await WidgetLayoutStorage.deletePreset(selectedPreset);
+    setState(() {
+      layoutPresets[selectedPreset] = switch (selectedPreset) {
+        "Trading" => _tradingLayout(),
+        "Minimal" => _minimalLayout(),
+        _ => _defaultLayout(),
+      };
+    });
+  }
+
+  Future<void> _loadPresets() async {
+    final defaultPreset = await WidgetLayoutStorage.loadPreset("Default");
+    final tradingPreset = await WidgetLayoutStorage.loadPreset("Trading");
+    final minimalPreset = await WidgetLayoutStorage.loadPreset("Minimal");
+
+    setState(() {
+      layoutPresets = {
+        "Default": defaultPreset ?? _defaultLayout(),
+        "Trading": tradingPreset ?? _tradingLayout(),
+        "Minimal": minimalPreset ?? _minimalLayout(),
+      };
+      selectedPreset = "Default";
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // ✅ Safety guard during async preset loading
+    if (layoutPresets.isEmpty || !layoutPresets.containsKey(selectedPreset)) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final layoutHelper = LayoutHelper.of(context);
+    final visibleWidgets = _currentLayout().where((w) => w.visible).toList();
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text("Wrixl Dashboard"),
-        elevation: 0,
+        actions: [
+          DropdownButton<String>(
+            value: selectedPreset,
+            underline: const SizedBox.shrink(),
+            onChanged: isEditMode
+                ? null
+                : (value) => setState(() => selectedPreset = value!),
+            items: layoutPresets.keys.map((preset) {
+              return DropdownMenuItem(
+                value: preset,
+                child: Text(preset),
+              );
+            }).toList(),
+          ),
+          IconButton(
+            icon: Icon(isEditMode ? Icons.lock_open : Icons.lock),
+            tooltip: isEditMode ? "Lock Layout" : "Unlock Layout",
+            onPressed: toggleEditMode,
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: "Reset Preset",
+            onPressed: isEditMode ? resetPreset : null,
+          ),
+        ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final layout = LayoutHelper.fromDimensions(constraints.maxWidth, constraints.maxHeight);
+          final layoutHelper = LayoutHelper.fromDimensions(
+            constraints.maxWidth,
+            constraints.maxHeight,
+          );
+
+          final widgetsToShow = isEditMode
+              ? (_currentLayout()
+                ..sort((a, b) =>
+                    (a.visible == b.visible) ? 0 : (a.visible ? -1 : 1)))
+              : _currentLayout().where((w) => w.visible).toList();
+
           return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: LayoutHelper.fixedOuterScreenMargin, vertical: 24),
-            child: Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    WrixlCard(
-                      width: layout.twoColumnWidth,
-                      height: layout.tallHeight,
-                      openOnTap: true,
-                      modalSize: ModalSize.large,
-                      modalTitle: "Portfolio Snapshot",
-                      child: const Text("Portfolio Snapshot Placeholder"),
-                    ),
-                    SizedBox(width: layout.cardGutter),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        WrixlCard(
-                          width: layout.oneColumnWidth,
-                          height: layout.mediumHeight,
-                          stacked: true,
-                          openOnTap: true,
-                          modalSize: ModalSize.medium,
-                          modalTitle: "Performance Benchmarks",
-                          child: const Text("Performance vs Benchmarks Placeholder"),
-                        ),
-                        SizedBox(height: layout.verticalRowSpacing),
-                        WrixlCard(
-                          width: layout.oneColumnWidth,
-                          height: layout.shortHeight,
-                          stacked: true,
-                          openOnTap: true,
-                          modalSize: ModalSize.small,
-                          modalTitle: "Next Best Action",
-                          child: const Text("Next Best Action Placeholder"),
-                        ),
-                        SizedBox(height: layout.verticalRowSpacing),
-                        WrixlCard(
-                          width: layout.oneColumnWidth,
-                          height: layout.shortHeight,
-                          stacked: true,
-                          openOnTap: true,
-                          modalSize: ModalSize.small,
-                          modalTitle: "AI Quick Tip",
-                          child: const Text("AI Quick Tip Placeholder"),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(height: layout.verticalRowSpacing),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    WrixlCard(
-                      width: layout.oneColumnWidth,
-                      height: layout.mediumHeight,
-                      openOnTap: true,
-                      modalSize: ModalSize.medium,
-                      modalTitle: "Smart Money Drift",
-                      child: const Text("Smart Money Drift Placeholder"),
-                    ),
-                    SizedBox(width: layout.cardGutter),
-                    WrixlCard(
-                      width: layout.twoColumnWidth,
-                      height: layout.mediumHeight,
-                      openOnTap: true,
-                      modalSize: ModalSize.large,
-                      modalTitle: "Token Allocation",
-                      child: const Text("Token Allocation Breakdown Placeholder"),
-                    ),
-                  ],
-                ),
-                SizedBox(height: layout.verticalRowSpacing),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    WrixlCard(
-                      width: layout.halfColumnWidth,
-                      height: layout.moderateHeight,
-                      openOnTap: true,
-                      modalSize: ModalSize.medium,
-                      modalTitle: "Portfolio Stress Radar",
-                      child: const Text("Portfolio Stress Radar Placeholder"),
-                    ),
-                    SizedBox(width: layout.cardGutter),
-                    WrixlCard(
-                      width: layout.halfColumnWidth,
-                      height: layout.moderateHeight,
-                      openOnTap: true,
-                      modalSize: ModalSize.medium,
-                      modalTitle: "Smart Money Live Ticker",
-                      child: const Text("Smart Money Live Ticker Placeholder"),
-                    ),
-                  ],
-                ),
-                SizedBox(height: layout.verticalRowSpacing),
-                WrixlCard(
-                  width: layout.threeColumnWidth,
-                  height: layout.mediumHeight,
-                  openOnTap: true,
-                  modalSize: ModalSize.fullscreen,
-                  modalTitle: "Model Portfolios",
-                  child: const Text("Model Portfolios Carousel Placeholder"),
-                ),
-                SizedBox(height: layout.verticalRowSpacing),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    WrixlCard(
-                      width: layout.twoColumnWidth,
-                      height: layout.mediumHeight,
-                      openOnTap: true,
-                      modalSize: ModalSize.medium,
-                      modalTitle: "Alerts and Events",
-                      child: const Text("Alerts + Events Placeholder"),
-                    ),
-                    SizedBox(width: layout.cardGutter),
-                    WrixlCard(
-                      width: layout.oneColumnWidth,
-                      height: layout.mediumHeight,
-                      openOnTap: true,
-                      modalSize: ModalSize.small,
-                      modalTitle: "Wrixler Rank",
-                      child: const Text("Wrixler Rank + Shareable Card Placeholder"),
-                    ),
-                  ],
-                ),
-                SizedBox(height: layout.verticalRowSpacing),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    WrixlCard(
-                      width: layout.halfColumnWidth,
-                      height: layout.mediumHeight,
-                      openOnTap: true,
-                      modalSize: ModalSize.medium,
-                      modalTitle: "Missed Opportunities",
-                      child: const Text("Missed Opportunities Placeholder"),
-                    ),
-                    SizedBox(width: layout.cardGutter),
-                    WrixlCard(
-                      width: layout.halfColumnWidth,
-                      height: layout.mediumHeight,
-                      openOnTap: true,
-                      modalSize: ModalSize.medium,
-                      modalTitle: "Streak Tracker",
-                      child: const Text("Streak Tracker / Milestones Placeholder"),
-                    ),
-                  ],
-                ),
-              ],
+            controller: _scrollController,
+            padding: const EdgeInsets.symmetric(
+              horizontal: LayoutHelper.fixedOuterScreenMargin,
+              vertical: 24,
+            ),
+            child: Wrap(
+              spacing: layoutHelper.cardGutter,
+              runSpacing: layoutHelper.verticalRowSpacing,
+              children: List.generate(widgetsToShow.length, (index) {
+                final layout = widgetsToShow[index];
+
+                final wrixlCard = WrixlCard(
+                  layout: layout,
+                  layoutHelper: layoutHelper,
+                  isEditMode: isEditMode,
+                  isHidden: !layout.visible,
+                  onLayoutChanged: updateLayout,
+                  onToggleVisibility: () => toggleVisibility(layout.id),
+                  modalTitle: layout.id,
+                  child: Text("${layout.id}"),
+                );
+
+                if (!layout.visible && isEditMode) return wrixlCard;
+
+                return DraggableCardWrapper(
+                  index: index,
+                  isEditMode: isEditMode,
+                  visibleWidgets: visibleWidgets,
+                  onReorder: (from, to) {
+                    setState(() {
+                      final all = _currentLayout();
+                      final visible = all.where((w) => w.visible).toList();
+
+                      final moved = visible.removeAt(from);
+                      visible.insert(to, moved);
+
+                      final reordered = [
+                        ...visible,
+                        ...all.where((w) => !w.visible),
+                      ];
+
+                      layoutPresets[selectedPreset] = reordered;
+                      WidgetLayoutStorage.savePreset(selectedPreset, reordered);
+                    });
+                  },
+                  child: wrixlCard,
+                );
+              }),
             ),
           );
         },
@@ -188,54 +186,112 @@ class DashboardScreen2 extends StatelessWidget {
     );
   }
 
-  Widget _buildTabletLayout() {
-    return _buildDesktopLayout();
-  }
+  List<WidgetLayout> _defaultLayout() => [..._coreWidgets()];
+  List<WidgetLayout> _tradingLayout() =>
+      _coreWidgets().where((w) => w.id != "AI Quick Tip").toList();
+  List<WidgetLayout> _minimalLayout() => _coreWidgets()
+      .where((w) => w.height.index <= WidgetHeight.medium.index)
+      .take(5)
+      .toList();
 
-  Widget _buildMobileLayout() {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: const Text("Wrixl Dashboard"),
-        elevation: 0,
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final layout = LayoutHelper.fromDimensions(constraints.maxWidth, constraints.maxHeight);
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: LayoutHelper.fixedOuterScreenMargin, vertical: 24),
-            child: Column(
-              children: [
-                ...[
-                  "Portfolio Snapshot",
-                  "Smart Money Drift",
-                  "Performance Benchmarks",
-                  "Next Best Action",
-                  "AI Quick Tip",
-                  "Model Portfolios",
-                  "Token Allocation",
-                  "Stress Radar",
-                  "Live Ticker",
-                  "Alerts",
-                  "Wrixler Rank",
-                  "Missed Opportunities",
-                  "Streak Tracker",
-                ].map((title) => Padding(
-                      padding: EdgeInsets.only(bottom: layout.verticalRowSpacing),
-                      child: WrixlCard(
-                        width: layout.oneColumnWidth,
-                        height: layout.mediumHeight,
-                        openOnTap: true,
-                        modalSize: ModalSize.medium,
-                        modalTitle: title,
-                        child: Text("$title Placeholder"),
-                      ),
-                    ))
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
+  List<WidgetLayout> _coreWidgets() => [
+        WidgetLayout(
+            id: "Portfolio Snapshot",
+            visible: true,
+            row: 0,
+            colStart: 0,
+            width: WidgetWidth.twoColumn,
+            height: WidgetHeight.tall,
+            modalSize: ModalSize.large,
+            openOnTap: true),
+        WidgetLayout(
+            id: "Smart Money Drift",
+            visible: true,
+            row: 0,
+            colStart: 2,
+            width: WidgetWidth.oneColumn,
+            height: WidgetHeight.medium,
+            openOnTap: true),
+        WidgetLayout(
+            id: "AI Quick Tip",
+            visible: true,
+            row: 1,
+            colStart: 2,
+            width: WidgetWidth.oneColumn,
+            height: WidgetHeight.medium,
+            openOnTap: true),
+        WidgetLayout(
+            id: "Token Allocation",
+            visible: true,
+            row: 2,
+            colStart: 0,
+            width: WidgetWidth.twoColumn,
+            height: WidgetHeight.moderate,
+            modalSize: ModalSize.large,
+            openOnTap: true),
+        WidgetLayout(
+            id: "Stress Radar",
+            visible: true,
+            row: 2,
+            colStart: 2,
+            width: WidgetWidth.oneColumn,
+            height: WidgetHeight.moderate),
+        WidgetLayout(
+            id: "Live Ticker",
+            visible: true,
+            row: 3,
+            colStart: 0,
+            width: WidgetWidth.threeColumn,
+            height: WidgetHeight.short),
+        WidgetLayout(
+            id: "Model Portfolios",
+            visible: true,
+            row: 4,
+            colStart: 0,
+            width: WidgetWidth.twoColumn,
+            height: WidgetHeight.medium,
+            modalSize: ModalSize.large),
+        WidgetLayout(
+            id: "Performance Benchmarks",
+            visible: true,
+            row: 4,
+            colStart: 2,
+            width: WidgetWidth.oneColumn,
+            height: WidgetHeight.medium),
+        WidgetLayout(
+            id: "Alerts",
+            visible: true,
+            row: 5,
+            colStart: 0,
+            width: WidgetWidth.onePointFiveColumn,
+            height: WidgetHeight.medium),
+        WidgetLayout(
+            id: "Next Best Action",
+            visible: true,
+            row: 5,
+            colStart: 1,
+            width: WidgetWidth.onePointFiveColumn,
+            height: WidgetHeight.medium),
+        WidgetLayout(
+            id: "Wrixler Rank",
+            visible: true,
+            row: 6,
+            colStart: 0,
+            width: WidgetWidth.threeColumn,
+            height: WidgetHeight.short),
+        WidgetLayout(
+            id: "Streak Tracker",
+            visible: true,
+            row: 7,
+            colStart: 0,
+            width: WidgetWidth.onePointFiveColumn,
+            height: WidgetHeight.medium),
+        WidgetLayout(
+            id: "Missed Opportunities",
+            visible: true,
+            row: 7,
+            colStart: 1,
+            width: WidgetWidth.onePointFiveColumn,
+            height: WidgetHeight.medium),
+      ];
 }

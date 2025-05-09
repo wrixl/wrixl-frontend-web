@@ -26,8 +26,8 @@ class LayoutHelper {
   final double screenHeight;
 
   static const double fixedOuterScreenMargin = 16.0;
-  static const double collapsedSidebarWidth  = 60.0;
-  static const double expandedSidebarWidth   = 220.0;
+  static const double collapsedSidebarWidth = 60.0;
+  static const double expandedSidebarWidth = 220.0;
 
   late final double outerScreenMargin;
   late final double cardGutter;
@@ -59,42 +59,43 @@ class LayoutHelper {
     final bool isTabletNarrow = isTablet && screenWidth == 1024;
     final double tabletWidthBuffer = isTabletNarrow ? 32.0 : 0.0;
 
-    final baseWidth = screenWidth
-        - (2 * outerScreenMargin)
-        - tabletWidthBuffer;
-    final baseUnit  = baseWidth / 12;
+    final baseWidth = screenWidth - (2 * outerScreenMargin) - tabletWidthBuffer;
+    final baseUnit = baseWidth / 12;
 
-    cardGutter          = baseUnit * 0.2;
-    verticalRowSpacing  = baseUnit * 0.2;
+    cardGutter = baseUnit * 0.2;
+    verticalRowSpacing = baseUnit * 0.2;
     internalCardPadding = baseUnit * 0.5;
-    cardCornerRadius    = baseUnit * 0.15;
-    cardElevation       = baseUnit / 10;
+    cardCornerRadius = baseUnit * 0.15;
+    cardElevation = baseUnit / 10;
 
     if (isMobile) {
       // single‑column
-      oneColumnWidth   = baseWidth;
-      twoColumnWidth   = baseWidth;
+      oneColumnWidth = baseWidth;
+      twoColumnWidth = baseWidth;
       threeColumnWidth = baseWidth;
-      halfColumnWidth  = (baseWidth - cardGutter) / 2;
+      halfColumnWidth = (baseWidth - cardGutter) / 2;
     } else if (isTablet) {
       // two‑column max
-      oneColumnWidth   = (baseWidth - cardGutter) / 2;
-      twoColumnWidth   = baseWidth;
+      oneColumnWidth = (baseWidth - cardGutter) / 2;
+      twoColumnWidth = baseWidth;
       threeColumnWidth = baseWidth;
-      halfColumnWidth  = (baseWidth - cardGutter) / 2;
+      halfColumnWidth = (baseWidth - cardGutter) / 2;
     } else {
       // full desktop grid
-      oneColumnWidth   = (baseWidth - cardGutter) / 3;
-      twoColumnWidth   = (baseWidth - cardGutter) * 2 / 3;
-      halfColumnWidth  = (baseWidth - cardGutter) / 2;
+      oneColumnWidth = (baseWidth - cardGutter) / 3;
+      twoColumnWidth = (baseWidth - cardGutter) * 2 / 3;
+      halfColumnWidth = (baseWidth - cardGutter) / 2;
       threeColumnWidth = baseWidth;
     }
 
-    shortHeight    = screenHeight * 0.16;
-    mediumHeight   = (shortHeight * 2) + verticalRowSpacing;
+    shortHeight = screenHeight * 0.16;
+    mediumHeight = shortHeight * 2;
+//    tallHeight = mediumHeight * 2 + (2 * verticalRowSpacing);
+    tallHeight = mediumHeight * 2 + verticalRowSpacing;
     moderateHeight = shortHeight + mediumHeight + verticalRowSpacing;
-    tallHeight     = (mediumHeight * 2) + verticalRowSpacing;
   }
+
+  double get halfTallHeight => tallHeight / 2;
 
   static LayoutHelper of(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -102,8 +103,8 @@ class LayoutHelper {
   }
 
   factory LayoutHelper.fromDimensions(double width, double height) {
-    final isMobile  = width < 600;
-    final isTablet  = width >= 600 && width <= 1024;
+    final isMobile = width < 600;
+    final isTablet = width >= 600 && width <= 1024;
     final isDesktop = width > 1024;
 
     return LayoutHelper._withLayoutMode(

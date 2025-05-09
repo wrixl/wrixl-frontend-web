@@ -75,7 +75,8 @@ class _MarketWeatherState extends State<MarketWeather> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Donut Details", style: Theme.of(context).textTheme.titleLarge),
+            Text("Donut Details",
+                style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             const Text("Enter your note regarding market weather:"),
             const SizedBox(height: 8),
@@ -105,7 +106,8 @@ class _MarketWeatherState extends State<MarketWeather> {
     // When a section is touched, enlarge that section slightly.
     return List.generate(4, (i) {
       final isTouched = i == touchedIndex;
-      final double outerRadius = isTouched ? outerRadiusNormal + 10 : outerRadiusNormal;
+      final double outerRadius =
+          isTouched ? outerRadiusNormal + 10 : outerRadiusNormal;
       Color sectionColor;
       switch (i) {
         case 0:
@@ -213,7 +215,8 @@ class _MarketWeatherState extends State<MarketWeather> {
                           PieChartData(
                             pieTouchData: PieTouchData(
                               enabled: true,
-                              touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                              touchCallback:
+                                  (FlTouchEvent event, pieTouchResponse) {
                                 setState(() {
                                   if (!event.isInterestedForInteractions ||
                                       pieTouchResponse == null ||
@@ -221,7 +224,8 @@ class _MarketWeatherState extends State<MarketWeather> {
                                     touchedIndex = -1;
                                     return;
                                   }
-                                  touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                                  touchedIndex = pieTouchResponse
+                                      .touchedSection!.touchedSectionIndex;
                                 });
                               },
                             ),
@@ -236,14 +240,15 @@ class _MarketWeatherState extends State<MarketWeather> {
                       Icon(
                         _getWeatherIcon(),
                         size: 72,
-                        color: Theme.of(context).colorScheme.secondary, // Uses AppConstants.neonGreen
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary, // Uses AppConstants.neonGreen
                       ),
                     ],
                   ),
                 ),
               ),
             ),
-
 
             /// Forecast text along the bottom.
             Center(

@@ -47,7 +47,8 @@ class MirrorStrategyBuilder extends StatelessWidget {
                   labelText: "Wallet Strategy",
                   labelStyle: Theme.of(context).textTheme.bodyMedium,
                   suffixIcon: Tooltip(
-                    message: "Choose a trading style (e.g., conservative or aggressive)",
+                    message:
+                        "Choose a trading style (e.g., conservative or aggressive)",
                     child: const Icon(Icons.info_outline, size: 18),
                   ),
                   border: OutlineInputBorder(

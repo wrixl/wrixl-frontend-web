@@ -34,28 +34,29 @@ class DashboardOverview extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: _buildCard(context, smallCardHeight, child: const PortfolioPulse()),
+                  child: _buildCard(context, smallCardHeight,
+                      child: const PortfolioPulse()),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: _buildCard(context, smallCardHeight, child: const SmartMoneyDrift()),
+                  child: _buildCard(context, smallCardHeight,
+                      child: const SmartMoneyDrift()),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: _buildCard(context, smallCardHeight, child: const MarketWeather()),
+                  child: _buildCard(context, smallCardHeight,
+                      child: const MarketWeather()),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-
-            _buildCard(context, wideCardHeight, rounded: true, child: const PerformanceOverTimeChart()),
+            _buildCard(context, wideCardHeight,
+                rounded: true, child: const PerformanceOverTimeChart()),
             const SizedBox(height: 16),
-
             _buildFullWidthCard(context, child: const SignalFeed()),
           ],
         ),

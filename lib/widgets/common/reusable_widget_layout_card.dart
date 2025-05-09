@@ -4,30 +4,86 @@ import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/theme/layout_theme_extension.dart';
 import 'package:wrixl_frontend/utils/layout_constants.dart';
 import 'package:wrixl_frontend/widgets/common/reusable_card_modal.dart';
+import 'package:wrixl_frontend/widgets/common/card_edit_overlay.dart';
+
+enum WidgetWidth { oneColumn, onePointFiveColumn, twoColumn, threeColumn }
+
+class WidgetLayout {
+  final String id;
+  bool visible;
+  int row;
+  int colStart;
+  WidgetWidth width;
+  WidgetHeight height;
+  ModalSize modalSize;
+  bool openOnTap;
+
+  WidgetLayout({
+    required this.id,
+    required this.visible,
+    required this.row,
+    required this.colStart,
+    required this.width,
+    required this.height,
+    this.modalSize = ModalSize.medium,
+    this.openOnTap = false,
+  });
+
+  factory WidgetLayout.fromJson(Map<String, dynamic> json) {
+    return WidgetLayout(
+      id: json['id'],
+      visible: json['visible'],
+      row: json['row'],
+      colStart: json['colStart'],
+      width: WidgetWidth.values.firstWhere((e) => e.name == json['width']),
+      height: WidgetHeight.values.firstWhere((e) => e.name == json['height']),
+      modalSize:
+          ModalSize.values.firstWhere((e) => e.name == json['modalSize']),
+      openOnTap: json['openOnTap'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'visible': visible,
+      'row': row,
+      'colStart': colStart,
+      'width': width.name,
+      'height': height.name,
+      'modalSize': modalSize.name,
+      'openOnTap': openOnTap,
+    };
+  }
+}
 
 class WrixlCard extends StatefulWidget {
+  final WidgetLayout layout;
+  final LayoutHelper layoutHelper;
   final Widget child;
-  final double? width;
-  final double? height;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
   final bool centerContent;
   final bool stacked;
-  final bool openOnTap;
-  final ModalSize modalSize;
   final String? modalTitle;
+  final bool isEditMode;
+  final void Function(WidgetLayout) onLayoutChanged;
+  final bool isHidden;
+  final VoidCallback? onToggleVisibility;
 
   const WrixlCard({
     Key? key,
+    required this.layout,
+    required this.layoutHelper,
     required this.child,
-    this.width,
-    this.height,
+    required this.isEditMode,
+    required this.onLayoutChanged,
+    required this.isHidden,
+    this.onToggleVisibility,
     this.padding,
     this.margin,
     this.centerContent = false,
     this.stacked = false,
-    this.openOnTap = false,
-    this.modalSize = ModalSize.medium,
     this.modalTitle,
   }) : super(key: key);
 
@@ -42,12 +98,50 @@ class _WrixlCardState extends State<WrixlCard> {
     showDialog(
       context: context,
       builder: (_) => WrixlModal(
-        size: widget.modalSize,
-        title: widget.modalTitle ?? "Details",
+        size: widget.layout.modalSize,
+        title: widget.modalTitle ?? widget.layout.id,
         child: widget.child,
         onClose: () => Navigator.of(context).pop(),
       ),
     );
+  }
+
+  double getCardWidth() {
+    switch (widget.layout.width) {
+      case WidgetWidth.oneColumn:
+        return widget.layoutHelper.oneColumnWidth;
+      case WidgetWidth.onePointFiveColumn:
+        return widget.layoutHelper.halfColumnWidth;
+      case WidgetWidth.twoColumn:
+        return widget.layoutHelper.twoColumnWidth;
+      case WidgetWidth.threeColumn:
+        return widget.layoutHelper.threeColumnWidth;
+    }
+  }
+
+  double getCardHeight() {
+    switch (widget.layout.height) {
+      case WidgetHeight.short:
+        return widget.layoutHelper.shortHeight;
+      case WidgetHeight.medium:
+        return widget.layoutHelper.mediumHeight;
+      case WidgetHeight.moderate:
+        return widget.layoutHelper.moderateHeight;
+      case WidgetHeight.tall:
+        return widget.layoutHelper.tallHeight;
+    }
+  }
+
+  void _resizeWidth() {
+    final next = WidgetWidth
+        .values[(widget.layout.width.index + 1) % WidgetWidth.values.length];
+    widget.onLayoutChanged(widget.layout..width = next);
+  }
+
+  void _resizeHeight() {
+    final next = WidgetHeight
+        .values[(widget.layout.height.index + 1) % WidgetHeight.values.length];
+    widget.onLayoutChanged(widget.layout..height = next);
   }
 
   @override
@@ -57,44 +151,119 @@ class _WrixlCardState extends State<WrixlCard> {
 
     final card = AnimatedContainer(
       duration: const Duration(milliseconds: 150),
-      width: widget.width,
-      height: widget.height,
+      width: getCardWidth(),
+      height: getCardHeight(),
       margin: widget.margin ??
           (widget.stacked
               ? EdgeInsets.zero
               : EdgeInsets.only(bottom: layout.verticalRowSpacing)),
-      padding: widget.padding ?? EdgeInsets.all(layout.internalCardPadding),
+      padding: EdgeInsets.zero,
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: widget.isHidden
+            ? colorScheme.surface.withOpacity(0.5)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(layout.cardCornerRadius),
         border: Border.all(
-          color: _isHovered
-              ? colorScheme.primary
-              : colorScheme.secondary.withOpacity(0.6),
-          width: _isHovered ? 2.0 : 1.5,
+          color: widget.isHidden
+              ? Colors.grey
+              : (_isHovered
+                  ? colorScheme.primary
+                  : colorScheme.secondary.withOpacity(0.6)),
+          width: widget.isHidden ? 1.0 : (_isHovered ? 2.0 : 1.5),
         ),
         boxShadow: [
           BoxShadow(
-            color: _isHovered
-                ? colorScheme.primary.withOpacity(0.25)
-                : Colors.black.withOpacity(0.05),
-            blurRadius: _isHovered ? 20 : layout.cardElevation,
-            spreadRadius: _isHovered ? 3 : 1,
+            color: widget.isHidden
+                ? Colors.grey.withOpacity(0.1)
+                : (_isHovered
+                    ? colorScheme.primary.withOpacity(0.25)
+                    : Colors.black.withOpacity(0.05)),
+            blurRadius:
+                widget.isHidden ? 6 : (_isHovered ? 20 : layout.cardElevation),
+            spreadRadius: widget.isHidden ? 0 : (_isHovered ? 3 : 1),
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: widget.centerContent ? Center(child: widget.child) : widget.child,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned.fill(
+            child: Padding(
+              padding:
+                  widget.padding ?? EdgeInsets.all(layout.internalCardPadding),
+              child: widget.centerContent
+                  ? Center(child: widget.child)
+                  : widget.child,
+            ),
+          ),
+
+          // 🔥 TOP LEFT: Always-visible ID label
+          Positioned(
+            top: 4,
+            left: 8,
+            child: Text(
+              widget.layout.id,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.75),
+              ),
+            ),
+          ),
+
+          if (widget.isHidden && widget.isEditMode) ...[
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(layout.cardCornerRadius),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Center(
+                  child: Transform.rotate(
+                    angle: -0.7,
+                    child: Text(
+                      'HIDDEN',
+                      style: TextStyle(
+                        color: Colors.grey.withOpacity(0.3),
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 4,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+
+          // 🔥 TOP RIGHT: Edit buttons
+          if (widget.isEditMode)
+            Positioned(
+              top: 4,
+              right: 4,
+              child: CardEditOverlay(
+                isEditMode: widget.isEditMode,
+                isHidden: widget.isHidden,
+                onResizeWidth: _resizeWidth,
+                onResizeHeight: _resizeHeight,
+                onToggleVisibility: widget.onToggleVisibility,
+                visible: widget.layout.visible,
+              ),
+            ),
+        ],
+      ),
     );
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      child: widget.openOnTap
-          ? GestureDetector(
-              onTap: () => _openModal(context),
-              child: card,
-            )
+      child: widget.layout.openOnTap && !widget.isEditMode
+          ? GestureDetector(onTap: () => _openModal(context), child: card)
           : card,
     );
   }

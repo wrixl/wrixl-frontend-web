@@ -13,7 +13,8 @@ class LayoutProvider extends InheritedWidget {
   }) : super(key: key, child: child);
 
   static LayoutHelper of(BuildContext context) {
-    final provider = context.dependOnInheritedWidgetOfExactType<LayoutProvider>();
+    final provider =
+        context.dependOnInheritedWidgetOfExactType<LayoutProvider>();
     if (provider != null) return provider.layout;
 
     // Fallback for dialogs and modals not wrapped in provider
@@ -24,6 +25,6 @@ class LayoutProvider extends InheritedWidget {
   @override
   bool updateShouldNotify(LayoutProvider oldWidget) {
     return layout.screenWidth != oldWidget.layout.screenWidth ||
-           layout.screenHeight != oldWidget.layout.screenHeight;
+        layout.screenHeight != oldWidget.layout.screenHeight;
   }
 }

@@ -1,4 +1,4 @@
- // lib\models\portfolio_model.dart
+// lib\models\portfolio_model.dart
 
 class Portfolio {
   final int id;

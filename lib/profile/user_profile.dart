@@ -29,14 +29,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   bool _notificationsEnabled = true;
 
-
   @override
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Profile', style: Theme.of(context).textTheme.titleLarge),
+        title:
+            Text('My Profile', style: Theme.of(context).textTheme.titleLarge),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -50,7 +50,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   children: [
                     CircleAvatar(
                       radius: 60,
-                      backgroundColor: AppConstants.secondaryTextColor.withOpacity(0.3),
+                      backgroundColor:
+                          AppConstants.secondaryTextColor.withOpacity(0.3),
                       backgroundImage: _avatarUrl != null
                           ? NetworkImage(_avatarUrl!)
                           : const AssetImage('assets/images/default_avatar.png')
@@ -67,7 +68,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           },
                           child: const Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Icon(Icons.camera_alt, size: 20, color: Colors.black),
+                            child: Icon(Icons.camera_alt,
+                                size: 20, color: Colors.black),
                           ),
                         ),
                       ),
@@ -76,7 +78,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-
               TextFormField(
                 initialValue: _displayName,
                 style: Theme.of(context).textTheme.bodyLarge,
@@ -84,12 +85,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   labelText: 'Display Name',
                   prefixIcon: Icon(Icons.person),
                 ),
-                validator: (value) =>
-                    (value == null || value.isEmpty) ? 'Please enter your name' : null,
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Please enter your name'
+                    : null,
                 onSaved: (value) => _displayName = value!.trim(),
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 initialValue: _email,
                 style: Theme.of(context).textTheme.bodyLarge,
@@ -98,7 +99,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   prefixIcon: Icon(Icons.email),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Please enter your email';
+                  if (value == null || value.isEmpty)
+                    return 'Please enter your email';
                   final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
                   return emailRegex.hasMatch(value)
                       ? null
@@ -107,7 +109,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 onSaved: (value) => _email = value!.trim(),
               ),
               const SizedBox(height: 24),
-
               SwitchListTile(
                 title: const Text('Enable Notifications'),
                 secondary: const Icon(Icons.notifications),
@@ -124,8 +125,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   setState(() {}); // if you have local UI dependent on this
                 },
               ),
-
-
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -135,11 +134,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   onPressed: _onSave,
                 ),
               ),
-
               const SizedBox(height: 32),
               Divider(color: AppConstants.accentColor.withOpacity(0.3)),
               const SizedBox(height: 16),
-
               Wrap(
                 spacing: 16,
                 runSpacing: 16,
@@ -150,7 +147,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     label: 'Telegram Alerts',
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const TelegramSetupScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const TelegramSetupScreen()),
                     ),
                   ),
                   _buildProfileAction(
@@ -158,7 +156,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     label: 'Subscription',
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const SubscriptionPage()),
+                      MaterialPageRoute(
+                          builder: (_) => const SubscriptionPage()),
                     ),
                   ),
                   _buildProfileAction(

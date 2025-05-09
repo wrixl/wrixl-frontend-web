@@ -1,4 +1,4 @@
-// lib\screens\payment\subscription_banner.dart 
+// lib\screens\payment\subscription_banner.dart
 
 import 'package:flutter/material.dart';
 import 'subscription_page.dart';

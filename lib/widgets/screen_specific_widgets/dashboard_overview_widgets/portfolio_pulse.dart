@@ -13,22 +13,75 @@ class PortfolioPulse extends StatefulWidget {
 }
 
 class _PortfolioPulseState extends State<PortfolioPulse> {
-  /// Time frame states: 
+  /// Time frame states:
   /// 0 = This week, 1 = 1 month, 2 = 3 months.
   int selectedTimeFrame = 0;
-  
+
   /// Hardcoded performer names (for demo purposes)
   final Map<int, String> topPerformers = {0: "ETH", 1: "LTC", 2: "BTC"};
   final Map<int, String> worstPerformers = {0: "XRP", 1: "ADA", 2: "DOGE"};
 
   /// Hardcoded percentage change for best/worst performers.
-  final Map<int, String> topPerformerChange = {0: "+5.0%", 1: "+7.2%", 2: "+4.3%"};
-  final Map<int, String> worstPerformerChange = {0: "-3.5%", 1: "-2.8%", 2: "-3.2%"};
+  final Map<int, String> topPerformerChange = {
+    0: "+5.0%",
+    1: "+7.2%",
+    2: "+4.3%"
+  };
+  final Map<int, String> worstPerformerChange = {
+    0: "-3.5%",
+    1: "-2.8%",
+    2: "-3.2%"
+  };
 
   /// 14-point data arrays for each time frame (values are assumed to be % profit/loss)
-  final List<double> weeklyPnL = [20, -22, 14, -12, -19, 28, 1, 11, 5, -10, 15, -4, 8, 0];
-  final List<double> monthlyPnL = [10, 12, 15, -18, -20, 19, -22, -24, -23, 25, 27, 30, 14, -5];
-  final List<double> threeMonthPnL = [5, -3, 10, -7, 2, 0, -1, 8, -4, 6, 11, -2, 3, -9];
+  final List<double> weeklyPnL = [
+    20,
+    -22,
+    14,
+    -12,
+    -19,
+    28,
+    1,
+    11,
+    5,
+    -10,
+    15,
+    -4,
+    8,
+    0
+  ];
+  final List<double> monthlyPnL = [
+    10,
+    12,
+    15,
+    -18,
+    -20,
+    19,
+    -22,
+    -24,
+    -23,
+    25,
+    27,
+    30,
+    14,
+    -5
+  ];
+  final List<double> threeMonthPnL = [
+    5,
+    -3,
+    10,
+    -7,
+    2,
+    0,
+    -1,
+    8,
+    -4,
+    6,
+    11,
+    -2,
+    3,
+    -9
+  ];
 
   /// Selects the appropriate data based on the time frame.
   List<double> get currentData {
@@ -147,7 +200,8 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
     final double yMax = data.reduce(max);
     const tolerance = 0.01;
     if ((value - yMin).abs() < tolerance || (value - yMax).abs() < tolerance) {
-      return Text("${value.toStringAsFixed(0)}%", style: const TextStyle(fontSize: 10));
+      return Text("${value.toStringAsFixed(0)}%",
+          style: const TextStyle(fontSize: 10));
     } else {
       return Container();
     }
@@ -158,7 +212,7 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
     final data = currentData;
     final double yMin = data.reduce(min);
     final double yMax = data.reduce(max);
-    
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -189,7 +243,7 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
               ],
             ),
             const SizedBox(height: 8),
-            
+
             /// Row for Time Frame Toggle and Overall Percentage Change Display.
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -206,7 +260,9 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: percentageChange.startsWith("+") ? Colors.green : Colors.red,
+                    color: percentageChange.startsWith("+")
+                        ? Colors.green
+                        : Colors.red,
                   ),
                 ),
               ],
@@ -228,7 +284,8 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
                       borderData: FlBorderData(show: false),
                       gridData: FlGridData(show: false),
                       titlesData: FlTitlesData(
-                        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
@@ -236,7 +293,8 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
                             getTitlesWidget: _leftTitleWidgets,
                           ),
                         ),
-                        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,

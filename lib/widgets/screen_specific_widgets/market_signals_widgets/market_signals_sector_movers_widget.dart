@@ -14,8 +14,8 @@ class SectorMover {
   final double txVolume;
   final double marketCapDelta;
   final List<double> sparklineData;
-  final int tokensCount;    // Number of tokens in the sector.
-  final double marketCap;   // Market Cap (in millions).
+  final int tokensCount; // Number of tokens in the sector.
+  final double marketCap; // Market Cap (in millions).
 
   SectorMover({
     required this.sectorName,
@@ -33,13 +33,16 @@ class SectorMover {
 class MarketSignalsSectorMoversWidget extends StatefulWidget {
   final List<SectorMover> movers;
 
-  const MarketSignalsSectorMoversWidget({Key? key, required this.movers}) : super(key: key);
+  const MarketSignalsSectorMoversWidget({Key? key, required this.movers})
+      : super(key: key);
 
   @override
-  State<MarketSignalsSectorMoversWidget> createState() => _MarketSignalsSectorMoversWidgetState();
+  State<MarketSignalsSectorMoversWidget> createState() =>
+      _MarketSignalsSectorMoversWidgetState();
 }
 
-class _MarketSignalsSectorMoversWidgetState extends State<MarketSignalsSectorMoversWidget> {
+class _MarketSignalsSectorMoversWidgetState
+    extends State<MarketSignalsSectorMoversWidget> {
   // Toggle group 1: "Top Movers" vs "My Exposure"
   String selectedFilter = 'Top Movers';
   final List<String> filters = ['Top Movers', 'My Exposure'];
@@ -65,20 +68,22 @@ class _MarketSignalsSectorMoversWidgetState extends State<MarketSignalsSectorMov
 
   double getMetricValue(SectorMover mover, String metric) {
     switch (metric) {
-      case 'Wallet Growth': return mover.walletGrowth;
-      case 'TX Volume':     return mover.txVolume;
-      case 'Market Cap Delta': return mover.marketCapDelta;
-      default:               return mover.devActivity;
+      case 'Wallet Growth':
+        return mover.walletGrowth;
+      case 'TX Volume':
+        return mover.txVolume;
+      case 'Market Cap Delta':
+        return mover.marketCapDelta;
+      default:
+        return mover.devActivity;
     }
   }
 
   List<SectorMover> get filteredMovers {
     final all = List<SectorMover>.from(widget.movers);
     if (selectedFilter == 'Top Movers') {
-      all.sort((a, b) =>
-        getMetricValue(b, selectedMetric)
-          .compareTo(getMetricValue(a, selectedMetric))
-      );
+      all.sort((a, b) => getMetricValue(b, selectedMetric)
+          .compareTo(getMetricValue(a, selectedMetric)));
       return all.take(3).toList();
     }
     return all;
@@ -118,12 +123,12 @@ class _MarketSignalsSectorMoversWidgetState extends State<MarketSignalsSectorMov
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor    = theme.colorScheme.primary;
-    final surfaceColor    = theme.colorScheme.surface;
-    final onSurfaceColor  = theme.colorScheme.onSurface;
-    final positiveColor   = theme.colorScheme.secondary;
-    final negativeColor   = theme.colorScheme.error;
-    final neutralColor    = onSurfaceColor.withOpacity(0.6);
+    final primaryColor = theme.colorScheme.primary;
+    final surfaceColor = theme.colorScheme.surface;
+    final onSurfaceColor = theme.colorScheme.onSurface;
+    final positiveColor = theme.colorScheme.secondary;
+    final negativeColor = theme.colorScheme.error;
+    final neutralColor = onSurfaceColor.withOpacity(0.6);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -186,19 +191,19 @@ class _MarketSignalsSectorMoversWidgetState extends State<MarketSignalsSectorMov
               child: Row(
                 children: filteredMovers.map((mover) {
                   final value = getMetricValue(mover, selectedMetric);
-                  final icon  = value > 0
-                    ? Icons.arrow_upward
-                    : value < 0
-                      ? Icons.arrow_downward
-                      : Icons.remove;
+                  final icon = value > 0
+                      ? Icons.arrow_upward
+                      : value < 0
+                          ? Icons.arrow_downward
+                          : Icons.remove;
                   final trend = Icon(
                     icon,
                     size: 16,
                     color: value > 0
-                      ? positiveColor
-                      : value < 0
-                        ? negativeColor
-                        : neutralColor,
+                        ? positiveColor
+                        : value < 0
+                            ? negativeColor
+                            : neutralColor,
                   );
                   return Padding(
                     padding: const EdgeInsets.only(right: 40),
@@ -222,7 +227,8 @@ class _MarketSignalsSectorMoversWidgetState extends State<MarketSignalsSectorMov
     final theme = Theme.of(context);
     final topTokens = List<String>.generate(5, (i) => "Token ${i + 1}");
     final bottomTokens = mover.tokensCount >= 10
-        ? List<String>.generate(5, (i) => "Token ${mover.tokensCount - 5 + i + 1}")
+        ? List<String>.generate(
+            5, (i) => "Token ${mover.tokensCount - 5 + i + 1}")
         : <String>[];
 
     showDialog(
@@ -248,14 +254,16 @@ class _MarketSignalsSectorMoversWidgetState extends State<MarketSignalsSectorMov
                 Text("Top 5 Tokens:", style: theme.textTheme.bodyMedium),
                 Text(
                   topTokens.join(', '),
-                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
                 if (bottomTokens.isNotEmpty) ...[
                   Text("Bottom 5 Tokens:", style: theme.textTheme.bodyMedium),
                   Text(
                     bottomTokens.join(', '),
-                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ],
               ],
@@ -308,18 +316,18 @@ class _SectorMoverCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme            = Theme.of(context);
-    final primaryColor    = theme.colorScheme.primary;
-    final surfaceColor    = theme.colorScheme.surface;
-    final onSurfaceColor  = theme.colorScheme.onSurface;
-    final positiveColor   = theme.colorScheme.secondary;
-    final negativeColor   = theme.colorScheme.error;
-    final neutralColor    = onSurfaceColor.withOpacity(0.6);
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+    final surfaceColor = theme.colorScheme.surface;
+    final onSurfaceColor = theme.colorScheme.onSurface;
+    final positiveColor = theme.colorScheme.secondary;
+    final negativeColor = theme.colorScheme.error;
+    final neutralColor = onSurfaceColor.withOpacity(0.6);
 
     return InkWell(
       onTap: () {
-        (context
-            .findAncestorStateOfType<_MarketSignalsSectorMoversWidgetState>())
+        (context.findAncestorStateOfType<
+                _MarketSignalsSectorMoversWidgetState>())
             ?._showDetailsDialog(mover);
       },
       child: Container(

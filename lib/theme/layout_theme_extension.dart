@@ -14,7 +14,8 @@ class LayoutThemeExtension extends ThemeExtension<LayoutThemeExtension> {
   }
 
   @override
-  LayoutThemeExtension lerp(ThemeExtension<LayoutThemeExtension>? other, double t) {
+  LayoutThemeExtension lerp(
+      ThemeExtension<LayoutThemeExtension>? other, double t) {
     if (other is! LayoutThemeExtension) {
       return this;
     }

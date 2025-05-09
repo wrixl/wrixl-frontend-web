@@ -1,4 +1,4 @@
- // lib\screens\alerts\telegram_setup_screen.dart
+// lib\screens\alerts\telegram_setup_screen.dart
 
 import 'package:flutter/material.dart';
 import '../../utils/constants.dart';
@@ -44,7 +44,8 @@ class _TelegramSetupScreenState extends State<TelegramSetupScreen> {
         backgroundColor: AppConstants.primaryColor,
         title: const Text(
           'Telegram Setup',
-          style: TextStyle(fontFamily: 'Rajdhani', color: AppConstants.textColor),
+          style:
+              TextStyle(fontFamily: 'Rajdhani', color: AppConstants.textColor),
         ),
       ),
       body: Padding(
@@ -62,7 +63,8 @@ class _TelegramSetupScreenState extends State<TelegramSetupScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: AppConstants.accentColor, width: 2),
+                  borderSide: const BorderSide(
+                      color: AppConstants.accentColor, width: 2),
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -87,4 +89,3 @@ class _TelegramSetupScreenState extends State<TelegramSetupScreen> {
     );
   }
 }
-

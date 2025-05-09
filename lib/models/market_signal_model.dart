@@ -1,4 +1,4 @@
-// lib\models\market_signal_model.dart 
+// lib\models\market_signal_model.dart
 
 class MarketSignal {
   final int id;

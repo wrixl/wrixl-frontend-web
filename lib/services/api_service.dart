@@ -1,4 +1,4 @@
- // lib\services\api_service.dart
+// lib\services\api_service.dart
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -14,7 +14,8 @@ class ApiService {
     return _handleResponse(response);
   }
 
-  Future<dynamic> post(String endpoint, dynamic body, {Map<String, String>? headers}) async {
+  Future<dynamic> post(String endpoint, dynamic body,
+      {Map<String, String>? headers}) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final response = await http.post(
       url,
@@ -33,7 +34,8 @@ class ApiService {
         return {};
       }
     } else {
-      throw Exception('API call failed (Status: $statusCode): ${response.body}');
+      throw Exception(
+          'API call failed (Status: $statusCode): ${response.body}');
     }
   }
 }

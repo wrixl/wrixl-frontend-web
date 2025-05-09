@@ -1,5 +1,5 @@
- // lib\screens\dashboard\portfolios.dart
- 
+// lib\screens\dashboard\portfolios.dart
+
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/widgets/screen_specific_widgets/portfolios_widgets/portfolio_comparison_radar_widget.dart';
 import 'package:wrixl_frontend/widgets/screen_specific_widgets/portfolios_widgets/portfolio_sidebar_filters.dart';
@@ -14,7 +14,11 @@ class PortfoliosScreen extends StatefulWidget {
 }
 
 class _PortfoliosScreenState extends State<PortfoliosScreen> {
-  final List<String> riskTolerances = ["Conservative", "Balanced", "Aggressive"];
+  final List<String> riskTolerances = [
+    "Conservative",
+    "Balanced",
+    "Aggressive"
+  ];
   final List<String> timeframes = ["Short-Term", "Mid-Term", "Long-Term"];
   final List<String> themes = ["AI", "DeFi", "Meme", "NFTs", "Diversified"];
 
@@ -107,7 +111,9 @@ class _PortfoliosScreenState extends State<PortfoliosScreen> {
           e.value ? selectedRisks.add(e.key) : selectedRisks.remove(e.key);
         }),
         onTimeframeSelected: (e) => setState(() {
-          e.value ? selectedTimeframes.add(e.key) : selectedTimeframes.remove(e.key);
+          e.value
+              ? selectedTimeframes.add(e.key)
+              : selectedTimeframes.remove(e.key);
         }),
         onThemeSelected: (e) => setState(() {
           e.value ? selectedThemes.add(e.key) : selectedThemes.remove(e.key);
@@ -118,7 +124,8 @@ class _PortfoliosScreenState extends State<PortfoliosScreen> {
         hideVolatile: hideVolatile,
         onMinAIConfidenceChanged: (v) => setState(() => minAIConfidence = v),
         onMinSharpeRatioChanged: (v) => setState(() => minSharpeRatio = v),
-        onMinSmartMoneyOverlapChanged: (v) => setState(() => minSmartMoneyOverlap = v),
+        onMinSmartMoneyOverlapChanged: (v) =>
+            setState(() => minSmartMoneyOverlap = v),
         onHideVolatileChanged: (v) => setState(() => hideVolatile = v),
         showModelPortfolios: true,
         onToggle: (_) {},
@@ -137,7 +144,8 @@ class _PortfoliosScreenState extends State<PortfoliosScreen> {
               showRadarChart: true,
               toggleChart: () {},
               showOwnPortfolio: showOwnPortfolio,
-              onToggleOwn: () => setState(() => showOwnPortfolio = !showOwnPortfolio),
+              onToggleOwn: () =>
+                  setState(() => showOwnPortfolio = !showOwnPortfolio),
               onReset: () => setState(() => radarData.clear()),
             ),
           ),
@@ -170,7 +178,8 @@ class _PortfoliosScreenState extends State<PortfoliosScreen> {
                 // filters on left
                 SizedBox(width: 280, child: filtersCard),
                 // vertical divider
-                VerticalDivider(color: scheme.primary.withOpacity(0.3), width: 1),
+                VerticalDivider(
+                    color: scheme.primary.withOpacity(0.3), width: 1),
                 // main content
                 Expanded(child: contentColumn),
               ],

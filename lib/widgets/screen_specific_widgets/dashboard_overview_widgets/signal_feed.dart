@@ -11,15 +11,47 @@ class SignalFeed extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final feedItems = [
-      _SignalItem(category: "Top Wallet Move", message: "Whale X moved 2M USDC to DEX Y", sentiment: "Bullish", tags: ["Whale", "Movers", "Insight"]),
-      _SignalItem(category: "AI Rebalance", message: "Rotate 12% to LINK based on current trends", sentiment: "Neutral", tags: ["Smart News", "Sentiment"]),
-      _SignalItem(category: "Watchlist Mover", message: "BTC surged 5% in the last hour", sentiment: "Bullish", tags: ["Movers", "Trend"]),
-      _SignalItem(category: "Trend Insight", message: "XRP is trending in social media sentiment today", sentiment: "Bearish", tags: ["Sentiment", "News"]),
+      _SignalItem(
+          category: "Top Wallet Move",
+          message: "Whale X moved 2M USDC to DEX Y",
+          sentiment: "Bullish",
+          tags: ["Whale", "Movers", "Insight"]),
+      _SignalItem(
+          category: "AI Rebalance",
+          message: "Rotate 12% to LINK based on current trends",
+          sentiment: "Neutral",
+          tags: ["Smart News", "Sentiment"]),
+      _SignalItem(
+          category: "Watchlist Mover",
+          message: "BTC surged 5% in the last hour",
+          sentiment: "Bullish",
+          tags: ["Movers", "Trend"]),
+      _SignalItem(
+          category: "Trend Insight",
+          message: "XRP is trending in social media sentiment today",
+          sentiment: "Bearish",
+          tags: ["Sentiment", "News"]),
       // repeated for scrolling effect
-      _SignalItem(category: "Top Wallet Move", message: "Whale X moved 2M USDC to DEX Y", sentiment: "Bullish", tags: ["Whale", "Movers", "Insight"]),
-      _SignalItem(category: "AI Rebalance", message: "Rotate 12% to LINK based on current trends", sentiment: "Neutral", tags: ["Smart News", "Sentiment"]),
-      _SignalItem(category: "Watchlist Mover", message: "BTC surged 5% in the last hour", sentiment: "Bullish", tags: ["Movers", "Trend"]),
-      _SignalItem(category: "Trend Insight", message: "XRP is trending in social media sentiment today", sentiment: "Bearish", tags: ["Sentiment", "News"]),
+      _SignalItem(
+          category: "Top Wallet Move",
+          message: "Whale X moved 2M USDC to DEX Y",
+          sentiment: "Bullish",
+          tags: ["Whale", "Movers", "Insight"]),
+      _SignalItem(
+          category: "AI Rebalance",
+          message: "Rotate 12% to LINK based on current trends",
+          sentiment: "Neutral",
+          tags: ["Smart News", "Sentiment"]),
+      _SignalItem(
+          category: "Watchlist Mover",
+          message: "BTC surged 5% in the last hour",
+          sentiment: "Bullish",
+          tags: ["Movers", "Trend"]),
+      _SignalItem(
+          category: "Trend Insight",
+          message: "XRP is trending in social media sentiment today",
+          sentiment: "Bearish",
+          tags: ["Sentiment", "News"]),
     ];
 
     return Card(
@@ -63,7 +95,9 @@ class SignalFeed extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surface.withOpacity(0.9),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppConstants.accentColor.withOpacity(0.25)),
+                          border: Border.all(
+                              color:
+                                  AppConstants.accentColor.withOpacity(0.25)),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.1),
@@ -79,13 +113,15 @@ class SignalFeed extends StatelessWidget {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Icon(_getCategoryIcon(item.category), color: AppConstants.accentColor, size: 22),
+                                Icon(_getCategoryIcon(item.category),
+                                    color: AppConstants.accentColor, size: 22),
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
                                     item.category,
                                     style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: theme.colorScheme.onSurface.withOpacity(0.75),
+                                      color: theme.colorScheme.onSurface
+                                          .withOpacity(0.75),
                                       fontWeight: FontWeight.bold,
                                     ),
                                     overflow: TextOverflow.ellipsis,
@@ -93,10 +129,14 @@ class SignalFeed extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 6),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: _getSentimentColor(item.sentiment).withOpacity(0.15),
-                                    border: Border.all(color: _getSentimentColor(item.sentiment)),
+                                    color: _getSentimentColor(item.sentiment)
+                                        .withOpacity(0.15),
+                                    border: Border.all(
+                                        color:
+                                            _getSentimentColor(item.sentiment)),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Text(
@@ -113,7 +153,8 @@ class SignalFeed extends StatelessWidget {
                             const SizedBox(height: 12),
                             Text(
                               item.message,
-                              style: theme.textTheme.bodyLarge?.copyWith(fontSize: 17),
+                              style: theme.textTheme.bodyLarge
+                                  ?.copyWith(fontSize: 17),
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -124,7 +165,8 @@ class SignalFeed extends StatelessWidget {
                               children: item.tags.map((tag) {
                                 final tagColor = _getTagColor(context, tag);
                                 return Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
                                     color: tagColor.withOpacity(0.15),
                                     borderRadius: BorderRadius.circular(10),
@@ -171,7 +213,8 @@ class SignalFeed extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(_getCategoryIcon(item.category), size: 32, color: AppConstants.accentColor),
+              Icon(_getCategoryIcon(item.category),
+                  size: 32, color: AppConstants.accentColor),
               const SizedBox(height: 12),
               Text(
                 item.category,
@@ -194,14 +237,16 @@ class SignalFeed extends StatelessWidget {
                   return Chip(
                     label: Text(tag),
                     backgroundColor: tagColor.withOpacity(0.2),
-                    labelStyle: TextStyle(color: tagColor, fontWeight: FontWeight.bold),
+                    labelStyle:
+                        TextStyle(color: tagColor, fontWeight: FontWeight.bold),
                     shape: StadiumBorder(side: BorderSide(color: tagColor)),
                   );
                 }).toList(),
               ),
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: _getSentimentColor(item.sentiment).withOpacity(0.1),
                   border: Border.all(color: _getSentimentColor(item.sentiment)),
@@ -226,32 +271,48 @@ class SignalFeed extends StatelessWidget {
 
   IconData _getCategoryIcon(String category) {
     switch (category) {
-      case "Top Wallet Move": return Icons.account_balance_wallet;
-      case "AI Rebalance": return Icons.auto_awesome;
-      case "Watchlist Mover": return Icons.trending_up;
-      case "Trend Insight": return Icons.insights;
-      default: return Icons.signal_cellular_alt;
+      case "Top Wallet Move":
+        return Icons.account_balance_wallet;
+      case "AI Rebalance":
+        return Icons.auto_awesome;
+      case "Watchlist Mover":
+        return Icons.trending_up;
+      case "Trend Insight":
+        return Icons.insights;
+      default:
+        return Icons.signal_cellular_alt;
     }
   }
 
   Color _getSentimentColor(String sentiment) {
     switch (sentiment) {
-      case "Bullish": return Colors.greenAccent.shade400;
-      case "Bearish": return Colors.redAccent.shade200;
-      default: return Colors.amberAccent.shade200;
+      case "Bullish":
+        return Colors.greenAccent.shade400;
+      case "Bearish":
+        return Colors.redAccent.shade200;
+      default:
+        return Colors.amberAccent.shade200;
     }
   }
 
   Color _getTagColor(BuildContext context, String tag) {
     switch (tag) {
-      case "Whale": return Colors.blueAccent;
-      case "Movers": return Colors.deepPurpleAccent;
-      case "Trend": return Colors.tealAccent.shade400;
-      case "Insight": return Colors.cyanAccent.shade400;
-      case "Smart News": return Colors.orangeAccent.shade200;
-      case "Sentiment": return Colors.pinkAccent.shade100;
-      case "News": return Colors.lightBlueAccent.shade100;
-      default: return Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
+      case "Whale":
+        return Colors.blueAccent;
+      case "Movers":
+        return Colors.deepPurpleAccent;
+      case "Trend":
+        return Colors.tealAccent.shade400;
+      case "Insight":
+        return Colors.cyanAccent.shade400;
+      case "Smart News":
+        return Colors.orangeAccent.shade200;
+      case "Sentiment":
+        return Colors.pinkAccent.shade100;
+      case "News":
+        return Colors.lightBlueAccent.shade100;
+      default:
+        return Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
     }
   }
 }

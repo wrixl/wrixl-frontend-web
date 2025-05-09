@@ -1,4 +1,4 @@
- // lib\screens\dashboard\mirror_insights.dart
+// lib\screens\dashboard\mirror_insights.dart
 
 import 'package:flutter/material.dart';
 import '../../utils/constants.dart';
@@ -63,19 +63,23 @@ class MirrorInsights extends StatelessWidget {
                 context: context,
                 builder: (_) => AlertDialog(
                   backgroundColor: AppConstants.primaryColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0)),
                   title: Text(
                     '${insight['token']} ${insight['action']} Insight',
-                    style: const TextStyle(color: AppConstants.textColor, fontFamily: 'Rajdhani'),
+                    style: const TextStyle(
+                        color: AppConstants.textColor, fontFamily: 'Rajdhani'),
                   ),
                   content: Text(
                     insight['rationale'],
-                    style: const TextStyle(color: AppConstants.textColor, fontFamily: 'Roboto'),
+                    style: const TextStyle(
+                        color: AppConstants.textColor, fontFamily: 'Roboto'),
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Close', style: TextStyle(color: AppConstants.accentColor)),
+                      child: const Text('Close',
+                          style: TextStyle(color: AppConstants.accentColor)),
                     ),
                   ],
                 ),

@@ -1,4 +1,4 @@
-// lib\screens\dashboard\market_signals.dart 
+// lib\screens\dashboard\market_signals.dart
 
 import 'package:flutter/material.dart';
 import '../../models/market_signal_model.dart';
@@ -54,7 +54,8 @@ class MarketSignalsWidget extends StatelessWidget {
           ),
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             leading: Icon(
               Icons.warning,
               color: _getSeverityColor(signal.severity),
@@ -82,19 +83,23 @@ class MarketSignalsWidget extends StatelessWidget {
                 context: context,
                 builder: (_) => AlertDialog(
                   backgroundColor: AppConstants.primaryColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0)),
                   title: Text(
                     signal.signalType,
-                    style: const TextStyle(color: AppConstants.textColor, fontFamily: 'Rajdhani'),
+                    style: const TextStyle(
+                        color: AppConstants.textColor, fontFamily: 'Rajdhani'),
                   ),
                   content: Text(
                     signal.detail ?? 'No additional details available.',
-                    style: const TextStyle(color: AppConstants.textColor, fontFamily: 'Roboto'),
+                    style: const TextStyle(
+                        color: AppConstants.textColor, fontFamily: 'Roboto'),
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Close', style: TextStyle(color: AppConstants.accentColor)),
+                      child: const Text('Close',
+                          style: TextStyle(color: AppConstants.accentColor)),
                     ),
                   ],
                 ),

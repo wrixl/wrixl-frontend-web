@@ -1,4 +1,4 @@
-// lib/screens/dashboard/market_signals.dart 
+// lib/screens/dashboard/market_signals.dart
 
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/widgets/screen_specific_widgets/market_signals_widgets/market_signals_correlation_matrix.dart';
@@ -85,7 +85,8 @@ class MarketSignalsScreen extends StatelessWidget {
         category: "Only Bearish",
       ),
       NewsItem(
-        headline: "Bitcoin ETF filing gains traction among institutional investors",
+        headline:
+            "Bitcoin ETF filing gains traction among institutional investors",
         sentiment: "Positive",
         source: "CoinDesk",
         category: "ETF",
@@ -203,7 +204,16 @@ class MarketSignalsScreen extends StatelessWidget {
 
     // Dummy data for Correlation Matrix.
     final List<String> correlationLabels = [
-      "DeFi", "Layer 1", "Meme Coins", "NFT", "AI", "BTC", "ETH", "Gold", "S&P 500", "NASDAQ"
+      "DeFi",
+      "Layer 1",
+      "Meme Coins",
+      "NFT",
+      "AI",
+      "BTC",
+      "ETH",
+      "Gold",
+      "S&P 500",
+      "NASDAQ"
     ];
     final List<List<double>> correlationMatrix = [
       [1.00, 0.45, 0.30, 0.35, 0.25, 0.60, 0.55, -0.60, -0.95, 0.00],
@@ -224,19 +234,36 @@ class MarketSignalsScreen extends StatelessWidget {
         backgroundColor: theme.appBarTheme.backgroundColor ?? scheme.surface,
         elevation: theme.appBarTheme.elevation ?? 0,
         iconTheme: theme.appBarTheme.iconTheme,
-        title: Text("Market Signals", style: theme.textTheme.titleLarge?.copyWith(color: scheme.onSurface)),
+        title: Text("Market Signals",
+            style:
+                theme.textTheme.titleLarge?.copyWith(color: scheme.onSurface)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Column(
           children: [
-            _buildThemedCard(context, child: SizedBox(height: 385, child: MarketSignalsMacroIntelligenceCardsWidget(cards: macroCards))),
+            _buildThemedCard(context,
+                child: SizedBox(
+                    height: 385,
+                    child: MarketSignalsMacroIntelligenceCardsWidget(
+                        cards: macroCards))),
             const SizedBox(height: 24),
-            _buildThemedCard(context, child: CorrelationMatrixWidget(labels: correlationLabels, matrix: correlationMatrix, title: "Correlation Matrix")),
+            _buildThemedCard(context,
+                child: CorrelationMatrixWidget(
+                    labels: correlationLabels,
+                    matrix: correlationMatrix,
+                    title: "Correlation Matrix")),
             const SizedBox(height: 24),
-            _buildThemedCard(context, child: SizedBox(height: 350, child: MarketSignalsSectorMoversWidget(movers: movers))),
+            _buildThemedCard(context,
+                child: SizedBox(
+                    height: 350,
+                    child: MarketSignalsSectorMoversWidget(movers: movers))),
             const SizedBox(height: 24),
-            _buildThemedCard(context, child: SizedBox(height: 290, child: MarketSignalsSmartNewsStripWidget(newsItems: newsItems))),
+            _buildThemedCard(context,
+                child: SizedBox(
+                    height: 290,
+                    child: MarketSignalsSmartNewsStripWidget(
+                        newsItems: newsItems))),
             const SizedBox(height: 24),
           ],
         ),

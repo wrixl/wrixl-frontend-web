@@ -30,8 +30,7 @@ class SmartMoneyFeedFlowDiagram extends StatefulWidget {
       _SmartMoneyFeedFlowDiagramState();
 }
 
-class _SmartMoneyFeedFlowDiagramState
-    extends State<SmartMoneyFeedFlowDiagram> {
+class _SmartMoneyFeedFlowDiagramState extends State<SmartMoneyFeedFlowDiagram> {
   bool _viewByToken = false;
   String _hoveredCell = '';
   String _selectedDuration = "7d";
@@ -74,8 +73,8 @@ class _SmartMoneyFeedFlowDiagramState
           tokens: ['TOKEN_G', 'TOKEN_H'],
           confidenceScore: 5,
           relatedWallets: ['Wallet8']),
-      'NFTs':
-          FlowDetails(totalValue: 0, tokens: [], confidenceScore: 0, relatedWallets: []),
+      'NFTs': FlowDetails(
+          totalValue: 0, tokens: [], confidenceScore: 0, relatedWallets: []),
       'LSDs': FlowDetails(
           totalValue: 9,
           tokens: ['TOKEN_I'],
@@ -175,7 +174,7 @@ class _SmartMoneyFeedFlowDiagramState
     final scheme = Theme.of(context).colorScheme;
     if (value > 30) return scheme.error;
     if (value > 10) return Colors.orange; // no direct scheme fallback
-    if (value > 0) return Colors.green;  // no direct scheme fallback
+    if (value > 0) return Colors.green; // no direct scheme fallback
     return Colors.transparent;
   }
 
@@ -204,8 +203,8 @@ class _SmartMoneyFeedFlowDiagramState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("Asset Flow Matrix",
-                    style: theme.textTheme.titleLarge
-                        ?.copyWith(color: scheme.primary, fontWeight: FontWeight.bold)),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                        color: scheme.primary, fontWeight: FontWeight.bold)),
                 Text("All Flows: \$${_grandTotal.toStringAsFixed(1)}M",
                     style: theme.textTheme.bodyLarge
                         ?.copyWith(color: scheme.onSurface.withOpacity(0.7))),
@@ -231,9 +230,11 @@ class _SmartMoneyFeedFlowDiagramState
                     child: GestureDetector(
                       onTap: () => setState(() => _selectedDuration = dur),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: active ? scheme.primary : scheme.surfaceVariant,
+                          color:
+                              active ? scheme.primary : scheme.surfaceVariant,
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
                             color: active ? scheme.primary : Colors.transparent,
@@ -285,14 +286,16 @@ class _SmartMoneyFeedFlowDiagramState
                         ...destinations.map((dest) {
                           final details = data[src]?[dest];
                           final val = details?.totalValue ?? 0;
-                          final barHeight =
-                              _maxVolume > 0.0 ? (val / _maxVolume) * 50.0 : 0.0;
+                          final barHeight = _maxVolume > 0.0
+                              ? (val / _maxVolume) * 50.0
+                              : 0.0;
                           final cellId = '$src-$dest';
                           final color = _flowColor(context, val);
 
                           return Expanded(
                             child: MouseRegion(
-                              onEnter: (_) => setState(() => _hoveredCell = cellId),
+                              onEnter: (_) =>
+                                  setState(() => _hoveredCell = cellId),
                               onExit: (_) => setState(() => _hoveredCell = ''),
                               child: GestureDetector(
                                 onTap: () => _showDetailModal(
@@ -304,7 +307,8 @@ class _SmartMoneyFeedFlowDiagramState
                                   decoration: BoxDecoration(
                                     color: color.withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: color, width: 1.2),
+                                    border:
+                                        Border.all(color: color, width: 1.2),
                                   ),
                                   child: Stack(
                                     alignment: Alignment.center,
@@ -331,8 +335,8 @@ class _SmartMoneyFeedFlowDiagramState
                                         Positioned.fill(
                                           child: AnimatedOpacity(
                                             opacity: 1,
-                                            duration:
-                                                const Duration(milliseconds: 250),
+                                            duration: const Duration(
+                                                milliseconds: 250),
                                             child: Container(
                                               decoration: BoxDecoration(
                                                 color: scheme.surface
@@ -342,22 +346,21 @@ class _SmartMoneyFeedFlowDiagramState
                                                 border: Border.all(
                                                     color: scheme.primary),
                                               ),
-                                              padding:
-                                                  const EdgeInsets.all(6),
+                                              padding: const EdgeInsets.all(6),
                                               child: Column(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,
                                                 children: [
                                                   Text(
                                                     "Tokens: ${details?.tokens.join(', ') ?? 'N/A'}",
-                                                    style:
-                                                        theme.textTheme.bodySmall,
+                                                    style: theme
+                                                        .textTheme.bodySmall,
                                                     textAlign: TextAlign.center,
                                                   ),
                                                   Text(
                                                     "Wallets: ${details?.relatedWallets.length ?? 0}",
-                                                    style:
-                                                        theme.textTheme.bodySmall,
+                                                    style: theme
+                                                        .textTheme.bodySmall,
                                                     textAlign: TextAlign.center,
                                                   ),
                                                 ],
@@ -384,8 +387,8 @@ class _SmartMoneyFeedFlowDiagramState
     );
   }
 
-  void _showDetailModal(BuildContext context, String src, String dest,
-      FlowDetails? details) {
+  void _showDetailModal(
+      BuildContext context, String src, String dest, FlowDetails? details) {
     if (details == null) return;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
@@ -394,8 +397,7 @@ class _SmartMoneyFeedFlowDiagramState
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: scheme.surface,
-        title:
-            Text("Flow Breakdown", style: theme.textTheme.titleLarge),
+        title: Text("Flow Breakdown", style: theme.textTheme.titleLarge),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -404,10 +406,13 @@ class _SmartMoneyFeedFlowDiagramState
             Text("Destination: $dest"),
             Text("Total Flow: \$${details.totalValue.toStringAsFixed(1)}M"),
             const SizedBox(height: 8),
-            Text("Tokens: ${details.tokens.isNotEmpty ? details.tokens.join(', ') : 'N/A'}"),
-            Text("Wallets: ${details.relatedWallets.isNotEmpty ? details.relatedWallets.join(', ') : 'N/A'}"),
+            Text(
+                "Tokens: ${details.tokens.isNotEmpty ? details.tokens.join(', ') : 'N/A'}"),
+            Text(
+                "Wallets: ${details.relatedWallets.isNotEmpty ? details.relatedWallets.join(', ') : 'N/A'}"),
             const SizedBox(height: 8),
-            Text("Confidence: ${'★' * details.confidenceScore}${'☆' * (5 - details.confidenceScore)}"),
+            Text(
+                "Confidence: ${'★' * details.confidenceScore}${'☆' * (5 - details.confidenceScore)}"),
           ],
         ),
         actions: [

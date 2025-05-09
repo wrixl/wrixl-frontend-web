@@ -1,4 +1,4 @@
- // lib\widgets\custom_button.dart
+// lib\widgets\custom_button.dart
 
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
@@ -23,7 +23,8 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color effectiveColor = backgroundColor ?? AppConstants.accentColor; // Electric Blue
+    final Color effectiveColor =
+        backgroundColor ?? AppConstants.accentColor; // Electric Blue
 
     return SizedBox(
       width: width ?? double.infinity,

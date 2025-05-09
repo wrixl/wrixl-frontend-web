@@ -76,7 +76,8 @@ class _SmartMoneyWidgetInsightsFeederState
                 onChanged: (v) => setState(() => searchQuery = v),
                 decoration: InputDecoration(
                   hintText: "Search insights",
-                  prefixIcon: Icon(Icons.search, size: 18, color: scheme.onSurface),
+                  prefixIcon:
+                      Icon(Icons.search, size: 18, color: scheme.onSurface),
                   filled: true,
                   fillColor: scheme.surfaceVariant,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10),
@@ -86,11 +87,13 @@ class _SmartMoneyWidgetInsightsFeederState
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: scheme.primary.withOpacity(0.3)),
+                    borderSide:
+                        BorderSide(color: scheme.primary.withOpacity(0.3)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: scheme.primary.withOpacity(0.3)),
+                    borderSide:
+                        BorderSide(color: scheme.primary.withOpacity(0.3)),
                   ),
                 ),
                 style: theme.textTheme.bodyMedium,
@@ -107,8 +110,7 @@ class _SmartMoneyWidgetInsightsFeederState
             options: walletTypes,
             optionIcons: walletIcons,
             activeOption: activeWalletType,
-            onSelected: (option) =>
-                setState(() => activeWalletType = option),
+            onSelected: (option) => setState(() => activeWalletType = option),
           ),
         ),
         const SizedBox(height: 12),
@@ -128,8 +130,7 @@ class _SmartMoneyWidgetInsightsFeederState
             return GestureDetector(
               onTap: () => _showInsightModal(context, item),
               child: Container(
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: scheme.surface,
@@ -241,8 +242,7 @@ class _SmartMoneyWidgetInsightsFeederState
                     // Confidence & timestamp
                     Row(
                       children: [
-                        Icon(Icons.bolt,
-                            size: 14, color: scheme.primary),
+                        Icon(Icons.bolt, size: 14, color: scheme.primary),
                         const SizedBox(width: 4),
                         Text(
                           'Confidence: ${item['confidence'] ?? '—'} / 5',
@@ -286,8 +286,7 @@ class _SmartMoneyWidgetInsightsFeederState
     );
   }
 
-  void _showInsightModal(
-      BuildContext context, Map<String, dynamic> item) {
+  void _showInsightModal(BuildContext context, Map<String, dynamic> item) {
     final wallets = List<String>.from(item['wallets'] ?? []);
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
@@ -314,8 +313,8 @@ class _SmartMoneyWidgetInsightsFeederState
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            ...wallets.map((w) => Text("• $w",
-                style: theme.textTheme.bodyMedium)),
+            ...wallets
+                .map((w) => Text("• $w", style: theme.textTheme.bodyMedium)),
           ],
         ),
         actions: [

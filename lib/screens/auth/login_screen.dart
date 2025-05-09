@@ -8,7 +8,7 @@ import '../../utils/validators.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
-  
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,8 +87,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _login,
-                  child: _isLoading 
-                      ? const CircularProgressIndicator() 
+                  child: _isLoading
+                      ? const CircularProgressIndicator()
                       : const Text('Login'),
                 ),
                 TextButton(

@@ -1,4 +1,4 @@
- // lib\providers\auth_provider.dart
+// lib\providers\auth_provider.dart
 
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -31,7 +31,8 @@ class AuthProvider with ChangeNotifier {
     return false;
   }
 
-  Future<bool> register(String username, String password, String? telegramHandle) async {
+  Future<bool> register(
+      String username, String password, String? telegramHandle) async {
     final url = Uri.parse('$baseUrl/auth/register');
     final response = await http.post(
       url,

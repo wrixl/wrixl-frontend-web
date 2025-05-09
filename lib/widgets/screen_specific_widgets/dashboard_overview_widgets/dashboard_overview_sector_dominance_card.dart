@@ -10,10 +10,12 @@ class DynamicSectorDominanceCard extends StatefulWidget {
   const DynamicSectorDominanceCard({Key? key}) : super(key: key);
 
   @override
-  State<DynamicSectorDominanceCard> createState() => _DynamicSectorDominanceCardState();
+  State<DynamicSectorDominanceCard> createState() =>
+      _DynamicSectorDominanceCardState();
 }
 
-class _DynamicSectorDominanceCardState extends State<DynamicSectorDominanceCard> {
+class _DynamicSectorDominanceCardState
+    extends State<DynamicSectorDominanceCard> {
   int touchedIndex = -1;
   int selectedViewIndex = 0;
 
@@ -29,26 +31,34 @@ class _DynamicSectorDominanceCardState extends State<DynamicSectorDominanceCard>
     if (selectedViewIndex == 0) {
       // Portfolio Composition: stablecoins, L1s, DeFi, NFTs.
       return [
-        _PieData("Stablecoins", 40, AppConstants.accentColor, "assets/images/stablecoins.png"),
+        _PieData("Stablecoins", 40, AppConstants.accentColor,
+            "assets/images/stablecoins.png"),
         _PieData("L1s", 30, AppConstants.neonYellow, "assets/images/l1s.png"),
-        _PieData("DeFi", 20, AppConstants.neonMagenta, "assets/images/defi.png"),
+        _PieData(
+            "DeFi", 20, AppConstants.neonMagenta, "assets/images/defi.png"),
         _PieData("NFTs", 10, AppConstants.neonGreen, "assets/images/nfts.png"),
       ];
     } else if (selectedViewIndex == 1) {
       // Global Sector Dominance: DeFi, L1s, Meme Coins, AI.
       return [
-        _PieData("DeFi", 35, AppConstants.accentColor, "assets/images/defi.png"),
+        _PieData(
+            "DeFi", 35, AppConstants.accentColor, "assets/images/defi.png"),
         _PieData("L1s", 25, AppConstants.neonYellow, "assets/images/l1s.png"),
-        _PieData("Meme Coins", 20, AppConstants.neonMagenta, "assets/images/meme_coins.png"),
+        _PieData("Meme Coins", 20, AppConstants.neonMagenta,
+            "assets/images/meme_coins.png"),
         _PieData("AI", 20, AppConstants.neonGreen, "assets/images/ai.png"),
       ];
     } else {
       // Thematic Overlays: Trending by dev activity, sentiment, gas usage.
       return [
-        _PieData("Dev Activity", 30, AppConstants.accentColor, "assets/images/dev_activity.png"),
-        _PieData("Sentiment", 30, AppConstants.neonYellow, "assets/images/sentiment.png"),
-        _PieData("Gas Usage", 25, AppConstants.neonMagenta, "assets/images/gas_usage.png"),
-        _PieData("Other Trends", 15, AppConstants.neonGreen, "assets/images/other_trends.png"),
+        _PieData("Dev Activity", 30, AppConstants.accentColor,
+            "assets/images/dev_activity.png"),
+        _PieData("Sentiment", 30, AppConstants.neonYellow,
+            "assets/images/sentiment.png"),
+        _PieData("Gas Usage", 25, AppConstants.neonMagenta,
+            "assets/images/gas_usage.png"),
+        _PieData("Other Trends", 15, AppConstants.neonGreen,
+            "assets/images/other_trends.png"),
       ];
     }
   }
@@ -63,20 +73,18 @@ class _DynamicSectorDominanceCardState extends State<DynamicSectorDominanceCard>
       final radius = isTouched ? 110.0 : 100.0;
       final widgetSize = isTouched ? 55.0 : 40.0;
 
-      TextStyle sectionTextStyle = Theme.of(context)
-              .textTheme
-              .bodyLarge
-              ?.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-                color: AppConstants.textColor,
-                shadows: shadows,
-              ) ??
-          TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: fontSize,
-              color: AppConstants.textColor,
-              shadows: shadows);
+      TextStyle sectionTextStyle =
+          Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                    color: AppConstants.textColor,
+                    shadows: shadows,
+                  ) ??
+              TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                  color: AppConstants.textColor,
+                  shadows: shadows);
 
       return PieChartSectionData(
         color: pieData[i].color,
@@ -131,7 +139,8 @@ class _DynamicSectorDominanceCardState extends State<DynamicSectorDominanceCard>
                 },
                 children: viewOptions
                     .map((option) => Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
                           child: Text(
                             option,
                             style: Theme.of(context).textTheme.bodyLarge,
@@ -152,7 +161,8 @@ class _DynamicSectorDominanceCardState extends State<DynamicSectorDominanceCard>
                       PieChart(
                         PieChartData(
                           pieTouchData: PieTouchData(
-                            touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                            touchCallback:
+                                (FlTouchEvent event, pieTouchResponse) {
                               setState(() {
                                 if (!event.isInterestedForInteractions ||
                                     pieTouchResponse == null ||
@@ -160,7 +170,8 @@ class _DynamicSectorDominanceCardState extends State<DynamicSectorDominanceCard>
                                   touchedIndex = -1;
                                   return;
                                 }
-                                touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                                touchedIndex = pieTouchResponse
+                                    .touchedSection!.touchedSectionIndex;
                               });
                             },
                           ),
@@ -171,17 +182,22 @@ class _DynamicSectorDominanceCardState extends State<DynamicSectorDominanceCard>
                         ),
                       ),
                       // Overlay label when a slice is touched.
-                      if (touchedIndex != -1 && touchedIndex < currentData.length)
+                      if (touchedIndex != -1 &&
+                          touchedIndex < currentData.length)
                         Center(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.8),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               "${currentData[touchedIndex].label}: ${currentData[touchedIndex].value}%",
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
                                   ),

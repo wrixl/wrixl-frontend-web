@@ -1,4 +1,4 @@
- // lib\screens\dashboard\portfolios.dart
+// lib\screens\dashboard\portfolios.dart
 
 import 'package:flutter/material.dart';
 import '../../utils/constants.dart';
@@ -62,11 +62,13 @@ class ModelPortfoliosTab extends StatelessWidget {
             contentPadding: const EdgeInsets.all(16),
             title: const Text(
               'DeFi Starter Portfolio',
-              style: TextStyle(fontFamily: 'Rajdhani', color: AppConstants.textColor),
+              style: TextStyle(
+                  fontFamily: 'Rajdhani', color: AppConstants.textColor),
             ),
             subtitle: const Text(
               'Asset allocation: 40% ETH, 30% DAI, 30% UNI\nPerformance: +8% this month',
-              style: TextStyle(fontFamily: 'Roboto', color: AppConstants.textColor),
+              style: TextStyle(
+                  fontFamily: 'Roboto', color: AppConstants.textColor),
             ),
             onTap: () {
               // TODO: Detailed portfolio view.
@@ -91,7 +93,8 @@ class PersonalPortfolioTab extends StatelessWidget {
         children: [
           const Text(
             'Enter your Ethereum wallet address:',
-            style: TextStyle(color: AppConstants.textColor, fontFamily: 'Roboto'),
+            style:
+                TextStyle(color: AppConstants.textColor, fontFamily: 'Roboto'),
           ),
           const SizedBox(height: 8),
           TextField(
@@ -109,7 +112,8 @@ class PersonalPortfolioTab extends StatelessWidget {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppConstants.accentColor, width: 2),
+                borderSide:
+                    const BorderSide(color: AppConstants.accentColor, width: 2),
               ),
             ),
           ),
@@ -139,7 +143,3 @@ class PersonalPortfolioTab extends StatelessWidget {
     );
   }
 }
-
-
-
-

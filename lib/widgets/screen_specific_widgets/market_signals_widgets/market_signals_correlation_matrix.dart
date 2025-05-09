@@ -16,7 +16,8 @@ class CorrelationMatrixWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<CorrelationMatrixWidget> createState() => _CorrelationMatrixWidgetState();
+  State<CorrelationMatrixWidget> createState() =>
+      _CorrelationMatrixWidgetState();
 }
 
 class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
@@ -43,7 +44,8 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
           children: [
             Text(
               "Correlation Matrix Options",
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -94,6 +96,7 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
                 ],
               ),
               const SizedBox(height: 12),
+
               /// Toggle filter and AI Summary
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -121,6 +124,7 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
                 ],
               ),
               const SizedBox(height: 16),
+
               /// Matrix table
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -149,7 +153,8 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
 
     final rows = <TableRow>[
       TableRow(
-        decoration: BoxDecoration(color: theme.colorScheme.surface.withOpacity(0.1)),
+        decoration:
+            BoxDecoration(color: theme.colorScheme.surface.withOpacity(0.1)),
         children: [
           Container(),
           for (final label in widget.labels)
@@ -166,15 +171,17 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
     ];
 
     for (int i = 0; i < widget.labels.length; i++) {
-      final rowCells = <Widget>[Container(
-        width: 100,
-        padding: const EdgeInsets.all(6),
-        color: theme.colorScheme.surface.withOpacity(0.1),
-        child: Text(
-          widget.labels[i],
-          style: labelStyle,
-        ),
-      )];
+      final rowCells = <Widget>[
+        Container(
+          width: 100,
+          padding: const EdgeInsets.all(6),
+          color: theme.colorScheme.surface.withOpacity(0.1),
+          child: Text(
+            widget.labels[i],
+            style: labelStyle,
+          ),
+        )
+      ];
 
       for (int j = 0; j < widget.labels.length; j++) {
         final value = widget.matrix[i][j];
@@ -185,7 +192,8 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
             context: context,
             builder: (_) => AlertDialog(
               title: const Text("Correlation Detail"),
-              content: Text("${widget.labels[i]} vs ${widget.labels[j]}\nCorrelation: ${value.toStringAsFixed(2)}"),
+              content: Text(
+                  "${widget.labels[i]} vs ${widget.labels[j]}\nCorrelation: ${value.toStringAsFixed(2)}"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -203,7 +211,9 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
               style: theme.textTheme.labelLarge?.copyWith(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: isDiagonal || value.abs() > 0.5 ? Colors.white : Colors.black,
+                color: isDiagonal || value.abs() > 0.5
+                    ? Colors.white
+                    : Colors.black,
               ),
             ),
           ),
@@ -216,7 +226,8 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
     return rows;
   }
 
-  Color _valueToColor(BuildContext context, double value, {bool isDiagonal = false}) {
+  Color _valueToColor(BuildContext context, double value,
+      {bool isDiagonal = false}) {
     final theme = Theme.of(context);
     if (isDiagonal) return theme.colorScheme.surface;
     if (value >= 0.75) return Colors.green.shade900;

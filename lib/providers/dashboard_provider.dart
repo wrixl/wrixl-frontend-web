@@ -1,6 +1,6 @@
- // lib\providers\dashboard_provider.dart
+// lib\providers\dashboard_provider.dart
 
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/smart_money_model.dart';
@@ -23,9 +23,8 @@ class DashboardProvider with ChangeNotifier {
       final data = json.decode(response.body);
       // Assume the transactions are under a "transfers" key
       List transactions = data['transfers'] ?? [];
-      _smartMoneyFeed = transactions
-          .map((tx) => SmartMoneyTransaction.fromJson(tx))
-          .toList();
+      _smartMoneyFeed =
+          transactions.map((tx) => SmartMoneyTransaction.fromJson(tx)).toList();
       notifyListeners();
     }
   }
@@ -42,4 +41,3 @@ class DashboardProvider with ChangeNotifier {
     }
   }
 }
-

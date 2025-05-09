@@ -1,4 +1,4 @@
- // lib\screens\auth\register_screen.dart
+// lib\screens\auth\register_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +7,7 @@ import '../../utils/validators.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
-  
+
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
@@ -51,7 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _telegramController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

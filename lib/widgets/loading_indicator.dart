@@ -1,4 +1,4 @@
- // lib\widgets\loading_indicator.dart
+// lib\widgets\loading_indicator.dart
 
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
@@ -15,7 +15,8 @@ class LoadingIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color effectiveColor = color ?? AppConstants.accentColor; // Electric Blue
+    final Color effectiveColor =
+        color ?? AppConstants.accentColor; // Electric Blue
 
     return Center(
       child: SizedBox(

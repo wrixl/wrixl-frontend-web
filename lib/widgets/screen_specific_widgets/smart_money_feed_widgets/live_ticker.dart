@@ -10,7 +10,8 @@ import 'package:wrixl_frontend/widgets/toggle_filter_icon_row_widget.dart';
 class LiveWhaleTicker extends StatefulWidget {
   final List<String> tickerMessages;
 
-  const LiveWhaleTicker({Key? key, required this.tickerMessages}) : super(key: key);
+  const LiveWhaleTicker({Key? key, required this.tickerMessages})
+      : super(key: key);
 
   @override
   State<LiveWhaleTicker> createState() => _LiveWhaleTickerState();
@@ -73,7 +74,8 @@ class _LiveWhaleTickerState extends State<LiveWhaleTicker> {
               child: TextField(
                 decoration: InputDecoration(
                   hintText: "Search whale activity",
-                  prefixIcon: Icon(Icons.search, size: 18, color: colorScheme.onSurface.withOpacity(0.6)),
+                  prefixIcon: Icon(Icons.search,
+                      size: 18, color: colorScheme.onSurface.withOpacity(0.6)),
                   filled: true,
                   fillColor: colorScheme.surfaceVariant.withOpacity(0.2),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10),
@@ -137,7 +139,9 @@ class _LiveWhaleTickerState extends State<LiveWhaleTicker> {
               final isPositive = trend.last > trend.first;
 
               if (activeTickerType != 'all' &&
-                  !category.toLowerCase().contains(activeTickerType.toLowerCase())) {
+                  !category
+                      .toLowerCase()
+                      .contains(activeTickerType.toLowerCase())) {
                 return const SizedBox.shrink();
               }
               if (!message.toLowerCase().contains(searchQuery.toLowerCase())) {
@@ -169,12 +173,17 @@ class _LiveWhaleTickerState extends State<LiveWhaleTicker> {
                       borderRadius: BorderRadius.circular(12),
                       color: colorScheme.surface.withOpacity(0.9),
                       border: Border.all(
-                        color: isPositive ? AppConstants.neonGreen : AppConstants.neonRed,
+                        color: isPositive
+                            ? AppConstants.neonGreen
+                            : AppConstants.neonRed,
                         width: 1.0,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: (isPositive ? AppConstants.neonGreen : AppConstants.neonRed).withOpacity(0.12),
+                          color: (isPositive
+                                  ? AppConstants.neonGreen
+                                  : AppConstants.neonRed)
+                              .withOpacity(0.12),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -195,10 +204,12 @@ class _LiveWhaleTickerState extends State<LiveWhaleTicker> {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(6),
-                                color: AppConstants.accentColor.withOpacity(0.12),
+                                color:
+                                    AppConstants.accentColor.withOpacity(0.12),
                               ),
                               child: Text(
                                 category,

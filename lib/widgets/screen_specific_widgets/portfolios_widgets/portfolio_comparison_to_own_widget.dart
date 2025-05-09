@@ -81,7 +81,8 @@ class PortfolioComparisonToOwn extends StatelessWidget {
                     ),
                     RadarDataSet(
                       dataEntries: compareData
-                          .map((d) => RadarEntry(value: d['personalValue'] ?? 0.0))
+                          .map((d) =>
+                              RadarEntry(value: d['personalValue'] ?? 0.0))
                           .toList(),
                       fillColor: AppConstants.neonGreen.withOpacity(0.3),
                       borderColor: AppConstants.neonGreen,
@@ -94,7 +95,8 @@ class PortfolioComparisonToOwn extends StatelessWidget {
                     color: AppConstants.accentColor.withOpacity(0.4),
                     width: 1,
                   ),
-                  tickBorderData: const BorderSide(color: Colors.grey, width: 1),
+                  tickBorderData:
+                      const BorderSide(color: Colors.grey, width: 1),
                   getTitle: (index, angle) {
                     final metric = compareData[index]['metric'] ?? '';
                     return RadarChartTitle(
@@ -122,7 +124,8 @@ class PortfolioComparisonToOwn extends StatelessWidget {
                   backgroundColor: AppConstants.accentColor,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                child: const Text("Adopt Strategy", style: TextStyle(fontSize: 14)),
+                child: const Text("Adopt Strategy",
+                    style: TextStyle(fontSize: 14)),
               ),
             ),
           ],

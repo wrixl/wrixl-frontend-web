@@ -1,21 +1,31 @@
-// lib\screens\dashboard\market_intelligence.dart
+// lib/screens/dashboard/market_intelligence.dart
 
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/utils/layout_constants.dart';
 import 'package:wrixl_frontend/utils/responsive.dart';
 import 'package:wrixl_frontend/widgets/common/reusable_widget_layout_card.dart';
+import 'package:wrixl_frontend/widgets/common/draggable_card_wrapper.dart';
+import 'package:wrixl_frontend/utils/widget_layout_storage.dart';
 
 class MarketIntelligenceScreen extends StatefulWidget {
   const MarketIntelligenceScreen({super.key});
 
   @override
-  State<MarketIntelligenceScreen> createState() => _MarketIntelligenceScreenState();
+  State<MarketIntelligenceScreen> createState() =>
+      _MarketIntelligenceScreenState();
 }
 
-class _MarketIntelligenceScreenState extends State<MarketIntelligenceScreen> with SingleTickerProviderStateMixin {
+class _MarketIntelligenceScreenState extends State<MarketIntelligenceScreen>
+    with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
-  final List<Tab> _tabs = const [
+  bool isEditMode = false;
+  String selectedPreset = "Default";
+  Map<String, List<WidgetLayout>> layoutPresets = {};
+
+  final ScrollController _scrollController = ScrollController();
+
+  final List<Tab> _tabs = [
     Tab(text: 'Insights'),
     Tab(text: 'Smart \$'),
     Tab(text: 'Signals'),
@@ -25,204 +35,311 @@ class _MarketIntelligenceScreenState extends State<MarketIntelligenceScreen> wit
   void initState() {
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
+    _loadPresets();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadPresets() async {
+    final defaultPreset =
+        await WidgetLayoutStorage.loadPreset("MarketIntelligence") ??
+            _defaultLayout();
+    setState(() {
+      layoutPresets = {"Default": defaultPreset};
+    });
+  }
+
+  void toggleEditMode() => setState(() => isEditMode = !isEditMode);
+
+  void toggleVisibility(String id) {
+    final layout = _currentLayout().firstWhere((w) => w.id == id);
+    setState(() => layout.visible = !layout.visible);
+    WidgetLayoutStorage.savePreset("MarketIntelligence", _currentLayout());
+  }
+
+  void updateLayout(WidgetLayout updated) {
+    final index = _currentLayout().indexWhere((w) => w.id == updated.id);
+    if (index != -1) {
+      setState(() => _currentLayout()[index] = updated);
+      WidgetLayoutStorage.savePreset("MarketIntelligence", _currentLayout());
+    }
+  }
+
+  List<WidgetLayout> _currentLayout() => layoutPresets[selectedPreset]!;
+
+  void resetPreset() async {
+    await WidgetLayoutStorage.deletePreset("MarketIntelligence");
+    setState(() {
+      layoutPresets["Default"] = _defaultLayout();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (Responsive.isDesktop(context) || Responsive.isTablet(context)) {
-      return _buildDesktopTabletLayout();
-    } else {
-      return _buildMobileLayout();
+    if (layoutPresets.isEmpty || !layoutPresets.containsKey(selectedPreset)) {
+      return const Center(child: CircularProgressIndicator());
     }
-  }
 
-  Widget _buildDesktopTabletLayout() {
+    final layoutHelper = LayoutHelper.of(context);
+    final visibleWidgets = _currentLayout().where((w) => w.visible).toList();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Market Intelligence'),
-        elevation: 0,
+        title: const Text("Market Intelligence"),
         bottom: TabBar(controller: _tabController, tabs: _tabs),
+        actions: [
+          IconButton(
+            icon: Icon(isEditMode ? Icons.lock_open : Icons.lock),
+            tooltip: isEditMode ? "Lock Layout" : "Unlock Layout",
+            onPressed: toggleEditMode,
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: "Reset Preset",
+            onPressed: isEditMode ? resetPreset : null,
+          ),
+        ],
       ),
       body: LayoutBuilder(builder: (context, constraints) {
-        final layout = LayoutHelper.fromDimensions(constraints.maxWidth, constraints.maxHeight);
+        final layoutHelper = LayoutHelper.fromDimensions(
+          constraints.maxWidth,
+          constraints.maxHeight,
+        );
+
+        final widgetsToShow = isEditMode
+            ? (_currentLayout()
+              ..sort((a, b) =>
+                  (a.visible == b.visible) ? 0 : (a.visible ? -1 : 1)))
+            : _currentLayout().where((w) => w.visible).toList();
+
         return TabBarView(
           controller: _tabController,
-          children: [
-            _wrapCards(layout, _insightCards(layout)),
-            _wrapCards(layout, _smartMoneyCards(layout)),
-            _wrapCards(layout, _signalCards(layout)),
-          ],
+          children: List.generate(_tabs.length, (tabIndex) {
+            return SingleChildScrollView(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(
+                horizontal: LayoutHelper.fixedOuterScreenMargin,
+                vertical: 24,
+              ),
+              child: Wrap(
+                spacing: layoutHelper.cardGutter,
+                runSpacing: layoutHelper.verticalRowSpacing,
+                children: List.generate(widgetsToShow.length, (index) {
+                  final layout = widgetsToShow[index];
+
+                  // Filter per tab
+                  if (!_isInTab(layout.id, tabIndex))
+                    return const SizedBox.shrink();
+
+                  final card = WrixlCard(
+                    layout: layout,
+                    layoutHelper: layoutHelper,
+                    isEditMode: isEditMode,
+                    isHidden: !layout.visible,
+                    onLayoutChanged: updateLayout,
+                    onToggleVisibility: () => toggleVisibility(layout.id),
+                    modalTitle: layout.id,
+                    child: Text("${layout.id} Placeholder"),
+                  );
+
+                  if (!layout.visible && isEditMode) return card;
+
+                  return DraggableCardWrapper(
+                    index: index,
+                    isEditMode: isEditMode,
+                    visibleWidgets: visibleWidgets,
+                    onReorder: (from, to) {
+                      setState(() {
+                        final all = _currentLayout();
+                        final visible = all.where((w) => w.visible).toList();
+
+                        final moved = visible.removeAt(from);
+                        visible.insert(to, moved);
+
+                        final reordered = [
+                          ...visible,
+                          ...all.where((w) => !w.visible),
+                        ];
+
+                        layoutPresets[selectedPreset] = reordered;
+                        WidgetLayoutStorage.savePreset(
+                            "MarketIntelligence", reordered);
+                      });
+                    },
+                    child: card,
+                  );
+                }),
+              ),
+            );
+          }),
         );
       }),
     );
   }
 
-  Widget _wrapCards(LayoutHelper layout, List<_CardData> cards) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: LayoutHelper.fixedOuterScreenMargin, vertical: 24),
-      child: Wrap(
-        spacing: layout.cardGutter,
-        runSpacing: layout.verticalRowSpacing,
-        children: cards
-            .map((card) => WrixlCard(
-                  width: card.width,
-                  height: card.height,
-                  modalTitle: card.modalTitle,
-                  modalSize: card.modalSize,
-                  openOnTap: true,
-                  child: Text("${card.modalTitle} Placeholder"),
-                ))
-            .toList(),
-      ),
-    );
+  bool _isInTab(String id, int tabIndex) {
+    final insights = {
+      "Filter Bar",
+      "Unified Feed",
+      "Live Signal Ticker",
+      "Capital Flow Sankey"
+    };
+    final smart = {
+      "Wallet Leaderboard",
+      "Wallet Strategy",
+      "Mirror Strategy",
+      "Wallet Filters",
+      "Live Whale Ticker"
+    };
+    final signals = {
+      "Signal Feed",
+      "Top Gainers / Losers",
+      "Correlation Matrix",
+      "Signal Tags"
+    };
+    return switch (tabIndex) {
+      0 => insights.contains(id),
+      1 => smart.contains(id),
+      2 => signals.contains(id),
+      _ => false,
+    };
   }
 
-  Widget _buildMobileLayout() {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Market Intelligence'),
-        elevation: 0,
-        bottom: TabBar(controller: _tabController, tabs: _tabs),
-      ),
-      body: LayoutBuilder(builder: (context, constraints) {
-        final layout = LayoutHelper.fromDimensions(constraints.maxWidth, constraints.maxHeight);
-        return TabBarView(
-          controller: _tabController,
-          children: [
-            _columnCards(layout, _insightCards(layout)),
-            _columnCards(layout, _smartMoneyCards(layout)),
-            _columnCards(layout, _signalCards(layout)),
-          ],
-        );
-      }),
-    );
-  }
-
-  Widget _columnCards(LayoutHelper layout, List<_CardData> cards) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: LayoutHelper.fixedOuterScreenMargin, vertical: 24),
-      child: Column(
-        children: cards
-            .map((card) => Padding(
-                  padding: EdgeInsets.only(bottom: layout.verticalRowSpacing),
-                  child: WrixlCard(
-                    width: layout.oneColumnWidth,
-                    height: card.height,
-                    modalTitle: card.modalTitle,
-                    modalSize: card.modalSize,
-                    openOnTap: true,
-                    child: Text("${card.modalTitle} Placeholder"),
-                  ),
-                ))
-            .toList(),
-      ),
-    );
-  }
-
-  List<_CardData> _insightCards(LayoutHelper layout) => [
-        _CardData(
-          width: layout.threeColumnWidth,
-          height: layout.shortHeight,
-          modalTitle: "Filter Bar",
+  List<WidgetLayout> _defaultLayout() => [
+        WidgetLayout(
+          id: "Filter Bar",
+          visible: true,
+          row: 0,
+          colStart: 0,
+          width: WidgetWidth.threeColumn,
+          height: WidgetHeight.short,
           modalSize: ModalSize.medium,
+          openOnTap: true,
         ),
-        _CardData(
-          width: layout.twoColumnWidth,
-          height: layout.tallHeight,
-          modalTitle: "Unified Feed",
+        WidgetLayout(
+          id: "Unified Feed",
+          visible: true,
+          row: 1,
+          colStart: 0,
+          width: WidgetWidth.twoColumn,
+          height: WidgetHeight.tall,
           modalSize: ModalSize.large,
+          openOnTap: true,
         ),
-        _CardData(
-          width: layout.oneColumnWidth,
-          height: layout.tallHeight,
-          modalTitle: "Live Signal Ticker",
+        WidgetLayout(
+          id: "Live Signal Ticker",
+          visible: true,
+          row: 1,
+          colStart: 2,
+          width: WidgetWidth.oneColumn,
+          height: WidgetHeight.tall,
           modalSize: ModalSize.medium,
+          openOnTap: true,
         ),
-        _CardData(
-          width: layout.threeColumnWidth,
-          height: layout.mediumHeight,
-          modalTitle: "Capital Flow Sankey",
+        WidgetLayout(
+          id: "Capital Flow Sankey",
+          visible: true,
+          row: 2,
+          colStart: 0,
+          width: WidgetWidth.threeColumn,
+          height: WidgetHeight.medium,
           modalSize: ModalSize.fullscreen,
+          openOnTap: true,
+        ),
+        WidgetLayout(
+          id: "Wallet Leaderboard",
+          visible: true,
+          row: 3,
+          colStart: 0,
+          width: WidgetWidth.threeColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.large,
+          openOnTap: true,
+        ),
+        WidgetLayout(
+          id: "Wallet Strategy",
+          visible: true,
+          row: 4,
+          colStart: 0,
+          width: WidgetWidth.oneColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.medium,
+          openOnTap: true,
+        ),
+        WidgetLayout(
+          id: "Mirror Strategy",
+          visible: true,
+          row: 4,
+          colStart: 1,
+          width: WidgetWidth.oneColumn,
+          height: WidgetHeight.short,
+          modalSize: ModalSize.medium,
+          openOnTap: true,
+        ),
+        WidgetLayout(
+          id: "Wallet Filters",
+          visible: true,
+          row: 4,
+          colStart: 2,
+          width: WidgetWidth.oneColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.medium,
+          openOnTap: true,
+        ),
+        WidgetLayout(
+          id: "Live Whale Ticker",
+          visible: true,
+          row: 5,
+          colStart: 0,
+          width: WidgetWidth.oneColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.medium,
+          openOnTap: true,
+        ),
+        WidgetLayout(
+          id: "Signal Feed",
+          visible: true,
+          row: 6,
+          colStart: 0,
+          width: WidgetWidth.threeColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.large,
+          openOnTap: true,
+        ),
+        WidgetLayout(
+          id: "Top Gainers / Losers",
+          visible: true,
+          row: 7,
+          colStart: 0,
+          width: WidgetWidth.twoColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.large,
+          openOnTap: true,
+        ),
+        WidgetLayout(
+          id: "Correlation Matrix",
+          visible: true,
+          row: 7,
+          colStart: 2,
+          width: WidgetWidth.twoColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.large,
+          openOnTap: true,
+        ),
+        WidgetLayout(
+          id: "Signal Tags",
+          visible: true,
+          row: 8,
+          colStart: 0,
+          width: WidgetWidth.oneColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.medium,
+          openOnTap: true,
         ),
       ];
-
-  List<_CardData> _smartMoneyCards(LayoutHelper layout) => [
-        _CardData(
-          width: layout.threeColumnWidth,
-          height: layout.mediumHeight,
-          modalTitle: "Wallet Leaderboard",
-          modalSize: ModalSize.large,
-        ),
-        _CardData(
-          width: layout.oneColumnWidth,
-          height: layout.mediumHeight,
-          modalTitle: "Wallet Strategy",
-          modalSize: ModalSize.medium,
-        ),
-        _CardData(
-          width: layout.oneColumnWidth,
-          height: layout.shortHeight,
-          modalTitle: "Mirror Strategy",
-          modalSize: ModalSize.medium,
-        ),
-        _CardData(
-          width: layout.threeColumnWidth,
-          height: layout.mediumHeight,
-          modalTitle: "Wallet Filters",
-          modalSize: ModalSize.medium,
-        ),
-        _CardData(
-          width: layout.oneColumnWidth,
-          height: layout.mediumHeight,
-          modalTitle: "Live Whale Ticker",
-          modalSize: ModalSize.medium,
-        ),
-      ];
-
-  List<_CardData> _signalCards(LayoutHelper layout) => [
-        _CardData(
-          width: layout.threeColumnWidth,
-          height: layout.mediumHeight,
-          modalTitle: "Signal Feed",
-          modalSize: ModalSize.large,
-        ),
-        _CardData(
-          width: layout.twoColumnWidth,
-          height: layout.mediumHeight,
-          modalTitle: "Top Gainers / Losers",
-          modalSize: ModalSize.large,
-        ),
-        _CardData(
-          width: layout.twoColumnWidth,
-          height: layout.mediumHeight,
-          modalTitle: "Correlation Matrix",
-          modalSize: ModalSize.large,
-        ),
-        _CardData(
-          width: layout.oneColumnWidth,
-          height: layout.mediumHeight,
-          modalTitle: "Signal Tags",
-          modalSize: ModalSize.medium,
-        ),
-      ];
-}
-
-class _CardData {
-  final double width;
-  final double height;
-  final String modalTitle;
-  final ModalSize modalSize;
-
-  _CardData({
-    required this.width,
-    required this.height,
-    required this.modalTitle,
-    required this.modalSize,
-  });
 }

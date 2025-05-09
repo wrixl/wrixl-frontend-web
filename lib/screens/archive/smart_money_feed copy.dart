@@ -1,4 +1,4 @@
- // lib\screens\dashboard\smart_money_feed.dart
+// lib\screens\dashboard\smart_money_feed.dart
 
 import 'package:flutter/material.dart';
 import '../../models/smart_money_model.dart';
@@ -66,19 +66,23 @@ class SmartMoneyFeed extends StatelessWidget {
                 context: context,
                 builder: (_) => AlertDialog(
                   backgroundColor: AppConstants.primaryColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0)),
                   title: Text(
                     '${tx.token} Transaction Details',
-                    style: const TextStyle(fontFamily: 'Rajdhani', color: AppConstants.textColor),
+                    style: const TextStyle(
+                        fontFamily: 'Rajdhani', color: AppConstants.textColor),
                   ),
                   content: Text(
                     tx.context ?? 'No additional details',
-                    style: const TextStyle(fontFamily: 'Roboto', color: AppConstants.textColor),
+                    style: const TextStyle(
+                        fontFamily: 'Roboto', color: AppConstants.textColor),
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Close', style: TextStyle(color: AppConstants.accentColor)),
+                      child: const Text('Close',
+                          style: TextStyle(color: AppConstants.accentColor)),
                     ),
                   ],
                 ),

@@ -21,13 +21,26 @@ class WrixlTheme {
         onError: AppConstants.textColor,
       ),
       textTheme: const TextTheme(
-        headlineLarge: TextStyle(fontFamily: 'Rajdhani', fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
-        headlineMedium: TextStyle(fontFamily: 'Rajdhani', fontSize: 24, fontWeight: FontWeight.w600, color: Colors.white),
-        titleLarge: TextStyle(fontFamily: 'Rajdhani', fontSize: 20, color: Colors.white),
-        titleMedium: TextStyle(fontFamily: 'Rajdhani', fontSize: 18, color: Colors.white),
-        bodyLarge: TextStyle(fontFamily: 'Roboto', fontSize: 16, color: Colors.white),
-        bodyMedium: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: Colors.white70),
-        labelLarge: TextStyle(fontFamily: 'Roboto', fontSize: 12, color: Colors.white54),
+        headlineLarge: TextStyle(
+            fontFamily: 'Rajdhani',
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Colors.white),
+        headlineMedium: TextStyle(
+            fontFamily: 'Rajdhani',
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            color: Colors.white),
+        titleLarge: TextStyle(
+            fontFamily: 'Rajdhani', fontSize: 20, color: Colors.white),
+        titleMedium: TextStyle(
+            fontFamily: 'Rajdhani', fontSize: 18, color: Colors.white),
+        bodyLarge:
+            TextStyle(fontFamily: 'Roboto', fontSize: 16, color: Colors.white),
+        bodyMedium: TextStyle(
+            fontFamily: 'Roboto', fontSize: 14, color: Colors.white70),
+        labelLarge: TextStyle(
+            fontFamily: 'Roboto', fontSize: 12, color: Colors.white54),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -39,7 +52,8 @@ class WrixlTheme {
           borderRadius: BorderRadius.circular(12),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: AppConstants.accentColor, width: 2),
+          borderSide:
+              const BorderSide(color: AppConstants.accentColor, width: 2),
           borderRadius: BorderRadius.circular(12),
         ),
       ),
@@ -47,7 +61,8 @@ class WrixlTheme {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: IconThemeData(color: AppConstants.accentColor),
-        titleTextStyle: TextStyle(fontFamily: 'Rajdhani', fontSize: 24, color: Colors.white),
+        titleTextStyle: TextStyle(
+            fontFamily: 'Rajdhani', fontSize: 24, color: Colors.white),
       ),
       snackBarTheme: const SnackBarThemeData(
         backgroundColor: AppConstants.accentColor,
@@ -74,13 +89,26 @@ class WrixlTheme {
         onError: Colors.black,
       ),
       textTheme: const TextTheme(
-        headlineLarge: TextStyle(fontFamily: 'Rajdhani', fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
-        headlineMedium: TextStyle(fontFamily: 'Rajdhani', fontSize: 24, fontWeight: FontWeight.w600, color: Colors.black),
-        titleLarge: TextStyle(fontFamily: 'Rajdhani', fontSize: 20, color: Colors.black),
-        titleMedium: TextStyle(fontFamily: 'Rajdhani', fontSize: 18, color: Colors.black),
-        bodyLarge: TextStyle(fontFamily: 'Roboto', fontSize: 16, color: Colors.black),
-        bodyMedium: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: Colors.black87),
-        labelLarge: TextStyle(fontFamily: 'Roboto', fontSize: 12, color: Colors.black54),
+        headlineLarge: TextStyle(
+            fontFamily: 'Rajdhani',
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Colors.black),
+        headlineMedium: TextStyle(
+            fontFamily: 'Rajdhani',
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            color: Colors.black),
+        titleLarge: TextStyle(
+            fontFamily: 'Rajdhani', fontSize: 20, color: Colors.black),
+        titleMedium: TextStyle(
+            fontFamily: 'Rajdhani', fontSize: 18, color: Colors.black),
+        bodyLarge:
+            TextStyle(fontFamily: 'Roboto', fontSize: 16, color: Colors.black),
+        bodyMedium: TextStyle(
+            fontFamily: 'Roboto', fontSize: 14, color: Colors.black87),
+        labelLarge: TextStyle(
+            fontFamily: 'Roboto', fontSize: 12, color: Colors.black54),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -92,7 +120,8 @@ class WrixlTheme {
           borderRadius: BorderRadius.circular(12),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: AppConstants.accentColor, width: 2),
+          borderSide:
+              const BorderSide(color: AppConstants.accentColor, width: 2),
           borderRadius: BorderRadius.circular(12),
         ),
       ),
@@ -100,7 +129,8 @@ class WrixlTheme {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: IconThemeData(color: AppConstants.accentColor),
-        titleTextStyle: TextStyle(fontFamily: 'Rajdhani', fontSize: 24, color: Colors.black),
+        titleTextStyle: TextStyle(
+            fontFamily: 'Rajdhani', fontSize: 24, color: Colors.black),
       ),
       snackBarTheme: const SnackBarThemeData(
         backgroundColor: AppConstants.accentColor,
@@ -110,7 +140,8 @@ class WrixlTheme {
     );
   }
 
-  static BoxDecoration getHoverGlow([Color glowColor = AppConstants.accentColor]) {
+  static BoxDecoration getHoverGlow(
+      [Color glowColor = AppConstants.accentColor]) {
     return BoxDecoration(
       boxShadow: [
         BoxShadow(

@@ -7,7 +7,8 @@ import 'package:wrixl_frontend/widgets/toggle_filter_icon_row_widget.dart';
 /// Data model for an institutional announcement.
 class InstitutionalAnnouncement {
   final String entityName;
-  final String activityType; // e.g., "ETF news", "Token allocations", "Disclosures"
+  final String
+      activityType; // e.g., "ETF news", "Token allocations", "Disclosures"
   final IconData icon;
   final String? badge; // e.g., "High Impact" or "Neutral"
   final String details; // Detailed text for modal
@@ -41,7 +42,12 @@ class _MarketSignalsInstitutionalWatchWidgetState
   String selectedFilter = "All";
 
   // Filter options and their icons.
-  final List<String> filters = ["All", "ETF news", "Token allocations", "Disclosures"];
+  final List<String> filters = [
+    "All",
+    "ETF news",
+    "Token allocations",
+    "Disclosures"
+  ];
   final Map<String, IconData> filterIcons = {
     "All": Icons.all_inclusive,
     "ETF news": Icons.document_scanner,
@@ -100,7 +106,8 @@ class _MarketSignalsInstitutionalWatchWidgetState
                           // Placeholder for graphs and historic trends.
                           Text("Historical trend graphs would appear here."),
                           const SizedBox(height: 8),
-                          Text("Suggested action: Rotate 5% into AI if holding <10%."),
+                          Text(
+                              "Suggested action: Rotate 5% into AI if holding <10%."),
                           const SizedBox(height: 8),
                           Text("Link to source or analysis..."),
                         ],
@@ -119,7 +126,8 @@ class _MarketSignalsInstitutionalWatchWidgetState
                   elevation: 2,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: AppConstants.accentColor.withOpacity(0.4)),
+                    side: BorderSide(
+                        color: AppConstants.accentColor.withOpacity(0.4)),
                   ),
                   child: Container(
                     width: 280,
@@ -128,7 +136,8 @@ class _MarketSignalsInstitutionalWatchWidgetState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Icon for the announcement.
-                        Icon(announcement.icon, color: AppConstants.accentColor, size: 30),
+                        Icon(announcement.icon,
+                            color: AppConstants.accentColor, size: 30),
                         const SizedBox(width: 10),
                         // Announcement details.
                         Expanded(
@@ -137,7 +146,10 @@ class _MarketSignalsInstitutionalWatchWidgetState
                             children: [
                               Text(
                                 announcement.entityName,
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
                                       color: AppConstants.textColor,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -145,7 +157,10 @@ class _MarketSignalsInstitutionalWatchWidgetState
                               const SizedBox(height: 4),
                               Text(
                                 announcement.activityType,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
                                       color: AppConstants.secondaryTextColor,
                                     ),
                               ),
@@ -153,7 +168,8 @@ class _MarketSignalsInstitutionalWatchWidgetState
                               // Optional badge for impact or sentiment.
                               if (announcement.badge != null)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
                                     color: announcement.badge == "High Impact"
                                         ? Colors.red
@@ -162,7 +178,10 @@ class _MarketSignalsInstitutionalWatchWidgetState
                                   ),
                                   child: Text(
                                     announcement.badge!,
-                                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
                                           color: Colors.white,
                                         ),
                                   ),

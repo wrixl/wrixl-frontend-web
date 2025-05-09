@@ -8,7 +8,8 @@ class PerformanceOverTimeChart extends StatefulWidget {
   const PerformanceOverTimeChart({Key? key}) : super(key: key);
 
   @override
-  State<PerformanceOverTimeChart> createState() => _PerformanceOverTimeChartState();
+  State<PerformanceOverTimeChart> createState() =>
+      _PerformanceOverTimeChartState();
 }
 
 class _PerformanceOverTimeChartState extends State<PerformanceOverTimeChart> {
@@ -318,7 +319,8 @@ class _PerformanceOverTimeChartState extends State<PerformanceOverTimeChart> {
           ),
         ),
         topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles:
+            const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       );
 
   FlBorderData get _borderData => FlBorderData(
@@ -380,15 +382,18 @@ class _PerformanceOverTimeChartState extends State<PerformanceOverTimeChart> {
       children: const [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          child: Text("My Portfolio", style: TextStyle(fontWeight: FontWeight.bold)),
+          child: Text("My Portfolio",
+              style: TextStyle(fontWeight: FontWeight.bold)),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          child: Text("Smart Money", style: TextStyle(fontWeight: FontWeight.bold)),
+          child: Text("Smart Money",
+              style: TextStyle(fontWeight: FontWeight.bold)),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          child: Text("Broad Market", style: TextStyle(fontWeight: FontWeight.bold)),
+          child: Text("Broad Market",
+              style: TextStyle(fontWeight: FontWeight.bold)),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),

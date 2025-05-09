@@ -1,4 +1,4 @@
- // lib\screens\dashboard\mirror_insights.dart
+// lib\screens\dashboard\mirror_insights.dart
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -259,7 +259,8 @@ class _MirrorInsightsScreenState extends State<MirrorInsightsScreen> {
         iconTheme: theme.appBarTheme.iconTheme,
         title: Text(
           "Mirror Insights",
-          style: theme.textTheme.titleLarge?.copyWith(color: scheme.onBackground),
+          style:
+              theme.textTheme.titleLarge?.copyWith(color: scheme.onBackground),
         ),
       ),
       body: SingleChildScrollView(
@@ -272,8 +273,10 @@ class _MirrorInsightsScreenState extends State<MirrorInsightsScreen> {
                 holdingThemes: holdingThemes,
                 selectedStrategy: selectedStrategy!,
                 selectedTheme: selectedTheme!,
-                onStrategyChanged: (value) => setState(() => selectedStrategy = value),
-                onThemeChanged: (value) => setState(() => selectedTheme = value),
+                onStrategyChanged: (value) =>
+                    setState(() => selectedStrategy = value),
+                onThemeChanged: (value) =>
+                    setState(() => selectedTheme = value),
               ),
             ),
             const SizedBox(height: 24),
@@ -307,21 +310,25 @@ class _MirrorInsightsScreenState extends State<MirrorInsightsScreen> {
                         child: TextField(
                           decoration: InputDecoration(
                             hintText: "Search strategies",
-                            prefixIcon: Icon(Icons.search, size: 18, color: scheme.onSurface),
+                            prefixIcon: Icon(Icons.search,
+                                size: 18, color: scheme.onSurface),
                             filled: true,
                             fillColor: scheme.surfaceVariant,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 10),
                             hintStyle: theme.textTheme.bodySmall?.copyWith(
                               color: scheme.onSurface.withOpacity(0.6),
                               fontSize: 13,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: scheme.primary.withOpacity(0.3)),
+                              borderSide: BorderSide(
+                                  color: scheme.primary.withOpacity(0.3)),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: scheme.primary.withOpacity(0.3)),
+                              borderSide: BorderSide(
+                                  color: scheme.primary.withOpacity(0.3)),
                             ),
                           ),
                           style: theme.textTheme.bodyMedium,
@@ -348,8 +355,10 @@ class _MirrorInsightsScreenState extends State<MirrorInsightsScreen> {
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.only(right: 12),
                           itemCount: suggestionList.length,
-                          separatorBuilder: (_, __) => const SizedBox(width: 16),
-                          itemBuilder: (_, i) => MirrorSuggestionTile(data: suggestionList[i]),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(width: 16),
+                          itemBuilder: (_, i) =>
+                              MirrorSuggestionTile(data: suggestionList[i]),
                         ),
                       ),
                     ),

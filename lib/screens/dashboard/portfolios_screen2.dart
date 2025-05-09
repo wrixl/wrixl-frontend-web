@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/utils/layout_constants.dart';
 import 'package:wrixl_frontend/utils/responsive.dart';
 import 'package:wrixl_frontend/widgets/common/reusable_widget_layout_card.dart';
+import 'package:wrixl_frontend/utils/widget_layout_storage.dart';
+import 'package:wrixl_frontend/widgets/common/draggable_card_wrapper.dart';
 
 class PortfoliosScreen2 extends StatefulWidget {
   const PortfoliosScreen2({Key? key}) : super(key: key);
@@ -15,321 +17,306 @@ class PortfoliosScreen2 extends StatefulWidget {
 class _PortfoliosScreen2State extends State<PortfoliosScreen2>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-
-  final List<Tab> _tabs = const [
-    Tab(text: 'Mine'),
-    Tab(text: 'Popular'),
-    Tab(text: 'Build'),
-  ];
+  bool isEditMode = false;
+  String selectedTabKey = "Mine";
+  Map<String, List<WidgetLayout>> layoutPresets = {};
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      setState(() {
+        selectedTabKey = _tabName(_tabController.index);
+      });
+    });
+    _loadPresets();
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _tabController.dispose();
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (Responsive.isDesktop(context)) {
-      return _buildDesktopLayout();
-    } else if (Responsive.isTablet(context)) {
-      return _buildTabletLayout();
-    } else {
-      return _buildMobileLayout();
+  String _tabName(int index) {
+    return switch (index) {
+      0 => "Mine",
+      1 => "Popular",
+      2 => "Build",
+      _ => "Mine",
+    };
+  }
+
+  String get selectedPreset => "Default$selectedTabKey";
+
+  void toggleEditMode() => setState(() => isEditMode = !isEditMode);
+
+  void toggleVisibility(String id) {
+    final layout = _currentLayout().firstWhere((w) => w.id == id);
+    setState(() => layout.visible = !layout.visible);
+    WidgetLayoutStorage.savePreset(selectedPreset, _currentLayout());
+  }
+
+  void updateLayout(WidgetLayout updated) {
+    final index = _currentLayout().indexWhere((w) => w.id == updated.id);
+    if (index != -1) {
+      setState(() => _currentLayout()[index] = updated);
+      WidgetLayoutStorage.savePreset(selectedPreset, _currentLayout());
     }
   }
 
-  Widget _buildDesktopLayout() {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Portfolios'),
-        elevation: 0,
-        bottom: TabBar(controller: _tabController, tabs: _tabs),
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final layout = LayoutHelper.fromDimensions(
-              constraints.maxWidth, constraints.maxHeight);
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              _desktopMyPortfolios(layout),
-              _desktopModelPortfolios(layout),
-              _desktopBuildStrategy(layout),
-            ],
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        icon: const Icon(Icons.add_chart_rounded),
-        label: const Text("Build Portfolio"),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        onPressed: () {
-          _tabController.animateTo(2); // Switch to Build tab
-        },
-      ),
-    );
+  List<WidgetLayout> _currentLayout() => layoutPresets[selectedPreset]!;
+
+  void resetPreset() async {
+    await WidgetLayoutStorage.deletePreset(selectedPreset);
+    setState(() {
+      layoutPresets[selectedPreset] = _defaultLayoutForTab(selectedTabKey);
+    });
   }
 
-Widget _buildTabletLayout() {
-  return _buildDesktopLayout(); // Shares same structure for now
-}
+  Future<void> _loadPresets() async {
+    final mine = await WidgetLayoutStorage.loadPreset("DefaultMine");
+    final popular = await WidgetLayoutStorage.loadPreset("DefaultPopular");
+    final build = await WidgetLayoutStorage.loadPreset("DefaultBuild");
 
+    setState(() {
+      layoutPresets = {
+        "DefaultMine": mine ?? _defaultLayoutForTab("Mine"),
+        "DefaultPopular": popular ?? _defaultLayoutForTab("Popular"),
+        "DefaultBuild": build ?? _defaultLayoutForTab("Build"),
+      };
+    });
+  }
 
-  Widget _desktopMyPortfolios(LayoutHelper layout) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(LayoutHelper.fixedOuterScreenMargin),
-      child: Wrap(
-        spacing: layout.cardGutter,
-        runSpacing: layout.verticalRowSpacing,
-        children: [
-          WrixlCard(
-            width: layout.threeColumnWidth,
-            height: layout.shortHeight,
-            openOnTap: false,
-            modalSize: ModalSize.medium,
-            modalTitle: "Portfolio View Filters",
-            child: const Text("Tabs: Live | Simulated | Archived Placeholder"),
+  List<WidgetLayout> _defaultLayoutForTab(String tab) {
+    return switch (tab) {
+      "Mine" => [
+          WidgetLayout(
+              id: "Portfolio View Filters",
+              visible: true,
+              row: 0,
+              colStart: 0,
+              width: WidgetWidth.threeColumn,
+              height: WidgetHeight.short),
+          WidgetLayout(
+              id: "Filters",
+              visible: true,
+              row: 1,
+              colStart: 0,
+              width: WidgetWidth.oneColumn,
+              height: WidgetHeight.tall),
+          for (int i = 1; i <= 4; i++)
+            WidgetLayout(
+                id: "Portfolio $i",
+                visible: true,
+                row: 1 + i,
+                colStart: 0,
+                width: WidgetWidth.oneColumn,
+                height: WidgetHeight.medium),
+          WidgetLayout(
+              id: "Portfolio Detail",
+              visible: true,
+              row: 7,
+              colStart: 0,
+              width: WidgetWidth.threeColumn,
+              height: WidgetHeight.medium,
+              modalSize: ModalSize.large),
+          WidgetLayout(
+              id: "Portfolio Comparison Radar",
+              visible: true,
+              row: 8,
+              colStart: 0,
+              width: WidgetWidth.threeColumn,
+              height: WidgetHeight.medium,
+              modalSize: ModalSize.large),
+          WidgetLayout(
+              id: "Create Portfolio",
+              visible: true,
+              row: 9,
+              colStart: 0,
+              width: WidgetWidth.threeColumn,
+              height: WidgetHeight.short),
+        ],
+      "Popular" => [
+          WidgetLayout(
+              id: "Model Filters",
+              visible: true,
+              row: 0,
+              colStart: 0,
+              width: WidgetWidth.threeColumn,
+              height: WidgetHeight.short),
+          for (int i = 1; i <= 4; i++)
+            WidgetLayout(
+                id: "Model Portfolio $i",
+                visible: true,
+                row: i,
+                colStart: 0,
+                width: WidgetWidth.oneColumn,
+                height: WidgetHeight.medium),
+          WidgetLayout(
+              id: "Model Comparison",
+              visible: true,
+              row: 6,
+              colStart: 0,
+              width: WidgetWidth.threeColumn,
+              height: WidgetHeight.medium,
+              modalSize: ModalSize.fullscreen),
+          WidgetLayout(
+              id: "Try Before You Mirror",
+              visible: true,
+              row: 7,
+              colStart: 0,
+              width: WidgetWidth.threeColumn,
+              height: WidgetHeight.short),
+        ],
+      "Build" => [
+          WidgetLayout(
+              id: "Prompt Input",
+              visible: true,
+              row: 0,
+              colStart: 0,
+              width: WidgetWidth.threeColumn,
+              height: WidgetHeight.short),
+          WidgetLayout(
+              id: "Risk & ROI Sliders",
+              visible: true,
+              row: 1,
+              colStart: 0,
+              width: WidgetWidth.threeColumn,
+              height: WidgetHeight.medium),
+          WidgetLayout(
+              id: "Token Filters",
+              visible: true,
+              row: 2,
+              colStart: 0,
+              width: WidgetWidth.threeColumn,
+              height: WidgetHeight.medium),
+          WidgetLayout(
+              id: "Backtest Results",
+              visible: true,
+              row: 3,
+              colStart: 0,
+              width: WidgetWidth.threeColumn,
+              height: WidgetHeight.medium,
+              modalSize: ModalSize.large),
+          WidgetLayout(
+              id: "Simulate & Save",
+              visible: true,
+              row: 4,
+              colStart: 0,
+              width: WidgetWidth.threeColumn,
+              height: WidgetHeight.short,
+              modalSize: ModalSize.small),
+        ],
+      _ => [],
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (layoutPresets.isEmpty || !layoutPresets.containsKey(selectedPreset)) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final layoutHelper = LayoutHelper.of(context);
+    final visibleWidgets = _currentLayout().where((w) => w.visible).toList();
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        title: const Text('Portfolios'),
+        bottom: TabBar(controller: _tabController, tabs: const [
+          Tab(text: 'Mine'),
+          Tab(text: 'Popular'),
+          Tab(text: 'Build'),
+        ]),
+        actions: [
+          DropdownButton<String>(
+            value: selectedPreset,
+            underline: const SizedBox.shrink(),
+            onChanged: null,
+            items: layoutPresets.keys.map((preset) {
+              return DropdownMenuItem(value: preset, child: Text(preset));
+            }).toList(),
           ),
-          WrixlCard(
-            width: layout.oneColumnWidth,
-            height: layout.tallHeight,
-            openOnTap: true,
-            modalSize: ModalSize.medium,
-            modalTitle: "Filters",
-            child: const Text("Sidebar Filters Placeholder"),
+          IconButton(
+            icon: Icon(isEditMode ? Icons.lock_open : Icons.lock),
+            tooltip: isEditMode ? "Lock Layout" : "Unlock Layout",
+            onPressed: toggleEditMode,
           ),
-          ...List.generate(4, (i) {
-            return WrixlCard(
-              width: layout.oneColumnWidth,
-              height: layout.mediumHeight,
-              openOnTap: true,
-              modalSize: ModalSize.medium,
-              modalTitle: "Portfolio ${i + 1}",
-              child: const Text("Portfolio Card Placeholder"),
-            );
-          }),
-          WrixlCard(
-            width: layout.threeColumnWidth,
-            height: layout.mediumHeight,
-            openOnTap: true,
-            modalSize: ModalSize.large,
-            modalTitle: "Portfolio Detail",
-            child: const Text("Portfolio Detail Placeholder"),
-          ),
-          WrixlCard(
-            width: layout.threeColumnWidth,
-            height: layout.mediumHeight,
-            openOnTap: true,
-            modalSize: ModalSize.large,
-            modalTitle: "Portfolio Comparison Radar",
-            child: const Text("Comparison Radar Chart Placeholder"),
-          ),
-          WrixlCard(
-            width: layout.threeColumnWidth,
-            height: layout.shortHeight,
-            openOnTap: true,
-            modalSize: ModalSize.medium,
-            modalTitle: "Create Portfolio",
-            child: Center(
-              child: Text("➕ Create New Portfolio Placeholder"),
-            ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: "Reset Preset",
+            onPressed: isEditMode ? resetPreset : null,
           ),
         ],
       ),
-    );
-  }
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final layoutHelper = LayoutHelper.fromDimensions(
+              constraints.maxWidth, constraints.maxHeight);
+          final widgetsToShow = isEditMode
+              ? (_currentLayout()
+                ..sort((a, b) =>
+                    (a.visible == b.visible) ? 0 : (a.visible ? -1 : 1)))
+              : _currentLayout().where((w) => w.visible).toList();
 
+          return TabBarView(
+            controller: _tabController,
+            children: List.generate(3, (index) {
+              return SingleChildScrollView(
+                controller: _scrollController,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: LayoutHelper.fixedOuterScreenMargin,
+                    vertical: 24),
+                child: Wrap(
+                  spacing: layoutHelper.cardGutter,
+                  runSpacing: layoutHelper.verticalRowSpacing,
+                  children: List.generate(widgetsToShow.length, (i) {
+                    final layout = widgetsToShow[i];
+                    final wrixlCard = WrixlCard(
+                      layout: layout,
+                      layoutHelper: layoutHelper,
+                      isEditMode: isEditMode,
+                      isHidden: !layout.visible,
+                      onLayoutChanged: updateLayout,
+                      onToggleVisibility: () => toggleVisibility(layout.id),
+                      modalTitle: layout.id,
+                      child: Text("${layout.id} Placeholder"),
+                    );
 
-  Widget _desktopModelPortfolios(LayoutHelper layout) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(LayoutHelper.fixedOuterScreenMargin),
-      child: Column(
-        children: [
-          WrixlCard(
-            width: layout.threeColumnWidth,
-            height: layout.shortHeight,
-            openOnTap: false,
-            modalSize: ModalSize.medium,
-            modalTitle: "Model Filters",
-            child: const Text("Filters: Risk-Off | Yield | Smart Money | AI | ..."),
-          ),
-          SizedBox(height: layout.verticalRowSpacing),
-          Wrap(
-            spacing: layout.cardGutter,
-            runSpacing: layout.verticalRowSpacing,
-            children: List.generate(4, (i) {
-              return WrixlCard(
-                width: layout.oneColumnWidth,
-                height: layout.mediumHeight,
-                openOnTap: true,
-                modalSize: ModalSize.medium,
-                modalTitle: "Model Portfolio ${i + 1}",
-                child: const Text("Model Portfolio Card Placeholder"),
+                    if (!layout.visible && isEditMode) return wrixlCard;
+
+                    return DraggableCardWrapper(
+                      index: i,
+                      isEditMode: isEditMode,
+                      visibleWidgets: visibleWidgets,
+                      onReorder: (from, to) {
+                        setState(() {
+                          final all = _currentLayout();
+                          final visible = all.where((w) => w.visible).toList();
+                          final moved = visible.removeAt(from);
+                          visible.insert(to, moved);
+                          final reordered = [
+                            ...visible,
+                            ...all.where((w) => !w.visible)
+                          ];
+                          layoutPresets[selectedPreset] = reordered;
+                          WidgetLayoutStorage.savePreset(
+                              selectedPreset, reordered);
+                        });
+                      },
+                      child: wrixlCard,
+                    );
+                  }),
+                ),
               );
             }),
-          ),
-          SizedBox(height: layout.verticalRowSpacing),
-          WrixlCard(
-            width: layout.threeColumnWidth,
-            height: layout.mediumHeight,
-            openOnTap: true,
-            modalSize: ModalSize.fullscreen,
-            modalTitle: "Model Comparison",
-            child: const Text("Model Portfolio Comparison Placeholder"),
-          ),
-          SizedBox(height: layout.verticalRowSpacing),
-          WrixlCard(
-            width: layout.threeColumnWidth,
-            height: layout.shortHeight,
-            openOnTap: true,
-            modalSize: ModalSize.medium,
-            modalTitle: "Try Before You Mirror",
-            child: Center(
-              child: Text("👀 Simulate First – See how it would have performed."),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Widget _desktopBuildStrategy(LayoutHelper layout) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(LayoutHelper.fixedOuterScreenMargin),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          WrixlCard(
-            width: layout.threeColumnWidth,
-            height: layout.shortHeight,
-            openOnTap: true,
-            modalSize: ModalSize.medium,
-            modalTitle: "Prompt Input",
-            child: const Text("Strategy Prompt Input Placeholder"),
-          ),
-          SizedBox(height: layout.verticalRowSpacing),
-          WrixlCard(
-            width: layout.threeColumnWidth,
-            height: layout.mediumHeight,
-            openOnTap: true,
-            modalSize: ModalSize.medium,
-            modalTitle: "Risk & ROI Sliders",
-            child: const Text("Sliders Placeholder"),
-          ),
-          SizedBox(height: layout.verticalRowSpacing),
-          WrixlCard(
-            width: layout.threeColumnWidth,
-            height: layout.mediumHeight,
-            openOnTap: true,
-            modalSize: ModalSize.medium,
-            modalTitle: "Token Filters",
-            child: const Text("Token Filters Placeholder"),
-          ),
-          SizedBox(height: layout.verticalRowSpacing),
-          WrixlCard(
-            width: layout.threeColumnWidth,
-            height: layout.mediumHeight,
-            openOnTap: true,
-            modalSize: ModalSize.large,
-            modalTitle: "Backtest Results",
-            child: const Text("Backtest Results Placeholder"),
-          ),
-          SizedBox(height: layout.verticalRowSpacing),
-          WrixlCard(
-            width: layout.threeColumnWidth,
-            height: layout.shortHeight,
-            openOnTap: true,
-            modalSize: ModalSize.small,
-            modalTitle: "Simulate & Save",
-            child: const Text("Save CTA Placeholder"),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-
-  Widget _buildMobileLayout() {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Portfolios'),
-        elevation: 0,
-        bottom: TabBar(controller: _tabController, tabs: _tabs),
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final layout = LayoutHelper.fromDimensions(
-              constraints.maxWidth, constraints.maxHeight);
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              _mobileSection([
-                "Filters",
-                "Portfolio 1",
-                "Portfolio 2",
-                "Portfolio 3",
-                "Portfolio Detail",
-              ], layout),
-              _mobileSection([
-                "Model Portfolio 1",
-                "Model Portfolio 2",
-                "Model Portfolio 3",
-                "Model Portfolio 4",
-                "Model Comparison",
-              ], layout),
-              _mobileSection([
-                "Prompt Input",
-                "Risk & ROI Sliders",
-                "Token Filters",
-                "Backtest Results",
-                "Simulate & Save",
-              ], layout),
-            ],
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        onPressed: () {
-          _tabController.animateTo(2);
-        },
-        child: const Icon(Icons.add_chart_rounded),
-      ),
-    );
-  }
-
-
-  Widget _mobileSection(List<String> titles, LayoutHelper layout) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: LayoutHelper.fixedOuterScreenMargin,
-        vertical: 24,
-      ),
-      child: Column(
-        children: titles
-            .map(
-              (title) => Padding(
-                padding: EdgeInsets.only(bottom: layout.verticalRowSpacing),
-                child: WrixlCard(
-                  width: layout.oneColumnWidth,
-                  height: layout.mediumHeight,
-                  openOnTap: true,
-                  modalSize: ModalSize.medium,
-                  modalTitle: title,
-                  child: Text("$title Placeholder"),
-                ),
-              ),
-            )
-            .toList(),
       ),
     );
   }

@@ -1,4 +1,4 @@
- // lib\models\smart_money_model.dart
+// lib\models\smart_money_model.dart
 
 class SmartMoneyTransaction {
   final String token;

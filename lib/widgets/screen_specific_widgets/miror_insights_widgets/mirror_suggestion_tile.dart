@@ -129,20 +129,28 @@ class MirrorSuggestionTile extends StatelessWidget {
           // ROI / Volatility / Sharpe
           Row(
             children: [
-              Expanded(child: _statBlock("ROI", data.projectedRoi, theme, scheme)),
-              Expanded(child: _statBlock("Volatility", data.volatility, theme, scheme)),
+              Expanded(
+                  child: _statBlock("ROI", data.projectedRoi, theme, scheme)),
+              Expanded(
+                  child:
+                      _statBlock("Volatility", data.volatility, theme, scheme)),
               Expanded(child: _statBlock("Sharpe", data.sharpe, theme, scheme)),
             ],
           ),
           const SizedBox(height: 10),
 
           // Holdings / Chain / Mix
-          _statBlock("Top Holdings", data.topHoldings.join(", "), theme, scheme),
+          _statBlock(
+              "Top Holdings", data.topHoldings.join(", "), theme, scheme),
           const SizedBox(height: 6),
           Row(
             children: [
-              Expanded(child: _statBlock("Chain", data.dominantChain, theme, scheme)),
-              Expanded(child: _statBlock("Asset Mix", data.assetTypeMix, theme, scheme)),
+              Expanded(
+                  child:
+                      _statBlock("Chain", data.dominantChain, theme, scheme)),
+              Expanded(
+                  child: _statBlock(
+                      "Asset Mix", data.assetTypeMix, theme, scheme)),
             ],
           ),
           const SizedBox(height: 10),
@@ -154,9 +162,13 @@ class MirrorSuggestionTile extends StatelessWidget {
           // Timeline row
           Row(
             children: [
-              Expanded(child: _statBlock("Since", dateFormatted, theme, scheme)),
-              Expanded(child: _statBlock("Achieved", data.goalAchieved, theme, scheme)),
-              Expanded(child: _statBlock("Horizon", data.horizon, theme, scheme)),
+              Expanded(
+                  child: _statBlock("Since", dateFormatted, theme, scheme)),
+              Expanded(
+                  child:
+                      _statBlock("Achieved", data.goalAchieved, theme, scheme)),
+              Expanded(
+                  child: _statBlock("Horizon", data.horizon, theme, scheme)),
             ],
           ),
           const SizedBox(height: 12),
@@ -204,16 +216,20 @@ class MirrorSuggestionTile extends StatelessWidget {
     );
   }
 
-  Widget _statBlock(String label, String value, ThemeData theme, ColorScheme scheme) {
+  Widget _statBlock(
+      String label, String value, ThemeData theme, ColorScheme scheme) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: theme.textTheme.bodyMedium?.copyWith(color: scheme.onSurface)),
+          Text(value,
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: scheme.onSurface)),
           Text(
             label,
-            style: theme.textTheme.labelSmall?.copyWith(color: scheme.onSurface.withOpacity(0.6)),
+            style: theme.textTheme.labelSmall
+                ?.copyWith(color: scheme.onSurface.withOpacity(0.6)),
           ),
         ],
       ),

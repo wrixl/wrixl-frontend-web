@@ -64,9 +64,9 @@ class PortfolioTilesGrid extends StatelessWidget {
 
     // tweak these to control height = width / ratio
     final double aspectRatio = columns == 1
-        ? 0.75  // mobile: height ≈ width / 0.75  (taller)
+        ? 0.75 // mobile: height ≈ width / 0.75  (taller)
         : columns == 2
-            ? 0.65  // tablet
+            ? 0.65 // tablet
             : 0.60; // desktop
 
     return Column(
@@ -115,7 +115,8 @@ class PortfolioTilesGrid extends StatelessWidget {
             mainAxisSpacing: 16,
             childAspectRatio: aspectRatio,
           ),
-          itemBuilder: (context, index) => _PortfolioCard(portfolio: data[index]),
+          itemBuilder: (context, index) =>
+              _PortfolioCard(portfolio: data[index]),
         ),
       ],
     );
@@ -148,7 +149,8 @@ class _PortfolioCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(  // this Column now has enough space
+      child: Column(
+        // this Column now has enough space
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -161,7 +163,9 @@ class _PortfolioCard extends StatelessWidget {
                   )),
               IconButton(
                 icon: Icon(
-                  portfolio.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                  portfolio.isBookmarked
+                      ? Icons.bookmark
+                      : Icons.bookmark_border,
                   size: 20,
                   color: scheme.primary,
                 ),
@@ -195,8 +199,11 @@ class _PortfolioCard extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: _statBlock("ROI", portfolio.projectedRoi, context)),
-              Expanded(child: _statBlock("Volatility", portfolio.volatility, context)),
+              Expanded(
+                  child: _statBlock("ROI", portfolio.projectedRoi, context)),
+              Expanded(
+                  child:
+                      _statBlock("Volatility", portfolio.volatility, context)),
               Expanded(child: _statBlock("Sharpe", portfolio.sharpe, context)),
             ],
           ),
@@ -207,8 +214,11 @@ class _PortfolioCard extends StatelessWidget {
           Row(
             children: [
               Expanded(child: _statBlock("Since", dateFormatted, context)),
-              Expanded(child: _statBlock("Achieved", portfolio.goalAchieved, context)),
-              Expanded(child: _statBlock("Horizon", portfolio.horizon, context)),
+              Expanded(
+                  child:
+                      _statBlock("Achieved", portfolio.goalAchieved, context)),
+              Expanded(
+                  child: _statBlock("Horizon", portfolio.horizon, context)),
             ],
           ),
           const SizedBox(height: 12),
@@ -251,8 +261,12 @@ class _PortfolioCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: theme.textTheme.bodyMedium?.copyWith(color: scheme.onSurface)),
-          Text(label, style: theme.textTheme.labelSmall?.copyWith(color: scheme.onSurface.withOpacity(0.6))),
+          Text(value,
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: scheme.onSurface)),
+          Text(label,
+              style: theme.textTheme.labelSmall
+                  ?.copyWith(color: scheme.onSurface.withOpacity(0.6))),
         ],
       ),
     );

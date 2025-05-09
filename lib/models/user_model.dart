@@ -1,6 +1,6 @@
-// lib\models\user_model.dart 
- 
- class User {
+// lib\models\user_model.dart
+
+class User {
   final int id;
   final String username;
   final String email;
@@ -43,4 +43,3 @@
     };
   }
 }
-

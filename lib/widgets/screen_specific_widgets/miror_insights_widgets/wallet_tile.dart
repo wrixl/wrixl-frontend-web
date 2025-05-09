@@ -63,7 +63,8 @@ class WalletData {
 class WalletTileListWidget extends StatelessWidget {
   final List<WalletData> wallets;
 
-  const WalletTileListWidget({Key? key, required this.wallets}) : super(key: key);
+  const WalletTileListWidget({Key? key, required this.wallets})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -92,9 +93,11 @@ class WalletTileListWidget extends StatelessWidget {
                     onPressed: () {
                       // Simulate logic
                     },
-                    icon: Icon(Icons.bar_chart, size: 18, color: scheme.primary),
+                    icon:
+                        Icon(Icons.bar_chart, size: 18, color: scheme.primary),
                     label: Text("Simulate in Portfolio Simulator",
-                        style: theme.textTheme.bodyMedium?.copyWith(color: scheme.primary)),
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(color: scheme.primary)),
                   ),
                   const SizedBox(width: 12),
                   SizedBox(
@@ -103,19 +106,20 @@ class WalletTileListWidget extends StatelessWidget {
                     child: TextField(
                       decoration: InputDecoration(
                         hintText: "Search wallets",
-                        prefixIcon: Icon(Icons.search, size: 18, color: scheme.onSurface),
+                        prefixIcon: Icon(Icons.search,
+                            size: 18, color: scheme.onSurface),
                         filled: true,
                         fillColor: scheme.surface.withOpacity(0.1),
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 0, horizontal: 10),
                         hintStyle: theme.textTheme.bodySmall?.copyWith(
                           color: scheme.onSurface.withOpacity(0.7),
                           fontSize: 13,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              BorderSide(color: scheme.primary.withOpacity(0.3)),
+                          borderSide: BorderSide(
+                              color: scheme.primary.withOpacity(0.3)),
                         ),
                       ),
                       onChanged: (query) {
@@ -194,8 +198,7 @@ class _WalletTile extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) =>
-      "${date.month}/${date.day}/${date.year}";
+  String _formatDate(DateTime date) => "${date.month}/${date.day}/${date.year}";
 
   @override
   Widget build(BuildContext context) {
@@ -239,8 +242,7 @@ class _WalletTile extends StatelessWidget {
                 ],
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: scheme.primary.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),
@@ -440,7 +442,9 @@ class _WalletTile extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(value, style: theme.textTheme.bodyMedium?.copyWith(color: scheme.onSurface)),
+        Text(value,
+            style:
+                theme.textTheme.bodyMedium?.copyWith(color: scheme.onSurface)),
         Text(label,
             style: theme.textTheme.labelSmall?.copyWith(
               color: scheme.onSurface.withOpacity(0.6),
@@ -449,4 +453,3 @@ class _WalletTile extends StatelessWidget {
     );
   }
 }
-

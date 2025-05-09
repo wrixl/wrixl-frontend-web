@@ -9,13 +9,16 @@ import 'package:wrixl_frontend/widgets/toggle_filter_icon_row_widget.dart';
 
 class SmartMoneyFeedInsightCards extends StatefulWidget {
   final List<Map<String, dynamic>> cardsData;
-  const SmartMoneyFeedInsightCards({Key? key, required this.cardsData}) : super(key: key);
+  const SmartMoneyFeedInsightCards({Key? key, required this.cardsData})
+      : super(key: key);
 
   @override
-  State<SmartMoneyFeedInsightCards> createState() => _SmartMoneyFeedInsightCardsState();
+  State<SmartMoneyFeedInsightCards> createState() =>
+      _SmartMoneyFeedInsightCardsState();
 }
 
-class _SmartMoneyFeedInsightCardsState extends State<SmartMoneyFeedInsightCards> {
+class _SmartMoneyFeedInsightCardsState
+    extends State<SmartMoneyFeedInsightCards> {
   String activeFilter = 'all';
   String searchQuery = '';
 
@@ -51,11 +54,15 @@ class _SmartMoneyFeedInsightCardsState extends State<SmartMoneyFeedInsightCards>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final filteredCards = widget.cardsData.where((e) {
-      final matchesFilter = activeFilter == 'all' || e['trendType'].toString().toLowerCase().contains(activeFilter);
+      final matchesFilter = activeFilter == 'all' ||
+          e['trendType'].toString().toLowerCase().contains(activeFilter);
       final matchesSearch = searchQuery.isEmpty ||
-          (e['title']?.toLowerCase().contains(searchQuery.toLowerCase()) ?? false) ||
-          (e['stat']?.toLowerCase().contains(searchQuery.toLowerCase()) ?? false) ||
-          (e['commentary']?.toLowerCase().contains(searchQuery.toLowerCase()) ?? false);
+          (e['title']?.toLowerCase().contains(searchQuery.toLowerCase()) ??
+              false) ||
+          (e['stat']?.toLowerCase().contains(searchQuery.toLowerCase()) ??
+              false) ||
+          (e['commentary']?.toLowerCase().contains(searchQuery.toLowerCase()) ??
+              false);
       return matchesFilter && matchesSearch;
     }).toList();
 
@@ -89,7 +96,8 @@ class _SmartMoneyFeedInsightCardsState extends State<SmartMoneyFeedInsightCards>
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppConstants.accentColor.withOpacity(0.3)),
+                    borderSide: BorderSide(
+                        color: AppConstants.accentColor.withOpacity(0.3)),
                   ),
                 ),
               ),
@@ -143,7 +151,10 @@ class _SmartMoneyFeedInsightCardsState extends State<SmartMoneyFeedInsightCards>
     if (data['priceSpots'] is Map) {
       (data['priceSpots'] as Map<String, dynamic>).forEach((key, value) {
         if (value is List) {
-          priceSpotsMap[key] = value.map<FlSpot>((e) => e is FlSpot ? e : FlSpot(e[0].toDouble(), e[1].toDouble())).toList();
+          priceSpotsMap[key] = value
+              .map<FlSpot>((e) =>
+                  e is FlSpot ? e : FlSpot(e[0].toDouble(), e[1].toDouble()))
+              .toList();
         }
       });
     }
@@ -162,7 +173,8 @@ class _SmartMoneyFeedInsightCardsState extends State<SmartMoneyFeedInsightCards>
     });
 
     final isPositive = priceSpotsMap.values.expand((e) => e).isNotEmpty
-        ? priceSpotsMap.values.expand((e) => e).last.y >= priceSpotsMap.values.expand((e) => e).first.y
+        ? priceSpotsMap.values.expand((e) => e).last.y >=
+            priceSpotsMap.values.expand((e) => e).first.y
         : true;
 
     return GestureDetector(
@@ -173,10 +185,14 @@ class _SmartMoneyFeedInsightCardsState extends State<SmartMoneyFeedInsightCards>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           color: theme.colorScheme.surface.withOpacity(0.95),
-          border: Border.all(color: isPositive ? AppConstants.neonGreen : AppConstants.neonRed),
+          border: Border.all(
+              color:
+                  isPositive ? AppConstants.neonGreen : AppConstants.neonRed),
           boxShadow: [
             BoxShadow(
-              color: (isPositive ? AppConstants.neonGreen : AppConstants.neonRed).withOpacity(0.04),
+              color:
+                  (isPositive ? AppConstants.neonGreen : AppConstants.neonRed)
+                      .withOpacity(0.04),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -212,12 +228,15 @@ class _SmartMoneyFeedInsightCardsState extends State<SmartMoneyFeedInsightCards>
                 ),
                 const SizedBox(width: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: AppConstants.accentColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(trendType, style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onPrimary, fontSize: 10)),
+                  child: Text(trendType,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                          color: theme.colorScheme.onPrimary, fontSize: 10)),
                 )
               ],
             ),
@@ -245,7 +264,13 @@ class _SmartMoneyFeedInsightCardsState extends State<SmartMoneyFeedInsightCards>
                       lineTouchData: const LineTouchData(enabled: false),
                       lineBarsData: chartLines,
                       betweenBarsData: chartLines.length > 1
-                          ? [BetweenBarsData(fromIndex: 0, toIndex: 1, color: AppConstants.accentColor.withOpacity(0.15))]
+                          ? [
+                              BetweenBarsData(
+                                  fromIndex: 0,
+                                  toIndex: 1,
+                                  color: AppConstants.accentColor
+                                      .withOpacity(0.15))
+                            ]
                           : [],
                       titlesData: FlTitlesData(show: false),
                       gridData: FlGridData(show: false),
@@ -268,7 +293,8 @@ class _SmartMoneyFeedInsightCardsState extends State<SmartMoneyFeedInsightCards>
                         backgroundColor: theme.colorScheme.surface,
                         child: Text(
                           chain.substring(0, 3).toUpperCase(),
-                          style: theme.textTheme.labelLarge?.copyWith(fontSize: 9, fontWeight: FontWeight.bold),
+                          style: theme.textTheme.labelLarge?.copyWith(
+                              fontSize: 9, fontWeight: FontWeight.bold),
                         ),
                       ),
                     )),
@@ -277,7 +303,9 @@ class _SmartMoneyFeedInsightCardsState extends State<SmartMoneyFeedInsightCards>
                   color: AppConstants.neonGreen,
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Added '${data['title']}' to Watchlist")),
+                      SnackBar(
+                          content:
+                              Text("Added '${data['title']}' to Watchlist")),
                     );
                   },
                 ),
@@ -310,14 +338,17 @@ class _SmartMoneyFeedInsightCardsState extends State<SmartMoneyFeedInsightCards>
             Text(data['stat'], style: theme.textTheme.headlineMedium),
             const SizedBox(height: 12),
             const Text("Top Wallets Involved:"),
-            ...List.generate((data['wallets'] ?? []).length, (i) => Text("• ${data['wallets'][i]}")),
+            ...List.generate((data['wallets'] ?? []).length,
+                (i) => Text("• ${data['wallets'][i]}")),
             const SizedBox(height: 10),
             const Text("Recent Actions:"),
             Text(data['commentary'] ?? "No AI commentary available."),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
+          TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close')),
           ElevatedButton.icon(
             onPressed: () {},
             icon: const Icon(Icons.copy),
