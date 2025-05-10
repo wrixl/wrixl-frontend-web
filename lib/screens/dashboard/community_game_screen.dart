@@ -193,7 +193,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.twoColumn,
         height: WidgetHeight.medium,
         modalSize: ModalSize.large,
-      ),
+            openOnTap: true),
       WidgetLayout(
         id: "Predict - Portfolio Prediction Arena",
         visible: true,
@@ -202,7 +202,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.threeColumn,
         height: WidgetHeight.medium,
         modalSize: ModalSize.fullscreen,
-      ),
+        openOnTap: true),
       // Vote Tab
       WidgetLayout(
         id: "Vote - Signals DAO Voting",
@@ -212,7 +212,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.threeColumn,
         height: WidgetHeight.medium,
         modalSize: ModalSize.large,
-      ),
+        openOnTap: true),
       WidgetLayout(
         id: "Vote - Signal Curation Submissions",
         visible: true,
@@ -221,7 +221,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.twoColumn,
         height: WidgetHeight.medium,
         modalSize: ModalSize.large,
-      ),
+        openOnTap: true),
       WidgetLayout(
         id: "Vote - Referral Impact",
         visible: true,
@@ -230,7 +230,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.oneColumn,
         height: WidgetHeight.medium,
         modalSize: ModalSize.medium,
-      ),
+        openOnTap: true),
       // Earn Tab
       WidgetLayout(
         id: "Earn - WRX Rewards Dashboard",
@@ -240,7 +240,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.twoColumn,
         height: WidgetHeight.medium,
         modalSize: ModalSize.large,
-      ),
+        openOnTap: true),
       WidgetLayout(
         id: "Earn - Rewards Inventory",
         visible: true,
@@ -249,7 +249,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.oneColumn,
         height: WidgetHeight.medium,
         modalSize: ModalSize.medium,
-      ),
+        openOnTap: true),
       WidgetLayout(
         id: "Earn - Claimable Perks",
         visible: true,
@@ -258,7 +258,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.twoColumn,
         height: WidgetHeight.short,
         modalSize: ModalSize.medium,
-      ),
+        openOnTap: true),
       WidgetLayout(
         id: "Earn - Impact Score",
         visible: true,
@@ -267,7 +267,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.oneColumn,
         height: WidgetHeight.short,
         modalSize: ModalSize.medium,
-      ),
+        openOnTap: true),
       // Rank Tab
       WidgetLayout(
         id: "Rank - User Leaderboard",
@@ -277,7 +277,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.oneColumn,
         height: WidgetHeight.medium,
         modalSize: ModalSize.medium,
-      ),
+        openOnTap: true),
       WidgetLayout(
         id: "Rank - Community Contests",
         visible: true,
@@ -286,7 +286,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.twoColumn,
         height: WidgetHeight.medium,
         modalSize: ModalSize.large,
-      ),
+        openOnTap: true),
       WidgetLayout(
         id: "Rank - Badge Collection",
         visible: true,
@@ -295,7 +295,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.oneColumn,
         height: WidgetHeight.medium,
         modalSize: ModalSize.medium,
-      ),
+        openOnTap: true),
       WidgetLayout(
         id: "Rank - XP Progress",
         visible: true,
@@ -304,7 +304,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.oneColumn,
         height: WidgetHeight.short,
         modalSize: ModalSize.small,
-      ),
+        openOnTap: true),
       WidgetLayout(
         id: "Rank - Weekly Mission",
         visible: true,
@@ -313,7 +313,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.twoColumn,
         height: WidgetHeight.moderate,
         modalSize: ModalSize.medium,
-      ),
+        openOnTap: true),
       WidgetLayout(
         id: "Rank - Wrixler Rank",
         visible: true,
@@ -322,7 +322,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.oneColumn,
         height: WidgetHeight.medium,
         modalSize: ModalSize.medium,
-      ),
+        openOnTap: true),
       WidgetLayout(
         id: "Rank - Sector Rankings",
         visible: true,
@@ -331,7 +331,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.twoColumn,
         height: WidgetHeight.medium,
         modalSize: ModalSize.medium,
-      ),
+        openOnTap: true),
       WidgetLayout(
         id: "Rank - Discussion Threads",
         visible: true,
@@ -340,7 +340,7 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         width: WidgetWidth.threeColumn,
         height: WidgetHeight.tall,
         modalSize: ModalSize.fullscreen,
-      ),
+        openOnTap: true),
     ];
   }
 }

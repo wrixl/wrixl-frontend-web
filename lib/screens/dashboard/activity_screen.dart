@@ -103,7 +103,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
             colStart: 0,
             width: WidgetWidth.onePointFiveColumn,
             height: WidgetHeight.short,
-            modalSize: ModalSize.medium),
+            modalSize: ModalSize.medium,
+            openOnTap: true),
         WidgetLayout(
             id: "alerts",
             visible: true,
@@ -111,7 +112,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
             colStart: 1,
             width: WidgetWidth.onePointFiveColumn,
             height: WidgetHeight.short,
-            modalSize: ModalSize.medium),
+            modalSize: ModalSize.medium,
+            openOnTap: true),
       ];
 
   @override
