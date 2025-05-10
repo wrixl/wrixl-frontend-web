@@ -75,14 +75,14 @@ class LayoutHelper {
       threeColumnWidth = baseWidth;
       halfColumnWidth = (baseWidth - cardGutter) / 2;
     } else if (isTablet) {
-      // two‑column max
+      // two‑column layout
       oneColumnWidth = (baseWidth - cardGutter) / 2;
       twoColumnWidth = baseWidth;
       threeColumnWidth = baseWidth;
       halfColumnWidth = (baseWidth - cardGutter) / 2;
     } else {
-      // full desktop grid
-      oneColumnWidth = (baseWidth - cardGutter) / 3;
+      // ✅ full desktop grid — fix 3-column spacing
+      oneColumnWidth = (baseWidth - 2 * cardGutter) / 3;
       twoColumnWidth = (baseWidth - cardGutter) * 2 / 3;
       halfColumnWidth = (baseWidth - cardGutter) / 2;
       threeColumnWidth = baseWidth;
@@ -90,7 +90,6 @@ class LayoutHelper {
 
     shortHeight = screenHeight * 0.16;
     mediumHeight = shortHeight * 2;
-//    tallHeight = mediumHeight * 2 + (2 * verticalRowSpacing);
     tallHeight = mediumHeight * 2 + verticalRowSpacing;
     moderateHeight = shortHeight + mediumHeight + verticalRowSpacing;
   }

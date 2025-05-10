@@ -18,19 +18,18 @@ class _DashboardScreen2State extends State<DashboardScreen2> {
   bool isEditMode = false;
   late String selectedPreset;
   Map<String, List<WidgetLayout>> layoutPresets = {};
-
   final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
 
   @override
   void initState() {
     super.initState();
     _loadPresets();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void toggleEditMode() => setState(() => isEditMode = !isEditMode);
@@ -79,7 +78,6 @@ class _DashboardScreen2State extends State<DashboardScreen2> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Safety guard during async preset loading
     if (layoutPresets.isEmpty || !layoutPresets.containsKey(selectedPreset)) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -99,10 +97,7 @@ class _DashboardScreen2State extends State<DashboardScreen2> {
                 ? null
                 : (value) => setState(() => selectedPreset = value!),
             items: layoutPresets.keys.map((preset) {
-              return DropdownMenuItem(
-                value: preset,
-                child: Text(preset),
-              );
+              return DropdownMenuItem(value: preset, child: Text(preset));
             }).toList(),
           ),
           IconButton(
@@ -119,6 +114,7 @@ class _DashboardScreen2State extends State<DashboardScreen2> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
+          final isMobile = Responsive.isMobile(context);
           final layoutHelper = LayoutHelper.fromDimensions(
             constraints.maxWidth,
             constraints.maxHeight,
@@ -130,56 +126,59 @@ class _DashboardScreen2State extends State<DashboardScreen2> {
                     (a.visible == b.visible) ? 0 : (a.visible ? -1 : 1)))
               : _currentLayout().where((w) => w.visible).toList();
 
+          final cardList = List.generate(widgetsToShow.length, (index) {
+            final layout = widgetsToShow[index];
+            final wrixlCard = WrixlCard(
+              layout: layout,
+              layoutHelper: layoutHelper,
+              isEditMode: isEditMode,
+              isHidden: !layout.visible,
+              onLayoutChanged: updateLayout,
+              onToggleVisibility: () => toggleVisibility(layout.id),
+              modalTitle: layout.id,
+              child: Text("${layout.id}"),
+            );
+
+            if (!layout.visible && isEditMode) return wrixlCard;
+
+            return DraggableCardWrapper(
+              index: index,
+              isEditMode: isEditMode,
+              visibleWidgets: visibleWidgets,
+              onReorder: (from, to) {
+                setState(() {
+                  final all = _currentLayout();
+                  final visible = all.where((w) => w.visible).toList();
+                  final moved = visible.removeAt(from);
+                  visible.insert(to, moved);
+                  final reordered = [
+                    ...visible,
+                    ...all.where((w) => !w.visible)
+                  ];
+                  layoutPresets[selectedPreset] = reordered;
+                  WidgetLayoutStorage.savePreset(selectedPreset, reordered);
+                });
+              },
+              child: wrixlCard,
+            );
+          });
+
           return SingleChildScrollView(
             controller: _scrollController,
             padding: const EdgeInsets.symmetric(
               horizontal: LayoutHelper.fixedOuterScreenMargin,
               vertical: 24,
             ),
-            child: Wrap(
-              spacing: layoutHelper.cardGutter,
-              runSpacing: layoutHelper.verticalRowSpacing,
-              children: List.generate(widgetsToShow.length, (index) {
-                final layout = widgetsToShow[index];
-
-                final wrixlCard = WrixlCard(
-                  layout: layout,
-                  layoutHelper: layoutHelper,
-                  isEditMode: isEditMode,
-                  isHidden: !layout.visible,
-                  onLayoutChanged: updateLayout,
-                  onToggleVisibility: () => toggleVisibility(layout.id),
-                  modalTitle: layout.id,
-                  child: Text("${layout.id}"),
-                );
-
-                if (!layout.visible && isEditMode) return wrixlCard;
-
-                return DraggableCardWrapper(
-                  index: index,
-                  isEditMode: isEditMode,
-                  visibleWidgets: visibleWidgets,
-                  onReorder: (from, to) {
-                    setState(() {
-                      final all = _currentLayout();
-                      final visible = all.where((w) => w.visible).toList();
-
-                      final moved = visible.removeAt(from);
-                      visible.insert(to, moved);
-
-                      final reordered = [
-                        ...visible,
-                        ...all.where((w) => !w.visible),
-                      ];
-
-                      layoutPresets[selectedPreset] = reordered;
-                      WidgetLayoutStorage.savePreset(selectedPreset, reordered);
-                    });
-                  },
-                  child: wrixlCard,
-                );
-              }),
-            ),
+            child: isMobile
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: cardList,
+                  )
+                : Wrap(
+                    spacing: layoutHelper.cardGutter,
+                    runSpacing: layoutHelper.verticalRowSpacing,
+                    children: cardList,
+                  ),
           );
         },
       ),
@@ -196,121 +195,134 @@ class _DashboardScreen2State extends State<DashboardScreen2> {
 
   List<WidgetLayout> _coreWidgets() => [
         WidgetLayout(
-            id: "Portfolio Snapshot",
-            visible: true,
-            row: 0,
-            colStart: 0,
-            width: WidgetWidth.twoColumn,
-            height: WidgetHeight.tall,
-            modalSize: ModalSize.large,
-            openOnTap: true),
+          id: "Portfolio Snapshot",
+          visible: true,
+          row: 0,
+          colStart: 0,
+          width: WidgetWidth.twoColumn,
+          height: WidgetHeight.tall,
+          modalSize: ModalSize.large,
+          openOnTap: true,
+        ),
         WidgetLayout(
-            id: "Smart Money Drift",
-            visible: true,
-            row: 0,
-            colStart: 2,
-            width: WidgetWidth.oneColumn,
-            height: WidgetHeight.medium,
-            modalSize: ModalSize.large,
-            openOnTap: true),
+          id: "Smart Money Drift",
+          visible: true,
+          row: 0,
+          colStart: 2,
+          width: WidgetWidth.oneColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.large,
+          openOnTap: true,
+        ),
         WidgetLayout(
-            id: "AI Quick Tip",
-            visible: true,
-            row: 1,
-            colStart: 2,
-            width: WidgetWidth.oneColumn,
-            height: WidgetHeight.medium,
-            modalSize: ModalSize.medium,
-            openOnTap: true),
+          id: "AI Quick Tip",
+          visible: true,
+          row: 1,
+          colStart: 2,
+          width: WidgetWidth.oneColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.medium,
+          openOnTap: true,
+        ),
         WidgetLayout(
-            id: "Token Allocation",
-            visible: true,
-            row: 2,
-            colStart: 0,
-            width: WidgetWidth.twoColumn,
-            height: WidgetHeight.moderate,
-            modalSize: ModalSize.large,
-            openOnTap: true),
+          id: "Token Allocation",
+          visible: true,
+          row: 2,
+          colStart: 0,
+          width: WidgetWidth.twoColumn,
+          height: WidgetHeight.moderate,
+          modalSize: ModalSize.large,
+          openOnTap: true,
+        ),
         WidgetLayout(
-            id: "Stress Radar",
-            visible: true,
-            row: 2,
-            colStart: 2,
-            width: WidgetWidth.oneColumn,
-            height: WidgetHeight.moderate,
-            modalSize: ModalSize.large,
-            openOnTap: true),            
+          id: "Stress Radar",
+          visible: true,
+          row: 2,
+          colStart: 2,
+          width: WidgetWidth.oneColumn,
+          height: WidgetHeight.moderate,
+          modalSize: ModalSize.large,
+          openOnTap: true,
+        ),
         WidgetLayout(
-            id: "Live Ticker",
-            visible: true,
-            row: 3,
-            colStart: 0,
-            width: WidgetWidth.threeColumn,
-            height: WidgetHeight.short,
-            modalSize: ModalSize.small,
-            openOnTap: true),  
+          id: "Live Ticker",
+          visible: true,
+          row: 3,
+          colStart: 0,
+          width: WidgetWidth.threeColumn,
+          height: WidgetHeight.short,
+          modalSize: ModalSize.small,
+          openOnTap: true,
+        ),
         WidgetLayout(
-            id: "Model Portfolios",
-            visible: true,
-            row: 4,
-            colStart: 0,
-            width: WidgetWidth.twoColumn,
-            height: WidgetHeight.medium,
-            modalSize: ModalSize.large,
-            openOnTap: true),  
+          id: "Model Portfolios",
+          visible: true,
+          row: 4,
+          colStart: 0,
+          width: WidgetWidth.twoColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.large,
+          openOnTap: true,
+        ),
         WidgetLayout(
-            id: "Performance Benchmarks",
-            visible: true,
-            row: 4,
-            colStart: 2,
-            width: WidgetWidth.oneColumn,
-            height: WidgetHeight.medium,
-            modalSize: ModalSize.small,
-            openOnTap: true),  
+          id: "Performance Benchmarks",
+          visible: true,
+          row: 4,
+          colStart: 2,
+          width: WidgetWidth.oneColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.small,
+          openOnTap: true,
+        ),
         WidgetLayout(
-            id: "Alerts",
-            visible: true,
-            row: 5,
-            colStart: 0,
-            width: WidgetWidth.onePointFiveColumn,
-            height: WidgetHeight.medium,
-            modalSize: ModalSize.medium,
-            openOnTap: true),  
+          id: "Alerts",
+          visible: true,
+          row: 5,
+          colStart: 0,
+          width: WidgetWidth.onePointFiveColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.medium,
+          openOnTap: true,
+        ),
         WidgetLayout(
-            id: "Next Best Action",
-            visible: true,
-            row: 5,
-            colStart: 1,
-            width: WidgetWidth.onePointFiveColumn,
-            height: WidgetHeight.moderate,
-            modalSize: ModalSize.large,
-            openOnTap: true),  
+          id: "Next Best Action",
+          visible: true,
+          row: 5,
+          colStart: 1,
+          width: WidgetWidth.onePointFiveColumn,
+          height: WidgetHeight.moderate,
+          modalSize: ModalSize.large,
+          openOnTap: true,
+        ),
         WidgetLayout(
-            id: "Wrixler Rank",
-            visible: true,
-            row: 6,
-            colStart: 0,
-            width: WidgetWidth.threeColumn,
-            height: WidgetHeight.short,
-            modalSize: ModalSize.small,
-            openOnTap: true),  
+          id: "Wrixler Rank",
+          visible: true,
+          row: 6,
+          colStart: 0,
+          width: WidgetWidth.threeColumn,
+          height: WidgetHeight.short,
+          modalSize: ModalSize.small,
+          openOnTap: true,
+        ),
         WidgetLayout(
-            id: "Streak Tracker",
-            visible: true,
-            row: 7,
-            colStart: 0,
-            width: WidgetWidth.onePointFiveColumn,
-            height: WidgetHeight.medium,
-            modalSize: ModalSize.medium,
-            openOnTap: true),  
+          id: "Streak Tracker",
+          visible: true,
+          row: 7,
+          colStart: 0,
+          width: WidgetWidth.onePointFiveColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.medium,
+          openOnTap: true,
+        ),
         WidgetLayout(
-            id: "Missed Opportunities",
-            visible: true,
-            row: 7,
-            colStart: 1,
-            width: WidgetWidth.onePointFiveColumn,
-            height: WidgetHeight.medium,
-            modalSize: ModalSize.medium,
-            openOnTap: true),  
+          id: "Missed Opportunities",
+          visible: true,
+          row: 7,
+          colStart: 1,
+          width: WidgetWidth.onePointFiveColumn,
+          height: WidgetHeight.medium,
+          modalSize: ModalSize.medium,
+          openOnTap: true,
+        ),
       ];
 }

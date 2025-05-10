@@ -5,6 +5,7 @@ import 'package:wrixl_frontend/theme/layout_theme_extension.dart';
 import 'package:wrixl_frontend/utils/layout_constants.dart';
 import 'package:wrixl_frontend/widgets/common/reusable_card_modal.dart';
 import 'package:wrixl_frontend/widgets/common/card_edit_overlay.dart';
+import 'package:wrixl_frontend/utils/responsive.dart';
 
 enum WidgetWidth { oneColumn, onePointFiveColumn, twoColumn, threeColumn }
 
@@ -107,6 +108,10 @@ class _WrixlCardState extends State<WrixlCard> {
   }
 
   double getCardWidth() {
+    if (Responsive.isMobile(context)) {
+      return widget.layoutHelper.threeColumnWidth;
+    }
+
     switch (widget.layout.width) {
       case WidgetWidth.oneColumn:
         return widget.layoutHelper.oneColumnWidth;
@@ -133,6 +138,7 @@ class _WrixlCardState extends State<WrixlCard> {
   }
 
   void _resizeWidth() {
+    if (Responsive.isMobile(context)) return;
     final next = WidgetWidth
         .values[(widget.layout.width.index + 1) % WidgetWidth.values.length];
     widget.onLayoutChanged(widget.layout..width = next);
@@ -197,8 +203,6 @@ class _WrixlCardState extends State<WrixlCard> {
                   : widget.child,
             ),
           ),
-
-          // 🔥 TOP LEFT: Always-visible ID label
           Positioned(
             top: 4,
             left: 8,
@@ -211,7 +215,6 @@ class _WrixlCardState extends State<WrixlCard> {
               ),
             ),
           ),
-
           if (widget.isHidden && widget.isEditMode) ...[
             Positioned.fill(
               child: Container(
@@ -240,8 +243,6 @@ class _WrixlCardState extends State<WrixlCard> {
               ),
             ),
           ],
-
-          // 🔥 TOP RIGHT: Edit buttons
           if (widget.isEditMode)
             Positioned(
               top: 4,
@@ -249,7 +250,8 @@ class _WrixlCardState extends State<WrixlCard> {
               child: CardEditOverlay(
                 isEditMode: widget.isEditMode,
                 isHidden: widget.isHidden,
-                onResizeWidth: _resizeWidth,
+                onResizeWidth:
+                    Responsive.isMobile(context) ? null : _resizeWidth,
                 onResizeHeight: _resizeHeight,
                 onToggleVisibility: widget.onToggleVisibility,
                 visible: widget.layout.visible,
