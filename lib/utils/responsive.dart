@@ -16,3 +16,4 @@ class Responsive {
   static bool isDesktop(BuildContext context) =>
       MediaQuery.of(context).size.width > 1024;
 }
+

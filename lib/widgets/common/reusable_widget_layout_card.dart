@@ -1,5 +1,6 @@
 // lib/widgets/common/reusable_widget_layout_card.dart
 
+import 'package:dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/theme/layout_theme_extension.dart';
 import 'package:wrixl_frontend/utils/layout_constants.dart';
@@ -90,6 +91,31 @@ class WrixlCard extends StatefulWidget {
 
   @override
   State<WrixlCard> createState() => _WrixlCardState();
+
+  factory WrixlCard.fromDashboardItem({
+    required DashboardItem item,
+    required bool isEditMode,
+    required LayoutHelper layoutHelper,
+    required Widget child,
+  }) {
+    final layout = item.layoutData;
+
+    return WrixlCard(
+      layout: WidgetLayout(
+        id: item.identifier,
+        visible: true,
+        row: layout?.startY ?? 0,
+        colStart: layout?.startX ?? 0,
+        width: WidgetWidth.oneColumn, // Approximate mapping
+        height: WidgetHeight.medium, // Approximate mapping
+      ),
+      layoutHelper: layoutHelper,
+      isEditMode: isEditMode,
+      onLayoutChanged: (_) {}, // No-op for demo
+      isHidden: false,
+      child: child,
+    );
+  }
 }
 
 class _WrixlCardState extends State<WrixlCard> {
@@ -148,6 +174,25 @@ class _WrixlCardState extends State<WrixlCard> {
     final next = WidgetHeight
         .values[(widget.layout.height.index + 1) % WidgetHeight.values.length];
     widget.onLayoutChanged(widget.layout..height = next);
+  }
+
+  WrixlCard copyWithModalConfig({ModalSize? modalSize, bool? openOnTap}) {
+    return WrixlCard(
+      layout: widget.layout
+        ..modalSize = modalSize ?? widget.layout.modalSize
+        ..openOnTap = openOnTap ?? widget.layout.openOnTap,
+      layoutHelper: widget.layoutHelper,
+      isEditMode: widget.isEditMode,
+      onLayoutChanged: widget.onLayoutChanged,
+      isHidden: widget.isHidden,
+      child: widget.child,
+      onToggleVisibility: widget.onToggleVisibility,
+      modalTitle: widget.modalTitle,
+      padding: widget.padding,
+      margin: widget.margin,
+      centerContent: widget.centerContent,
+      stacked: widget.stacked,
+    );
   }
 
   @override
@@ -244,15 +289,10 @@ class _WrixlCardState extends State<WrixlCard> {
             ),
           ],
           if (widget.isEditMode)
-            Positioned(
-              top: 4,
-              right: 4,
+            Positioned.fill(
               child: CardEditOverlay(
                 isEditMode: widget.isEditMode,
                 isHidden: widget.isHidden,
-                onResizeWidth:
-                    Responsive.isMobile(context) ? null : _resizeWidth,
-                onResizeHeight: _resizeHeight,
                 onToggleVisibility: widget.onToggleVisibility,
                 visible: widget.layout.visible,
               ),
@@ -264,9 +304,11 @@ class _WrixlCardState extends State<WrixlCard> {
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      child: widget.layout.openOnTap && !widget.isEditMode
-          ? GestureDetector(onTap: () => _openModal(context), child: card)
-          : card,
+      child: (!widget.layout.visible && !widget.isEditMode)
+          ? const SizedBox.shrink()
+          : widget.layout.openOnTap && !widget.isEditMode
+              ? GestureDetector(onTap: () => _openModal(context), child: card)
+              : card,
     );
   }
 }

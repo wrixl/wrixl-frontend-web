@@ -31,7 +31,8 @@ dependencies:
   crypto_icons_flutter: ^0.0.1
   flutter_svg: ^2.0.17
   enum_to_string: ^2.2.1
-  dashboard: ^0.0.4
+  dashboard:
+    path: C:/Dev/dashboardFork/dashboard
   
   shared_preferences: ^2.5.3  
 
