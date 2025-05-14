@@ -16,17 +16,13 @@ enum DeviceSizeClass { mobile, tablet, desktop }
 class _DemoDashboardState extends State<DemoDashboard> {
   late DashboardItemController<DashboardItem> _controller;
   DeviceSizeClass? _currentSizeClass;
-  DeviceSizeClass? _overrideSizeClass;
   bool _isEditing = false;
   final Map<String, bool> _visibility = {};
 
   DeviceSizeClass _getSizeClass(BuildContext context) {
-    return _overrideSizeClass ??
-        (Responsive.isMobile(context)
-            ? DeviceSizeClass.mobile
-            : Responsive.isTablet(context)
-                ? DeviceSizeClass.tablet
-                : DeviceSizeClass.desktop);
+    if (Responsive.isMobile(context)) return DeviceSizeClass.mobile;
+    if (Responsive.isTablet(context)) return DeviceSizeClass.tablet;
+    return DeviceSizeClass.desktop;
   }
 
   List<DashboardItem> _getItemsForSize(DeviceSizeClass sizeClass) {
@@ -48,33 +44,34 @@ class _DemoDashboardState extends State<DemoDashboard> {
       case DeviceSizeClass.desktop:
       default:
         return [
-          DashboardItem(width: 6, height: 8, minWidth: 6, maxWidth: 10, identifier: '1'),
+          DashboardItem(width: 6, height: 8, minWidth: 6, identifier: '1'),
           DashboardItem(width: 5, height: 4, minWidth: 5, minHeight: 3, identifier: '2'),
           DashboardItem(width: 4, height: 4, minWidth: 4, minHeight: 4, identifier: '3'),
-          DashboardItem(width: 3, height: 5, minWidth: 3, minHeight: 3, identifier: '4'),
-          DashboardItem(width: 2, height: 5, minWidth: 2, minHeight: 2, identifier: '5'),
-          DashboardItem(width: 2, height: 2, minWidth: 2, minHeight: 2, identifier: '6'),
+          DashboardItem(width: 3, height: 5, minWidth: 3, identifier: '4'),
+          DashboardItem(width: 2, height: 5, minWidth: 2, identifier: '5'),
+          DashboardItem(width: 2, height: 2, minWidth: 2, identifier: '6'),
         ];
     }
   }
 
-  void _updateLayout(BuildContext context) {
-    final sizeClass = _getSizeClass(context);
-    if (_currentSizeClass == sizeClass) return;
-
-    final items = _getItemsForSize(sizeClass);
-    _controller = DashboardItemController(items: items);
-    _visibility.clear();
-    for (var item in items) {
-      _visibility[item.identifier] = true;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newSizeClass = _getSizeClass(context);
+    if (_currentSizeClass != newSizeClass) {
+      final items = _getItemsForSize(newSizeClass);
+      _controller = DashboardItemController(items: items);
+      _visibility.clear();
+      for (var item in items) {
+        _visibility[item.identifier] = true;
+      }
+      _currentSizeClass = newSizeClass;
+      setState(() {}); // Safe rebuild after controller swap
     }
-    _currentSizeClass = sizeClass;
   }
 
   @override
   Widget build(BuildContext context) {
-    _updateLayout(context); // ⬅️ Ensures it always reacts to override
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard (Responsive Layout)'),
@@ -87,27 +84,6 @@ class _DemoDashboardState extends State<DemoDashboard> {
                 _controller.isEditing = _isEditing;
               });
             },
-          ),
-          PopupMenuButton<DeviceSizeClass>(
-            onSelected: (val) => setState(() {
-              _overrideSizeClass = val;
-              _currentSizeClass = null; // force rebuild
-            }),
-            icon: const Icon(Icons.developer_mode),
-            itemBuilder: (_) => const [
-              PopupMenuItem(
-                value: DeviceSizeClass.mobile,
-                child: Text('Force Mobile'),
-              ),
-              PopupMenuItem(
-                value: DeviceSizeClass.tablet,
-                child: Text('Force Tablet'),
-              ),
-              PopupMenuItem(
-                value: DeviceSizeClass.desktop,
-                child: Text('Force Desktop'),
-              ),
-            ],
           ),
         ],
       ),
