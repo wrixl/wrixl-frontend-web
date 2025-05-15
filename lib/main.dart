@@ -21,16 +21,22 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // 🔧 Enable full Flutter error logging
+  FlutterError.onError = (FlutterErrorDetails details) {
+    // Dump framework errors to console
+    FlutterError.dumpErrorToConsole(details);
+    // And print a friendly debug message
+    debugPrint('🐛 Caught Flutter error: ${details.exception}');
+  };
+
   final themeProvider = await ThemeProvider.load();
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
-        ChangeNotifierProvider<DashboardProvider>(
-            create: (_) => DashboardProvider()),
-        ChangeNotifierProvider<PortfolioProvider>(
-            create: (_) => PortfolioProvider()),
+        ChangeNotifierProvider<DashboardProvider>(create: (_) => DashboardProvider()),
+        ChangeNotifierProvider<PortfolioProvider>(create: (_) => PortfolioProvider()),
         ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
       ],
       child: const MyApp(),

@@ -103,8 +103,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     icon: Icon(Icons.emoji_events), label: 'Community'), // 8
                 BottomNavigationBarItem(
                     icon: Icon(Icons.history), label: 'Activity'), // 9
-                BottomNavigationBarItem(icon: Icon(Icons.play_circle_outline), label: 'Demo'), // 10
-                BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),  
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.play_circle_outline), label: 'Demo'), // 10
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.person), label: 'Profile'),
               ],
             )
           : null,
