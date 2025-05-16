@@ -1,11 +1,10 @@
-// lib/screens/dashboard/portfolios_screen2.dart
+// lib\screens\dashboard\portfolios_screen2.dart
 
 import 'package:flutter/material.dart';
-import 'package:wrixl_frontend/utils/layout_constants.dart';
+import 'package:dashboard/dashboard.dart';
 import 'package:wrixl_frontend/utils/responsive.dart';
-import 'package:wrixl_frontend/widgets/common/reusable_widget_layout_card.dart';
-import 'package:wrixl_frontend/utils/widget_layout_storage.dart';
-import 'package:wrixl_frontend/widgets/common/draggable_card_wrapper.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_widget_card.dart';
 
 class PortfoliosScreen2 extends StatefulWidget {
   const PortfoliosScreen2({Key? key}) : super(key: key);
@@ -14,334 +13,223 @@ class PortfoliosScreen2 extends StatefulWidget {
   State<PortfoliosScreen2> createState() => _PortfoliosScreen2State();
 }
 
+enum DeviceSizeClass { mobile, tablet, desktop }
+
 class _PortfoliosScreen2State extends State<PortfoliosScreen2>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  bool isEditMode = false;
+  late DashboardItemController<DashboardItem> _controller;
+  late List<DashboardItem> _currentItems;
+  DeviceSizeClass? _currentSizeClass;
+  bool _isEditing = false;
+  final Map<String, bool> _visibility = {};
   String selectedTabKey = "Mine";
-  Map<String, List<WidgetLayout>> layoutPresets = {};
-  final ScrollController _scrollController = ScrollController();
+  String selectedPreset = "DefaultMine";
+
+  final Map<String, List<String>> availablePresets = {
+    "Mine": ["DefaultMine", "AltMine"],
+    "Popular": ["DefaultPopular", "AltPopular"],
+    "Build": ["DefaultBuild", "AltBuild"],
+  };
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
+      final tab = _tabName(_tabController.index);
       setState(() {
-        selectedTabKey = _tabName(_tabController.index);
+        selectedTabKey = tab;
+        selectedPreset = availablePresets[tab]!.first;
+        _resetPreset();
       });
     });
-    _loadPresets();
+    _currentItems = [];
+    _controller = DashboardItemController<DashboardItem>(items: []);
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
     _tabController.dispose();
     super.dispose();
   }
 
-  String _tabName(int index) {
-    return switch (index) {
-      0 => "Mine",
-      1 => "Popular",
-      2 => "Build",
-      _ => "Mine",
-    };
+  String _tabName(int index) => switch (index) {
+        0 => "Mine",
+        1 => "Popular",
+        2 => "Build",
+        _ => "Mine",
+      };
+
+  DeviceSizeClass _getSizeClass(BuildContext context) {
+    if (Responsive.isMobile(context)) return DeviceSizeClass.mobile;
+    if (Responsive.isTablet(context)) return DeviceSizeClass.tablet;
+    return DeviceSizeClass.desktop;
   }
 
-  String get selectedPreset => "Default$selectedTabKey";
+  List<DashboardItem> _getItemsForPreset(String preset) {
+    final tab = selectedTabKey;
+    final size = _currentSizeClass;
+    if (size == null) return [];
 
-  void toggleEditMode() => setState(() => isEditMode = !isEditMode);
-
-  void toggleVisibility(String id) {
-    final layout = _currentLayout().firstWhere((w) => w.id == id);
-    setState(() => layout.visible = !layout.visible);
-    WidgetLayoutStorage.savePreset(selectedPreset, _currentLayout());
-  }
-
-  void updateLayout(WidgetLayout updated) {
-    final index = _currentLayout().indexWhere((w) => w.id == updated.id);
-    if (index != -1) {
-      setState(() => _currentLayout()[index] = updated);
-      WidgetLayoutStorage.savePreset(selectedPreset, _currentLayout());
+    switch (tab) {
+      case "Popular":
+        return [
+          DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'Model Filters'),
+          for (int i = 1; i <= 4; i++)
+            DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'Model Portfolio $i'),
+          DashboardItem(width: 12, height: 4, minWidth: 6, identifier: 'Model Comparison'),
+          DashboardItem(width: 12, height: 2, minWidth: 6, identifier: 'Try Before You Mirror'),
+        ];
+      case "Build":
+        return [
+          DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'Prompt Input'),
+          DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'Risk & ROI Sliders'),
+          DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'Token Filters'),
+          DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'Backtest Results'),
+          DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'Simulate & Save'),
+        ];
+      case "Mine":
+      default:
+        return [
+          DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'Portfolio View Filters'),
+          DashboardItem(width: 4, height: 6, minWidth: 4, identifier: 'Filters'),
+          for (int i = 1; i <= 4; i++)
+            DashboardItem(width: 4, height: 4, minWidth: 4, identifier: 'Portfolio $i'),
+          DashboardItem(width: 12, height: 4, minWidth: 6, identifier: 'Portfolio Detail'),
+          DashboardItem(width: 12, height: 4, minWidth: 6, identifier: 'Portfolio Comparison Radar'),
+          DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'Create Portfolio'),
+        ];
     }
   }
 
-  List<WidgetLayout> _currentLayout() => layoutPresets[selectedPreset]!;
+  void _resetPreset() {
+    if (_currentSizeClass == null) return;
+    final items = _getItemsForPreset(selectedPreset);
+    _currentItems = items;
+    final newController = DashboardItemController<DashboardItem>(items: items);
 
-  void resetPreset() async {
-    await WidgetLayoutStorage.deletePreset(selectedPreset);
     setState(() {
-      layoutPresets[selectedPreset] = _defaultLayoutForTab(selectedTabKey);
+      _controller = newController;
+      _visibility.clear();
+      _visibility.addEntries(items.map((i) => MapEntry(i.identifier, true)));
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _controller.isEditing = _isEditing;
     });
   }
 
-  Future<void> _loadPresets() async {
-    final mine = await WidgetLayoutStorage.loadPreset("DefaultMine");
-    final popular = await WidgetLayoutStorage.loadPreset("DefaultPopular");
-    final build = await WidgetLayoutStorage.loadPreset("DefaultBuild");
-
-    setState(() {
-      layoutPresets = {
-        "DefaultMine": mine ?? _defaultLayoutForTab("Mine"),
-        "DefaultPopular": popular ?? _defaultLayoutForTab("Popular"),
-        "DefaultBuild": build ?? _defaultLayoutForTab("Build"),
-      };
-    });
-  }
-
-  List<WidgetLayout> _defaultLayoutForTab(String tab) {
-    return switch (tab) {
-      "Mine" => [
-          WidgetLayout(
-              id: "Portfolio View Filters",
-              visible: true,
-              row: 0,
-              colStart: 0,
-              width: WidgetWidth.threeColumn,
-              height: WidgetHeight.short,
-              modalSize: ModalSize.small,
-              openOnTap: true),
-          WidgetLayout(
-              id: "Filters",
-              visible: true,
-              row: 1,
-              colStart: 0,
-              width: WidgetWidth.oneColumn,
-              height: WidgetHeight.tall,
-              modalSize: ModalSize.large,
-              openOnTap: true),
-          for (int i = 1; i <= 4; i++)
-            WidgetLayout(
-                id: "Portfolio $i",
-                visible: true,
-                row: 1 + i,
-                colStart: 0,
-                width: WidgetWidth.oneColumn,
-                height: WidgetHeight.medium,
-                modalSize: ModalSize.medium,
-                openOnTap: true),
-          WidgetLayout(
-              id: "Portfolio Detail",
-              visible: true,
-              row: 7,
-              colStart: 0,
-              width: WidgetWidth.threeColumn,
-              height: WidgetHeight.medium,
-              modalSize: ModalSize.medium,
-              openOnTap: true),
-          WidgetLayout(
-              id: "Portfolio Comparison Radar",
-              visible: true,
-              row: 8,
-              colStart: 0,
-              width: WidgetWidth.threeColumn,
-              height: WidgetHeight.medium,
-              modalSize: ModalSize.large,
-              openOnTap: true),
-          WidgetLayout(
-              id: "Create Portfolio",
-              visible: true,
-              row: 9,
-              colStart: 0,
-              width: WidgetWidth.threeColumn,
-              height: WidgetHeight.short,
-              modalSize: ModalSize.small,
-              openOnTap: true),
-        ],
-      "Popular" => [
-          WidgetLayout(
-              id: "Model Filters",
-              visible: true,
-              row: 0,
-              colStart: 0,
-              width: WidgetWidth.threeColumn,
-              height: WidgetHeight.short,
-              modalSize: ModalSize.small,
-              openOnTap: true),
-          for (int i = 1; i <= 4; i++)
-            WidgetLayout(
-                id: "Model Portfolio $i",
-                visible: true,
-                row: i,
-                colStart: 0,
-                width: WidgetWidth.oneColumn,
-                height: WidgetHeight.medium,
-                modalSize: ModalSize.medium,
-                openOnTap: true),
-          WidgetLayout(
-              id: "Model Comparison",
-              visible: true,
-              row: 6,
-              colStart: 0,
-              width: WidgetWidth.threeColumn,
-              height: WidgetHeight.medium,
-              modalSize: ModalSize.fullscreen,
-              openOnTap: true),
-          WidgetLayout(
-              id: "Try Before You Mirror",
-              visible: true,
-              row: 7,
-              colStart: 0,
-              width: WidgetWidth.threeColumn,
-              height: WidgetHeight.short,
-              modalSize: ModalSize.small,
-              openOnTap: true),
-        ],
-      "Build" => [
-          WidgetLayout(
-              id: "Prompt Input",
-              visible: true,
-              row: 0,
-              colStart: 0,
-              width: WidgetWidth.threeColumn,
-              height: WidgetHeight.short,
-              modalSize: ModalSize.small,
-              openOnTap: true),
-          WidgetLayout(
-              id: "Risk & ROI Sliders",
-              visible: true,
-              row: 1,
-              colStart: 0,
-              width: WidgetWidth.threeColumn,
-              height: WidgetHeight.medium,
-              modalSize: ModalSize.medium,
-              openOnTap: true),
-          WidgetLayout(
-              id: "Token Filters",
-              visible: true,
-              row: 2,
-              colStart: 0,
-              width: WidgetWidth.threeColumn,
-              height: WidgetHeight.medium,
-              modalSize: ModalSize.medium,
-              openOnTap: true),
-          WidgetLayout(
-              id: "Backtest Results",
-              visible: true,
-              row: 3,
-              colStart: 0,
-              width: WidgetWidth.threeColumn,
-              height: WidgetHeight.medium,
-              modalSize: ModalSize.large,
-              openOnTap: true),
-          WidgetLayout(
-              id: "Simulate & Save",
-              visible: true,
-              row: 4,
-              colStart: 0,
-              width: WidgetWidth.threeColumn,
-              height: WidgetHeight.short,
-              modalSize: ModalSize.small,
-              openOnTap: true),
-        ],
-      _ => [],
-    };
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newSizeClass = _getSizeClass(context);
+    if (_currentSizeClass != newSizeClass) {
+      _currentSizeClass = newSizeClass;
+      _resetPreset();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (layoutPresets.isEmpty || !layoutPresets.containsKey(selectedPreset)) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final layoutHelper = LayoutHelper.of(context);
-    final visibleWidgets = _currentLayout().where((w) => w.visible).toList();
-
     return Scaffold(
-      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Portfolios'),
-        bottom: TabBar(controller: _tabController, tabs: const [
-          Tab(text: 'Mine'),
-          Tab(text: 'Popular'),
-          Tab(text: 'Build'),
-        ]),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [Tab(text: 'Mine'), Tab(text: 'Popular'), Tab(text: 'Build')],
+        ),
         actions: [
           DropdownButton<String>(
             value: selectedPreset,
             underline: const SizedBox.shrink(),
-            onChanged: null,
-            items: layoutPresets.keys.map((preset) {
-              return DropdownMenuItem(value: preset, child: Text(preset));
-            }).toList(),
+            onChanged: (value) {
+              if (value == null) return;
+              setState(() {
+                selectedPreset = value;
+                _resetPreset();
+              });
+            },
+            items: availablePresets[selectedTabKey]!
+                .map((preset) => DropdownMenuItem(value: preset, child: Text(preset)))
+                .toList(),
           ),
           IconButton(
-            icon: Icon(isEditMode ? Icons.lock_open : Icons.lock),
-            tooltip: isEditMode ? "Lock Layout" : "Unlock Layout",
-            onPressed: toggleEditMode,
+            icon: Icon(_isEditing ? Icons.lock_open : Icons.lock),
+            tooltip: _isEditing ? "Lock Layout" : "Unlock Layout",
+            onPressed: () {
+              setState(() {
+                _isEditing = !_isEditing;
+                _controller = DashboardItemController<DashboardItem>(items: _currentItems);
+              });
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) _controller.isEditing = _isEditing;
+              });
+            },
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: "Reset Preset",
-            onPressed: isEditMode ? resetPreset : null,
+            onPressed: _isEditing ? _resetPreset : null,
           ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final layoutHelper = LayoutHelper.fromDimensions(
-              constraints.maxWidth, constraints.maxHeight);
-          final widgetsToShow = isEditMode
-              ? (_currentLayout()
-                ..sort((a, b) =>
-                    (a.visible == b.visible) ? 0 : (a.visible ? -1 : 1)))
-              : _currentLayout().where((w) => w.visible).toList();
-
-          return TabBarView(
-            controller: _tabController,
-            children: List.generate(3, (index) {
-              return SingleChildScrollView(
-                controller: _scrollController,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: LayoutHelper.fixedOuterScreenMargin,
-                    vertical: 24),
-                child: Wrap(
-                  spacing: layoutHelper.cardGutter,
-                  runSpacing: layoutHelper.verticalRowSpacing,
-                  children: List.generate(widgetsToShow.length, (i) {
-                    final layout = widgetsToShow[i];
-                    final wrixlCard = WrixlCard(
-                      layout: layout,
-                      layoutHelper: layoutHelper,
-                      isEditMode: isEditMode,
-                      isHidden: !layout.visible,
-                      onLayoutChanged: updateLayout,
-                      onToggleVisibility: () => toggleVisibility(layout.id),
-                      modalTitle: layout.id,
-                      child: Text("${layout.id} Placeholder"),
-                    );
-
-                    if (!layout.visible && isEditMode) return wrixlCard;
-
-                    return DraggableCardWrapper(
-                      index: i,
-                      isEditMode: isEditMode,
-                      visibleWidgets: visibleWidgets,
-                      onReorder: (from, to) {
-                        setState(() {
-                          final all = _currentLayout();
-                          final visible = all.where((w) => w.visible).toList();
-                          final moved = visible.removeAt(from);
-                          visible.insert(to, moved);
-                          final reordered = [
-                            ...visible,
-                            ...all.where((w) => !w.visible)
-                          ];
-                          layoutPresets[selectedPreset] = reordered;
-                          WidgetLayoutStorage.savePreset(
-                              selectedPreset, reordered);
-                        });
-                      },
-                      child: wrixlCard,
-                    );
-                  }),
+      body: TabBarView(
+        controller: _tabController,
+        children: List.generate(3, (_) {
+          return SafeArea(
+            child: Dashboard<DashboardItem>(
+              key: ValueKey('$selectedPreset|$_isEditing|$_currentSizeClass'),
+              dashboardItemController: _controller,
+              slotCount: 12,
+              slotAspectRatio: 1,
+              horizontalSpace: 40,
+              verticalSpace: 40,
+              padding: const EdgeInsets.all(16),
+              shrinkToPlace: false,
+              slideToTop: false,
+              absorbPointer: false,
+              animateEverytime: false,
+              physics: const BouncingScrollPhysics(),
+              slotBackgroundBuilder: SlotBackgroundBuilder.withFunction((_, __, ___, ____, _____) => null),
+              editModeSettings: EditModeSettings(
+                longPressEnabled: true,
+                panEnabled: true,
+                draggableOutside: true,
+                autoScroll: true,
+                resizeCursorSide: 10,
+                backgroundStyle: EditModeBackgroundStyle(
+                  lineColor: Colors.grey,
+                  lineWidth: 0.5,
+                  dualLineHorizontal: true,
+                  dualLineVertical: true,
                 ),
-              );
-            }),
+              ),
+              itemBuilder: (item) {
+                final id = item.identifier;
+                final isHidden = !(_visibility[id] ?? true);
+                if (!_isEditing && isHidden) return const SizedBox.shrink();
+
+                return WidgetCard(
+                  item: item,
+                  child: Text(
+                    'Widget $id\n'
+                    'x:${item.layoutData?.startX} y:${item.layoutData?.startY}\n'
+                    'w:${item.layoutData?.width} h:${item.layoutData?.height}',
+                    textAlign: TextAlign.center,
+                  ),
+                  isEditMode: _isEditing,
+                  isHidden: isHidden,
+                  onToggleVisibility: () {
+                    setState(() => _visibility[id] = !(_visibility[id] ?? true));
+                  },
+                  modalTitle: 'Widget $id',
+                  modalSize: WidgetModalSize.medium,
+                );
+              },
+            ),
           );
-        },
+        }),
       ),
     );
   }

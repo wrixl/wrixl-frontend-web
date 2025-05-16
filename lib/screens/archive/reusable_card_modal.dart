@@ -1,8 +1,8 @@
 // lib\widgets\common\reusable_card_modal.dart
 
 import 'package:flutter/material.dart';
-import 'package:wrixl_frontend/theme/layout_theme_extension.dart';
-import 'package:wrixl_frontend/utils/layout_constants.dart';
+import 'package:wrixl_frontend/screens/archive/layout_theme_extension.dart';
+import 'package:wrixl_frontend/screens/archive/layout_constants.dart';
 
 class WrixlModal extends StatelessWidget {
   final ModalSize size;

@@ -2,7 +2,7 @@
 
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wrixl_frontend/widgets/common/reusable_widget_layout_card.dart';
+import 'package:wrixl_frontend/screens/archive/reusable_widget_layout_card.dart';
 
 class WidgetLayoutStorage {
   static Future<void> savePreset(

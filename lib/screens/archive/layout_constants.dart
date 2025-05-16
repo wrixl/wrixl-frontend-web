@@ -1,7 +1,7 @@
 // lib\utils\layout_constants.dart
 
 import 'package:flutter/material.dart';
-import 'package:wrixl_frontend/utils/layout_provider.dart';
+import 'package:wrixl_frontend/screens/archive/layout_provider.dart';
 
 enum WidgetHeight { short, medium, moderate, tall }
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../utils/layout_constants.dart';
+import 'layout_constants.dart';
 
 class LayoutThemeExtension extends ThemeExtension<LayoutThemeExtension> {
   final LayoutHelper layout;

@@ -2,9 +2,9 @@
 
 import 'package:dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
-import 'package:wrixl_frontend/theme/layout_theme_extension.dart';
-import 'package:wrixl_frontend/utils/layout_constants.dart';
-import 'package:wrixl_frontend/widgets/common/reusable_card_modal.dart';
+import 'package:wrixl_frontend/screens/archive/layout_theme_extension.dart';
+import 'package:wrixl_frontend/screens/archive/layout_constants.dart';
+import 'package:wrixl_frontend/screens/archive/reusable_card_modal.dart';
 import 'package:wrixl_frontend/widgets/common/card_edit_overlay.dart';
 import 'package:wrixl_frontend/utils/responsive.dart';
 

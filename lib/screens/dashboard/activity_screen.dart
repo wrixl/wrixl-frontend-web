@@ -1,11 +1,10 @@
 // lib/screens/dashboard/activity_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:wrixl_frontend/utils/layout_constants.dart';
+import 'package:dashboard/dashboard.dart';
 import 'package:wrixl_frontend/utils/responsive.dart';
-import 'package:wrixl_frontend/utils/widget_layout_storage.dart';
-import 'package:wrixl_frontend/widgets/common/reusable_widget_layout_card.dart';
-import 'package:wrixl_frontend/widgets/common/draggable_card_wrapper.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_widget_card.dart';
 
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key});
@@ -14,198 +13,198 @@ class ActivityScreen extends StatefulWidget {
   State<ActivityScreen> createState() => _ActivityScreenState();
 }
 
-class _ActivityScreenState extends State<ActivityScreen> {
-  bool isEditMode = false;
-  Map<String, List<WidgetLayout>> layoutPresets = {};
-  late String selectedPreset;
-  final ScrollController _scrollController = ScrollController();
+enum DeviceSizeClass { mobile, tablet, desktop }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+class _ActivityScreenState extends State<ActivityScreen> {
+  late DashboardItemController<DashboardItem> _controller;
+  late List<DashboardItem> _currentItems;
+  DeviceSizeClass? _currentSizeClass;
+  bool _isEditing = false;
+  final Map<String, bool> _visibility = {};
+  String selectedPreset = "Default";
 
   @override
   void initState() {
     super.initState();
-    _loadPresets();
+    _currentItems = [];
+    _controller = DashboardItemController<DashboardItem>(items: []);
   }
 
-  void toggleEditMode() => setState(() => isEditMode = !isEditMode);
-
-  void toggleVisibility(String id) {
-    final layout = _currentLayout().firstWhere((w) => w.id == id);
-    setState(() => layout.visible = !layout.visible);
-    WidgetLayoutStorage.savePreset(selectedPreset, _currentLayout());
+  DeviceSizeClass _getSizeClass(BuildContext context) {
+    if (Responsive.isMobile(context)) return DeviceSizeClass.mobile;
+    if (Responsive.isTablet(context)) return DeviceSizeClass.tablet;
+    return DeviceSizeClass.desktop;
   }
 
-  void updateLayout(WidgetLayout updated) {
-    final index = _currentLayout().indexWhere((w) => w.id == updated.id);
-    if (index != -1) {
-      setState(() => _currentLayout()[index] = updated);
-      WidgetLayoutStorage.savePreset(selectedPreset, _currentLayout());
+  List<DashboardItem> _getItemsForSize(DeviceSizeClass sizeClass) {
+    switch (selectedPreset) {
+      case "Alt":
+        return [
+          DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'events'),
+          DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'notifications'),
+          DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'transactions'),
+        ];
+      default:
+        switch (sizeClass) {
+          case DeviceSizeClass.mobile:
+            return [
+              DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'notifications'),
+              DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'transactions'),
+              DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'events'),
+              DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'airdrops'),
+              DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'alerts'),
+            ];
+          case DeviceSizeClass.tablet:
+            return [
+              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'notifications'),
+              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'transactions'),
+              DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'events'),
+              DashboardItem(width: 6, height: 2, minWidth: 6, identifier: 'airdrops'),
+              DashboardItem(width: 6, height: 2, minWidth: 6, identifier: 'alerts'),
+            ];
+          case DeviceSizeClass.desktop:
+          default:
+            return [
+              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'notifications'),
+              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'transactions'),
+              DashboardItem(width: 12, height: 3, minWidth: 6, identifier: 'events'),
+              DashboardItem(width: 6, height: 2, minWidth: 6, identifier: 'airdrops'),
+              DashboardItem(width: 6, height: 2, minWidth: 6, identifier: 'alerts'),
+            ];
+        }
     }
   }
 
-  List<WidgetLayout> _currentLayout() => layoutPresets[selectedPreset]!;
+  void _resetPreset() {
+    if (_currentSizeClass == null) return;
+    final items = _getItemsForSize(_currentSizeClass!);
+    _currentItems = items;
 
-  void resetPreset() async {
-    await WidgetLayoutStorage.deletePreset(selectedPreset);
+    final newController = DashboardItemController<DashboardItem>(items: items);
+
     setState(() {
-      layoutPresets[selectedPreset] = _defaultLayout();
+      _controller = newController;
+      _visibility
+        ..clear()
+        ..addEntries(items.map((i) => MapEntry(i.identifier, true)));
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _controller.isEditing = _isEditing;
+      }
     });
   }
 
-  Future<void> _loadPresets() async {
-    final defaultPreset =
-        await WidgetLayoutStorage.loadPreset("ActivityDefault");
-    setState(() {
-      layoutPresets = {
-        "ActivityDefault": defaultPreset ?? _defaultLayout(),
-      };
-      selectedPreset = "ActivityDefault";
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newSizeClass = _getSizeClass(context);
+    if (_currentSizeClass != newSizeClass) {
+      _currentSizeClass = newSizeClass;
+      _resetPreset();
+    }
   }
-
-  List<WidgetLayout> _defaultLayout() => [
-        WidgetLayout(
-            id: "notifications",
-            visible: true,
-            row: 0,
-            colStart: 0,
-            width: WidgetWidth.onePointFiveColumn,
-            height: WidgetHeight.tall,
-            modalSize: ModalSize.large,
-            openOnTap: true),
-        WidgetLayout(
-            id: "transactions",
-            visible: true,
-            row: 0,
-            colStart: 1,
-            width: WidgetWidth.onePointFiveColumn,
-            height: WidgetHeight.tall,
-            modalSize: ModalSize.large,
-            openOnTap: true),
-        WidgetLayout(
-            id: "events",
-            visible: true,
-            row: 1,
-            colStart: 0,
-            width: WidgetWidth.threeColumn,
-            height: WidgetHeight.medium,
-            modalSize: ModalSize.large,
-            openOnTap: true),
-        WidgetLayout(
-            id: "airdrops",
-            visible: true,
-            row: 2,
-            colStart: 0,
-            width: WidgetWidth.onePointFiveColumn,
-            height: WidgetHeight.short,
-            modalSize: ModalSize.medium,
-            openOnTap: true),
-        WidgetLayout(
-            id: "alerts",
-            visible: true,
-            row: 2,
-            colStart: 1,
-            width: WidgetWidth.onePointFiveColumn,
-            height: WidgetHeight.short,
-            modalSize: ModalSize.medium,
-            openOnTap: true),
-      ];
 
   @override
   Widget build(BuildContext context) {
-    if (layoutPresets.isEmpty || !layoutPresets.containsKey(selectedPreset)) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final layoutHelper = LayoutHelper.of(context);
-    final visibleWidgets = _currentLayout().where((w) => w.visible).toList();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Activity & Alerts'),
         actions: [
+          DropdownButton<String>(
+            value: selectedPreset,
+            underline: const SizedBox.shrink(),
+            onChanged: (value) {
+              if (value == null) return;
+              setState(() {
+                selectedPreset = value;
+                _resetPreset();
+              });
+            },
+            items: const [
+              DropdownMenuItem(value: "Default", child: Text("Default")),
+              DropdownMenuItem(value: "Alt", child: Text("Alt")),
+            ],
+          ),
           IconButton(
-            icon: Icon(isEditMode ? Icons.lock_open : Icons.lock),
-            tooltip: isEditMode ? "Lock Layout" : "Unlock Layout",
-            onPressed: toggleEditMode,
+            icon: Icon(_isEditing ? Icons.lock_open : Icons.lock),
+            tooltip: _isEditing ? "Lock Layout" : "Unlock Layout",
+            onPressed: () {
+              setState(() {
+                _isEditing = !_isEditing;
+                _controller = DashboardItemController<DashboardItem>(
+                  items: _currentItems,
+                );
+              });
+
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  _controller.isEditing = _isEditing;
+                }
+              });
+            },
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: "Reset Layout",
-            onPressed: isEditMode ? resetPreset : null,
+            tooltip: "Reset Preset",
+            onPressed: _isEditing ? _resetPreset : null,
           ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final layoutHelper = LayoutHelper.fromDimensions(
-            constraints.maxWidth,
-            constraints.maxHeight,
-          );
-
-          final widgetsToShow = isEditMode
-              ? (_currentLayout()
-                ..sort((a, b) =>
-                    (a.visible == b.visible) ? 0 : (a.visible ? -1 : 1)))
-              : _currentLayout().where((w) => w.visible).toList();
-
-          return SingleChildScrollView(
-            controller: _scrollController,
-            padding: const EdgeInsets.symmetric(
-              horizontal: LayoutHelper.fixedOuterScreenMargin,
-              vertical: 24,
+      body: SafeArea(
+        child: Dashboard<DashboardItem>(
+          key: ValueKey('$selectedPreset|$_isEditing|$_currentSizeClass'),
+          dashboardItemController: _controller,
+          slotCount: 12,
+          slotAspectRatio: 1,
+          horizontalSpace: 40,
+          verticalSpace: 40,
+          padding: const EdgeInsets.all(16),
+          shrinkToPlace: false,
+          slideToTop: false,
+          absorbPointer: false,
+          animateEverytime: false,
+          physics: const BouncingScrollPhysics(),
+          slotBackgroundBuilder: SlotBackgroundBuilder.withFunction((_, __, ___, ____, _____) => null),
+          editModeSettings: EditModeSettings(
+            longPressEnabled: true,
+            panEnabled: true,
+            draggableOutside: true,
+            autoScroll: true,
+            resizeCursorSide: 10,
+            backgroundStyle: EditModeBackgroundStyle(
+              lineColor: Colors.grey,
+              lineWidth: 0.5,
+              dualLineHorizontal: true,
+              dualLineVertical: true,
             ),
-            child: Wrap(
-              spacing: layoutHelper.cardGutter,
-              runSpacing: layoutHelper.verticalRowSpacing,
-              children: List.generate(widgetsToShow.length, (index) {
-                final layout = widgetsToShow[index];
+          ),
+          itemBuilder: (item) {
+            final id = item.identifier;
+            final isHidden = !(_visibility[id] ?? true);
+            if (!_isEditing && isHidden) return const SizedBox.shrink();
 
-                final wrixlCard = WrixlCard(
-                  layout: layout,
-                  layoutHelper: layoutHelper,
-                  isEditMode: isEditMode,
-                  isHidden: !layout.visible,
-                  onLayoutChanged: updateLayout,
-                  onToggleVisibility: () => toggleVisibility(layout.id),
-                  modalTitle: layout.id,
-                  child: Text(layout.id),
-                );
-
-                if (!layout.visible && isEditMode) return wrixlCard;
-
-                return DraggableCardWrapper(
-                  index: index,
-                  isEditMode: isEditMode,
-                  visibleWidgets: visibleWidgets,
-                  onReorder: (from, to) {
-                    setState(() {
-                      final all = _currentLayout();
-                      final visible = all.where((w) => w.visible).toList();
-
-                      final moved = visible.removeAt(from);
-                      visible.insert(to, moved);
-
-                      final reordered = [
-                        ...visible,
-                        ...all.where((w) => !w.visible),
-                      ];
-
-                      layoutPresets[selectedPreset] = reordered;
-                      WidgetLayoutStorage.savePreset(selectedPreset, reordered);
-                    });
-                  },
-                  child: wrixlCard,
-                );
-              }),
-            ),
-          );
-        },
+            return WidgetCard(
+              item: item,
+              child: Text(
+                'Widget $id\n'
+                'x:${item.layoutData?.startX} y:${item.layoutData?.startY}\n'
+                'w:${item.layoutData?.width} h:${item.layoutData?.height}',
+                textAlign: TextAlign.center,
+              ),
+              isEditMode: _isEditing,
+              isHidden: isHidden,
+              onToggleVisibility: () {
+                setState(() {
+                  _visibility[id] = !(_visibility[id] ?? true);
+                });
+              },
+              modalTitle: 'Widget $id',
+              modalSize: WidgetModalSize.small,
+            );
+          },
+        ),
       ),
     );
   }

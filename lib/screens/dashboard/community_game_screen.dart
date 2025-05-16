@@ -1,11 +1,10 @@
 // lib\screens\dashboard\community_game_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:wrixl_frontend/utils/layout_constants.dart';
+import 'package:dashboard/dashboard.dart';
 import 'package:wrixl_frontend/utils/responsive.dart';
-import 'package:wrixl_frontend/utils/widget_layout_storage.dart';
-import 'package:wrixl_frontend/widgets/common/reusable_widget_layout_card.dart';
-import 'package:wrixl_frontend/widgets/common/draggable_card_wrapper.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_widget_card.dart';
 
 class CommunityGameScreen extends StatefulWidget {
   const CommunityGameScreen({Key? key}) : super(key: key);
@@ -14,12 +13,18 @@ class CommunityGameScreen extends StatefulWidget {
   State<CommunityGameScreen> createState() => _CommunityGameScreenState();
 }
 
+enum DeviceSizeClass { mobile, tablet, desktop }
+
 class _CommunityGameScreenState extends State<CommunityGameScreen>
     with SingleTickerProviderStateMixin {
+  late DashboardItemController<DashboardItem> _controller;
+  late List<DashboardItem> _currentItems;
+  DeviceSizeClass? _currentSizeClass;
+  bool _isEditing = false;
+  final Map<String, bool> _visibility = {};
+  String selectedPreset = "Default";
+
   late TabController _tabController;
-  bool isEditMode = false;
-  final String selectedPreset = "CommunityDefault";
-  Map<String, List<WidgetLayout>> layoutPresets = {};
 
   final List<Tab> _tabs = const [
     Tab(text: 'Predict'),
@@ -28,320 +33,170 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
     Tab(text: 'Rank'),
   ];
 
-  final ScrollController _scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();
+    _controller = DashboardItemController(items: []);
+    _currentItems = [];
     _tabController = TabController(length: _tabs.length, vsync: this);
-    _loadPresets();
   }
 
-  Future<void> _loadPresets() async {
-    final defaultPreset = await WidgetLayoutStorage.loadPreset(selectedPreset);
-    setState(() {
-      layoutPresets = {
-        selectedPreset: defaultPreset ?? _defaultLayout(),
-      };
-    });
+  DeviceSizeClass _getSizeClass(BuildContext context) {
+    if (Responsive.isMobile(context)) return DeviceSizeClass.mobile;
+    if (Responsive.isTablet(context)) return DeviceSizeClass.tablet;
+    return DeviceSizeClass.desktop;
   }
 
-  void toggleEditMode() => setState(() => isEditMode = !isEditMode);
-
-  void toggleVisibility(String id) {
-    final layout = _currentLayout().firstWhere((w) => w.id == id);
-    setState(() => layout.visible = !layout.visible);
-    WidgetLayoutStorage.savePreset(selectedPreset, _currentLayout());
-  }
-
-  void updateLayout(WidgetLayout updated) {
-    final index = _currentLayout().indexWhere((w) => w.id == updated.id);
-    if (index != -1) {
-      setState(() => _currentLayout()[index] = updated);
-      WidgetLayoutStorage.savePreset(selectedPreset, _currentLayout());
+  List<DashboardItem> _getItemsForSize(DeviceSizeClass sizeClass) {
+    switch (selectedPreset) {
+      case "Alt":
+        return [
+          DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'Predict - Signal Prediction Market'),
+          DashboardItem(width: 12, height: 4, minWidth: 6, identifier: 'Predict - Portfolio Prediction Arena'),
+        ];
+      default:
+        return [
+          DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'Predict - Signal Prediction Market'),
+          DashboardItem(width: 12, height: 4, minWidth: 6, identifier: 'Predict - Portfolio Prediction Arena'),
+          DashboardItem(width: 12, height: 4, minWidth: 6, identifier: 'Vote - Signals DAO Voting'),
+          DashboardItem(width: 8, height: 4, minWidth: 6, identifier: 'Vote - Signal Curation Submissions'),
+          DashboardItem(width: 4, height: 3, minWidth: 3, identifier: 'Vote - Referral Impact'),
+          DashboardItem(width: 8, height: 4, minWidth: 6, identifier: 'Earn - WRX Rewards Dashboard'),
+          DashboardItem(width: 4, height: 3, minWidth: 3, identifier: 'Earn - Rewards Inventory'),
+          DashboardItem(width: 6, height: 2, minWidth: 4, identifier: 'Earn - Claimable Perks'),
+          DashboardItem(width: 6, height: 2, minWidth: 4, identifier: 'Earn - Impact Score'),
+          DashboardItem(width: 4, height: 3, minWidth: 3, identifier: 'Rank - User Leaderboard'),
+          DashboardItem(width: 8, height: 3, minWidth: 6, identifier: 'Rank - Community Contests'),
+          DashboardItem(width: 4, height: 3, minWidth: 3, identifier: 'Rank - Badge Collection'),
+          DashboardItem(width: 4, height: 2, minWidth: 3, identifier: 'Rank - XP Progress'),
+          DashboardItem(width: 8, height: 3, minWidth: 6, identifier: 'Rank - Weekly Mission'),
+          DashboardItem(width: 4, height: 3, minWidth: 3, identifier: 'Rank - Wrixler Rank'),
+          DashboardItem(width: 8, height: 3, minWidth: 6, identifier: 'Rank - Sector Rankings'),
+          DashboardItem(width: 12, height: 6, minWidth: 6, identifier: 'Rank - Discussion Threads'),
+        ];
     }
   }
 
-  List<WidgetLayout> _currentLayout() => layoutPresets[selectedPreset]!;
+  void _resetPreset() {
+    if (_currentSizeClass == null) return;
+    final items = _getItemsForSize(_currentSizeClass!);
+    _currentItems = items;
+    final newController = DashboardItemController<DashboardItem>(items: items);
+    setState(() {
+      _controller = newController;
+      _visibility.clear();
+      _visibility.addEntries(items.map((i) => MapEntry(i.identifier, true)));
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _controller.isEditing = _isEditing;
+    });
+  }
 
   @override
-  void dispose() {
-    _tabController.dispose();
-    _scrollController.dispose();
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newSizeClass = _getSizeClass(context);
+    if (_currentSizeClass != newSizeClass) {
+      _currentSizeClass = newSizeClass;
+      _resetPreset();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (layoutPresets.isEmpty || !layoutPresets.containsKey(selectedPreset)) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Community & Gamification"),
-        elevation: 0,
         bottom: TabBar(controller: _tabController, tabs: _tabs),
         actions: [
-          IconButton(
-            icon: Icon(isEditMode ? Icons.lock_open : Icons.lock),
-            tooltip: isEditMode ? "Lock Layout" : "Unlock Layout",
-            onPressed: toggleEditMode,
+          DropdownButton<String>(
+            value: selectedPreset,
+            underline: const SizedBox.shrink(),
+            onChanged: (value) {
+              if (value == null) return;
+              setState(() {
+                selectedPreset = value;
+                _resetPreset();
+              });
+            },
+            items: const [
+              DropdownMenuItem(value: "Default", child: Text("Default")),
+              DropdownMenuItem(value: "Alt", child: Text("Alt")),
+            ],
           ),
           IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: "Reset Layout",
-            onPressed: () async {
-              await WidgetLayoutStorage.deletePreset(selectedPreset);
+            icon: Icon(_isEditing ? Icons.lock_open : Icons.lock),
+            tooltip: _isEditing ? "Lock Layout" : "Unlock Layout",
+            onPressed: () {
               setState(() {
-                layoutPresets[selectedPreset] = _defaultLayout();
+                _isEditing = !_isEditing;
+                _controller = DashboardItemController<DashboardItem>(items: _currentItems);
+              });
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) _controller.isEditing = _isEditing;
               });
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: "Reset Preset",
+            onPressed: _isEditing ? _resetPreset : null,
+          ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final layoutHelper = LayoutHelper.fromDimensions(
-              constraints.maxWidth, constraints.maxHeight);
-          final allWidgets = _currentLayout();
-          final visibleWidgets = allWidgets.where((w) => w.visible).toList();
-
-          return TabBarView(
-            controller: _tabController,
-            children: _tabs.map((tab) {
-              final tabIdPrefix = tab.text!;
-              final widgetsToShow = isEditMode
-                  ? (allWidgets
-                      .where((w) => w.id.startsWith("$tabIdPrefix -"))
-                      .toList()
-                    ..sort((a, b) =>
-                        (a.visible == b.visible) ? 0 : (a.visible ? -1 : 1)))
-                  : visibleWidgets
-                      .where((w) => w.id.startsWith("$tabIdPrefix -"))
-                      .toList();
-
-              return SingleChildScrollView(
-                controller: _scrollController,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: LayoutHelper.fixedOuterScreenMargin,
-                    vertical: 24),
-                child: Wrap(
-                  spacing: layoutHelper.cardGutter,
-                  runSpacing: layoutHelper.verticalRowSpacing,
-                  children: List.generate(widgetsToShow.length, (index) {
-                    final layout = widgetsToShow[index];
-
-                    final wrixlCard = WrixlCard(
-                      layout: layout,
-                      layoutHelper: layoutHelper,
-                      isEditMode: isEditMode,
-                      isHidden: !layout.visible,
-                      onLayoutChanged: updateLayout,
-                      onToggleVisibility: () => toggleVisibility(layout.id),
-                      modalTitle: layout.id,
-                      child: Text("${layout.id} Placeholder"),
-                    );
-
-                    if (!layout.visible && isEditMode) return wrixlCard;
-
-                    return DraggableCardWrapper(
-                      index: index,
-                      isEditMode: isEditMode,
-                      visibleWidgets: visibleWidgets,
-                      onReorder: (from, to) {
-                        setState(() {
-                          final tabWidgets = allWidgets
-                              .where((w) =>
-                                  w.visible &&
-                                  w.id.startsWith("$tabIdPrefix -"))
-                              .toList();
-                          final moved = tabWidgets.removeAt(from);
-                          tabWidgets.insert(to, moved);
-
-                          final reordered = [
-                            ...tabWidgets,
-                            ...allWidgets.where((w) =>
-                                !w.id.startsWith("$tabIdPrefix -") ||
-                                !w.visible)
-                          ];
-
-                          layoutPresets[selectedPreset] = reordered;
-                          WidgetLayoutStorage.savePreset(
-                              selectedPreset, reordered);
-                        });
-                      },
-                      child: wrixlCard,
-                    );
-                  }),
-                ),
+      body: TabBarView(
+        controller: _tabController,
+        children: List.generate(_tabs.length, (tabIndex) {
+          final prefix = _tabs[tabIndex].text!;
+          final widgetsToShow = _currentItems.where((w) => w.identifier.startsWith(prefix)).toList();
+          return Dashboard<DashboardItem>(
+            key: ValueKey('$selectedPreset|$_isEditing|$_currentSizeClass|$tabIndex'),
+            dashboardItemController: _controller,
+            slotCount: 12,
+            slotAspectRatio: 1,
+            horizontalSpace: 40,
+            verticalSpace: 40,
+            padding: const EdgeInsets.all(16),
+            shrinkToPlace: false,
+            slideToTop: false,
+            absorbPointer: false,
+            animateEverytime: false,
+            physics: const BouncingScrollPhysics(),
+            slotBackgroundBuilder: SlotBackgroundBuilder.withFunction((_, __, ___, ____, _____) => null),
+            editModeSettings: EditModeSettings(
+              longPressEnabled: true,
+              panEnabled: true,
+              draggableOutside: true,
+              autoScroll: true,
+              resizeCursorSide: 10,
+              backgroundStyle: EditModeBackgroundStyle(
+                lineColor: Colors.grey,
+                lineWidth: 0.5,
+                dualLineHorizontal: true,
+                dualLineVertical: true,
+              ),
+            ),
+            itemBuilder: (item) {
+              final id = item.identifier;
+              final isHidden = !(_visibility[id] ?? true);
+              if (!_isEditing && isHidden) return const SizedBox.shrink();
+              return WidgetCard(
+                item: item,
+                child: Text('Widget $id\n'
+                    'x:\${item.layoutData?.startX} y:\${item.layoutData?.startY}\n'
+                    'w:\${item.layoutData?.width} h:\${item.layoutData?.height}'),
+                isEditMode: _isEditing,
+                isHidden: isHidden,
+                onToggleVisibility: () {
+                  setState(() => _visibility[id] = !(_visibility[id] ?? true));
+                },
+                modalTitle: 'Widget $id',
+                modalSize: WidgetModalSize.medium,
               );
-            }).toList(),
+            },
           );
-        },
+        }),
       ),
     );
-  }
-
-  List<WidgetLayout> _defaultLayout() {
-    return [
-// Predict Tab
-      WidgetLayout(
-          id: "Predict - Signal Prediction Market",
-          visible: true,
-          row: 0,
-          colStart: 0,
-          width: WidgetWidth.twoColumn,
-          height: WidgetHeight.medium,
-          modalSize: ModalSize.large,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Predict - Portfolio Prediction Arena",
-          visible: true,
-          row: 1,
-          colStart: 0,
-          width: WidgetWidth.threeColumn,
-          height: WidgetHeight.medium,
-          modalSize: ModalSize.fullscreen,
-          openOnTap: true),
-      // Vote Tab
-      WidgetLayout(
-          id: "Vote - Signals DAO Voting",
-          visible: true,
-          row: 0,
-          colStart: 0,
-          width: WidgetWidth.threeColumn,
-          height: WidgetHeight.medium,
-          modalSize: ModalSize.large,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Vote - Signal Curation Submissions",
-          visible: true,
-          row: 1,
-          colStart: 0,
-          width: WidgetWidth.twoColumn,
-          height: WidgetHeight.medium,
-          modalSize: ModalSize.large,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Vote - Referral Impact",
-          visible: true,
-          row: 2,
-          colStart: 0,
-          width: WidgetWidth.oneColumn,
-          height: WidgetHeight.medium,
-          modalSize: ModalSize.medium,
-          openOnTap: true),
-      // Earn Tab
-      WidgetLayout(
-          id: "Earn - WRX Rewards Dashboard",
-          visible: true,
-          row: 0,
-          colStart: 0,
-          width: WidgetWidth.twoColumn,
-          height: WidgetHeight.medium,
-          modalSize: ModalSize.large,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Earn - Rewards Inventory",
-          visible: true,
-          row: 1,
-          colStart: 0,
-          width: WidgetWidth.oneColumn,
-          height: WidgetHeight.medium,
-          modalSize: ModalSize.medium,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Earn - Claimable Perks",
-          visible: true,
-          row: 2,
-          colStart: 0,
-          width: WidgetWidth.twoColumn,
-          height: WidgetHeight.short,
-          modalSize: ModalSize.medium,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Earn - Impact Score",
-          visible: true,
-          row: 2,
-          colStart: 2,
-          width: WidgetWidth.oneColumn,
-          height: WidgetHeight.short,
-          modalSize: ModalSize.medium,
-          openOnTap: true),
-      // Rank Tab
-      WidgetLayout(
-          id: "Rank - User Leaderboard",
-          visible: true,
-          row: 0,
-          colStart: 0,
-          width: WidgetWidth.oneColumn,
-          height: WidgetHeight.medium,
-          modalSize: ModalSize.medium,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Rank - Community Contests",
-          visible: true,
-          row: 1,
-          colStart: 0,
-          width: WidgetWidth.twoColumn,
-          height: WidgetHeight.medium,
-          modalSize: ModalSize.large,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Rank - Badge Collection",
-          visible: true,
-          row: 2,
-          colStart: 0,
-          width: WidgetWidth.oneColumn,
-          height: WidgetHeight.medium,
-          modalSize: ModalSize.medium,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Rank - XP Progress",
-          visible: true,
-          row: 2,
-          colStart: 1,
-          width: WidgetWidth.oneColumn,
-          height: WidgetHeight.short,
-          modalSize: ModalSize.small,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Rank - Weekly Mission",
-          visible: true,
-          row: 3,
-          colStart: 0,
-          width: WidgetWidth.twoColumn,
-          height: WidgetHeight.moderate,
-          modalSize: ModalSize.medium,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Rank - Wrixler Rank",
-          visible: true,
-          row: 4,
-          colStart: 0,
-          width: WidgetWidth.oneColumn,
-          height: WidgetHeight.medium,
-          modalSize: ModalSize.medium,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Rank - Sector Rankings",
-          visible: true,
-          row: 4,
-          colStart: 1,
-          width: WidgetWidth.twoColumn,
-          height: WidgetHeight.medium,
-          modalSize: ModalSize.medium,
-          openOnTap: true),
-      WidgetLayout(
-          id: "Rank - Discussion Threads",
-          visible: true,
-          row: 5,
-          colStart: 0,
-          width: WidgetWidth.threeColumn,
-          height: WidgetHeight.tall,
-          modalSize: ModalSize.fullscreen,
-          openOnTap: true),
-    ];
   }
 }

@@ -44,14 +44,32 @@ class _DemoDashboardState extends State<DemoDashboard> {
           DashboardItem(width: 4, height: 3, minWidth: 4, identifier: '4'),
         ];
       default:
-        return [
-          DashboardItem(width: 6, height: 8, minWidth: 6, identifier: '1'),
-          DashboardItem(width: 5, height: 4, minWidth: 5, minHeight: 3, identifier: '2'),
-          DashboardItem(width: 4, height: 4, minWidth: 4, minHeight: 4, identifier: '3'),
-          DashboardItem(width: 3, height: 5, minWidth: 3, identifier: '4'),
-          DashboardItem(width: 2, height: 5, minWidth: 2, identifier: '5'),
-          DashboardItem(width: 2, height: 2, minWidth: 2, identifier: '6'),
-        ];
+        switch (sizeClass) {
+          case DeviceSizeClass.mobile:
+            return [
+              DashboardItem(width: 12, height: 4, minWidth: 12, identifier: '1'),
+              DashboardItem(width: 12, height: 4, minWidth: 12, identifier: '2'),
+              DashboardItem(width: 12, height: 3, minWidth: 12, identifier: '3'),
+            ];
+          case DeviceSizeClass.tablet:
+            return [
+              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: '1'),
+              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: '2'),
+              DashboardItem(width: 8, height: 3, minWidth: 6, identifier: '3'),
+              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: '4'),
+              DashboardItem(width: 8, height: 3, minWidth: 6, identifier: '5'),
+            ];
+          case DeviceSizeClass.desktop:
+          default:
+            return [
+              DashboardItem(width: 6, height: 8, minWidth: 6, identifier: '1'),
+              DashboardItem(width: 5, height: 4, minWidth: 5, minHeight: 3, identifier: '2'),
+              DashboardItem(width: 4, height: 4, minWidth: 4, minHeight: 4, identifier: '3'),
+              DashboardItem(width: 3, height: 5, minWidth: 3, identifier: '4'),
+              DashboardItem(width: 2, height: 5, minWidth: 2, identifier: '5'),
+              DashboardItem(width: 2, height: 2, minWidth: 2, identifier: '6'),
+            ];
+        }
     }
   }
 
@@ -118,8 +136,6 @@ class _DemoDashboardState extends State<DemoDashboard> {
                   items: _currentItems,
                 );
               });
-
-              // wait one frame until Dashboard rebuilds with new controller
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
                   _controller.isEditing = _isEditing;
@@ -136,7 +152,7 @@ class _DemoDashboardState extends State<DemoDashboard> {
       ),
       body: SafeArea(
         child: Dashboard<DashboardItem>(
-          key: ValueKey('$selectedPreset|$_isEditing'),
+          key: ValueKey('$selectedPreset|$_isEditing|$_currentSizeClass'),
           dashboardItemController: _controller,
           slotCount: 12,
           slotAspectRatio: 1,
@@ -173,8 +189,8 @@ class _DemoDashboardState extends State<DemoDashboard> {
               item: item,
               child: Text(
                 'Widget $id\n'
-                'x:${item.layoutData?.startX} y:${item.layoutData?.startY}\n'
-                'w:${item.layoutData?.width} h:${item.layoutData?.height}',
+                'x:\${item.layoutData?.startX} y:\${item.layoutData?.startY}\n'
+                'w:\${item.layoutData?.width} h:\${item.layoutData?.height}',
                 textAlign: TextAlign.center,
               ),
               isEditMode: _isEditing,

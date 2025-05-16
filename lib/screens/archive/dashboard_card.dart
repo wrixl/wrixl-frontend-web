@@ -1,7 +1,7 @@
 // lib\widgets\dashboard_card.dart
 
 import 'package:flutter/material.dart';
-import '../utils/constants.dart';
+import '../../utils/constants.dart';
 
 class DashboardCard extends StatelessWidget {
   final Widget child;
