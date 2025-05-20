@@ -51,28 +51,104 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
     switch (selectedPreset) {
       case "Alt":
         return [
-          DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'Predict - Signal Prediction Market'),
-          DashboardItem(width: 12, height: 4, minWidth: 6, identifier: 'Predict - Portfolio Prediction Arena'),
+          DashboardItem(
+              width: 6,
+              height: 4,
+              minWidth: 6,
+              identifier: 'Predict - Signal Prediction Market'),
+          DashboardItem(
+              width: 12,
+              height: 4,
+              minWidth: 6,
+              identifier: 'Predict - Portfolio Prediction Arena'),
         ];
       default:
         return [
-          DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'Predict - Signal Prediction Market'),
-          DashboardItem(width: 12, height: 4, minWidth: 6, identifier: 'Predict - Portfolio Prediction Arena'),
-          DashboardItem(width: 12, height: 4, minWidth: 6, identifier: 'Vote - Signals DAO Voting'),
-          DashboardItem(width: 8, height: 4, minWidth: 6, identifier: 'Vote - Signal Curation Submissions'),
-          DashboardItem(width: 4, height: 3, minWidth: 3, identifier: 'Vote - Referral Impact'),
-          DashboardItem(width: 8, height: 4, minWidth: 6, identifier: 'Earn - WRX Rewards Dashboard'),
-          DashboardItem(width: 4, height: 3, minWidth: 3, identifier: 'Earn - Rewards Inventory'),
-          DashboardItem(width: 6, height: 2, minWidth: 4, identifier: 'Earn - Claimable Perks'),
-          DashboardItem(width: 6, height: 2, minWidth: 4, identifier: 'Earn - Impact Score'),
-          DashboardItem(width: 4, height: 3, minWidth: 3, identifier: 'Rank - User Leaderboard'),
-          DashboardItem(width: 8, height: 3, minWidth: 6, identifier: 'Rank - Community Contests'),
-          DashboardItem(width: 4, height: 3, minWidth: 3, identifier: 'Rank - Badge Collection'),
-          DashboardItem(width: 4, height: 2, minWidth: 3, identifier: 'Rank - XP Progress'),
-          DashboardItem(width: 8, height: 3, minWidth: 6, identifier: 'Rank - Weekly Mission'),
-          DashboardItem(width: 4, height: 3, minWidth: 3, identifier: 'Rank - Wrixler Rank'),
-          DashboardItem(width: 8, height: 3, minWidth: 6, identifier: 'Rank - Sector Rankings'),
-          DashboardItem(width: 12, height: 6, minWidth: 6, identifier: 'Rank - Discussion Threads'),
+          DashboardItem(
+              width: 6,
+              height: 4,
+              minWidth: 6,
+              identifier: 'Predict - Signal Prediction Market'),
+          DashboardItem(
+              width: 12,
+              height: 4,
+              minWidth: 6,
+              identifier: 'Predict - Portfolio Prediction Arena'),
+          DashboardItem(
+              width: 12,
+              height: 4,
+              minWidth: 6,
+              identifier: 'Vote - Signals DAO Voting'),
+          DashboardItem(
+              width: 8,
+              height: 4,
+              minWidth: 6,
+              identifier: 'Vote - Signal Curation Submissions'),
+          DashboardItem(
+              width: 4,
+              height: 3,
+              minWidth: 3,
+              identifier: 'Vote - Referral Impact'),
+          DashboardItem(
+              width: 8,
+              height: 4,
+              minWidth: 6,
+              identifier: 'Earn - WRX Rewards Dashboard'),
+          DashboardItem(
+              width: 4,
+              height: 3,
+              minWidth: 3,
+              identifier: 'Earn - Rewards Inventory'),
+          DashboardItem(
+              width: 6,
+              height: 2,
+              minWidth: 4,
+              identifier: 'Earn - Claimable Perks'),
+          DashboardItem(
+              width: 6,
+              height: 2,
+              minWidth: 4,
+              identifier: 'Earn - Impact Score'),
+          DashboardItem(
+              width: 4,
+              height: 3,
+              minWidth: 3,
+              identifier: 'Rank - User Leaderboard'),
+          DashboardItem(
+              width: 8,
+              height: 3,
+              minWidth: 6,
+              identifier: 'Rank - Community Contests'),
+          DashboardItem(
+              width: 4,
+              height: 3,
+              minWidth: 3,
+              identifier: 'Rank - Badge Collection'),
+          DashboardItem(
+              width: 4,
+              height: 2,
+              minWidth: 3,
+              identifier: 'Rank - XP Progress'),
+          DashboardItem(
+              width: 8,
+              height: 3,
+              minWidth: 6,
+              identifier: 'Rank - Weekly Mission'),
+          DashboardItem(
+              width: 4,
+              height: 3,
+              minWidth: 3,
+              identifier: 'Rank - Wrixler Rank'),
+          DashboardItem(
+              width: 8,
+              height: 3,
+              minWidth: 6,
+              identifier: 'Rank - Sector Rankings'),
+          DashboardItem(
+              width: 12,
+              height: 6,
+              minWidth: 6,
+              identifier: 'Rank - Discussion Threads'),
         ];
     }
   }
@@ -130,7 +206,8 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
             onPressed: () {
               setState(() {
                 _isEditing = !_isEditing;
-                _controller = DashboardItemController<DashboardItem>(items: _currentItems);
+                _controller = DashboardItemController<DashboardItem>(
+                    items: _currentItems);
               });
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) _controller.isEditing = _isEditing;
@@ -148,9 +225,12 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
         controller: _tabController,
         children: List.generate(_tabs.length, (tabIndex) {
           final prefix = _tabs[tabIndex].text!;
-          final widgetsToShow = _currentItems.where((w) => w.identifier.startsWith(prefix)).toList();
+          final widgetsToShow = _currentItems
+              .where((w) => w.identifier.startsWith(prefix))
+              .toList();
           return Dashboard<DashboardItem>(
-            key: ValueKey('$selectedPreset|$_isEditing|$_currentSizeClass|$tabIndex'),
+            key: ValueKey(
+                '$selectedPreset|$_isEditing|$_currentSizeClass|$tabIndex'),
             dashboardItemController: _controller,
             slotCount: 12,
             slotAspectRatio: 1,
@@ -162,7 +242,8 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
             absorbPointer: false,
             animateEverytime: false,
             physics: const BouncingScrollPhysics(),
-            slotBackgroundBuilder: SlotBackgroundBuilder.withFunction((_, __, ___, ____, _____) => null),
+            slotBackgroundBuilder: SlotBackgroundBuilder.withFunction(
+                (_, __, ___, ____, _____) => null),
             editModeSettings: EditModeSettings(
               longPressEnabled: true,
               panEnabled: true,

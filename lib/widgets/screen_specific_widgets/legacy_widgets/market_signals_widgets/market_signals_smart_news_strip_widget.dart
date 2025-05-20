@@ -1,5 +1,3 @@
-// lib\widgets\screen_specific_widgets\market_signals_widgets\market_signals_smart _news_strip_widget.dart
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/widgets/toggle_filter_icon_row_widget.dart';
@@ -21,12 +19,7 @@ class NewsItem {
 
 /// Smart News Strip with filter toggles and a horizontal scroll.
 class MarketSignalsSmartNewsStripWidget extends StatefulWidget {
-  final List<NewsItem> newsItems;
-
-  const MarketSignalsSmartNewsStripWidget({
-    Key? key,
-    required this.newsItems,
-  }) : super(key: key);
+  const MarketSignalsSmartNewsStripWidget({Key? key}) : super(key: key);
 
   @override
   _MarketSignalsSmartNewsStripWidgetState createState() =>
@@ -55,9 +48,49 @@ class _MarketSignalsSmartNewsStripWidgetState
     "ETF": Icons.attach_money,
   };
 
+  final List<NewsItem> newsItems = [
+    NewsItem(
+      headline: "Market rallies as BTC surges, signaling new momentum",
+      sentiment: "Positive",
+      source: "Decrypt",
+      category: "Only Bullish",
+    ),
+    NewsItem(
+      headline: "Gold prices steady amid economic fears and uncertainty",
+      sentiment: "Neutral",
+      source: "CoinDesk",
+      category: "Neutral",
+    ),
+    NewsItem(
+      headline: "Blockchain devs push protocol upgrade in latest sprint",
+      sentiment: "Positive",
+      source: "CoinDesk",
+      category: "Dev-focused",
+    ),
+    NewsItem(
+      headline: "Crypto regulation intensifies as lawmakers debate policies",
+      sentiment: "Negative",
+      source: "Decrypt",
+      category: "Only Bearish",
+    ),
+    NewsItem(
+      headline:
+          "Bitcoin ETF filing gains traction among institutional investors",
+      sentiment: "Positive",
+      source: "CoinDesk",
+      category: "ETF",
+    ),
+    NewsItem(
+      headline: "New crypto regulatory updates raise industry concerns",
+      sentiment: "Negative",
+      source: "Decrypt",
+      category: "Regulatory",
+    ),
+  ];
+
   List<NewsItem> get filteredNews {
-    if (_selectedFilter == "All") return widget.newsItems;
-    return widget.newsItems.where((item) {
+    if (_selectedFilter == "All") return newsItems;
+    return newsItems.where((item) {
       final cat = item.category.toLowerCase();
       final sent = item.sentiment.toLowerCase();
       if (_selectedFilter == "Only Bullish") {
@@ -99,7 +132,7 @@ class _MarketSignalsSmartNewsStripWidgetState
     showModalBottomSheet(
       context: context,
       backgroundColor: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (_) => Padding(
@@ -137,7 +170,6 @@ class _MarketSignalsSmartNewsStripWidgetState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -157,7 +189,6 @@ class _MarketSignalsSmartNewsStripWidgetState
               ],
             ),
             const SizedBox(height: 8),
-            // Filters + summary
             Row(
               children: [
                 Expanded(
@@ -180,7 +211,6 @@ class _MarketSignalsSmartNewsStripWidgetState
               ],
             ),
             const SizedBox(height: 12),
-            // News cards strip
             SizedBox(
               height: cardHeight,
               child: ScrollConfiguration(
@@ -236,7 +266,6 @@ class _MarketSignalsSmartNewsStripWidgetState
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Source + icon
                               Row(
                                 children: [
                                   CircleAvatar(
@@ -269,7 +298,6 @@ class _MarketSignalsSmartNewsStripWidgetState
                                 ],
                               ),
                               const SizedBox(height: 6),
-                              // Headline
                               Expanded(
                                 child: Text(
                                   item.headline,
@@ -280,7 +308,6 @@ class _MarketSignalsSmartNewsStripWidgetState
                                 ),
                               ),
                               const SizedBox(height: 6),
-                              // Sentiment badge
                               Align(
                                 alignment: Alignment.bottomRight,
                                 child: Container(

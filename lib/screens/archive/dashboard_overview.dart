@@ -1,11 +1,11 @@
 // lib\screens\dashboard\dashboard_overview.dart
 
 import 'package:flutter/material.dart';
-import '../../widgets/screen_specific_widgets/dashboard_overview_widgets/dashboard_overview_line_graph.dart';
-import '../../widgets/screen_specific_widgets/dashboard_overview_widgets/portfolio_pulse.dart';
-import '../../widgets/screen_specific_widgets/dashboard_overview_widgets/smart_money_drift.dart';
-import '../../widgets/screen_specific_widgets/dashboard_overview_widgets/market_weather.dart';
-import '../../widgets/screen_specific_widgets/dashboard_overview_widgets/signal_feed.dart';
+import '../../widgets/screen_specific_widgets/legacy_widgets/dashboard_overview_widgets/dashboard_overview_line_graph.dart';
+import '../../widgets/screen_specific_widgets/legacy_widgets/dashboard_overview_widgets/portfolio_pulse.dart';
+import '../../widgets/screen_specific_widgets/legacy_widgets/smart_money_feed_widgets/smart_money_drift.dart';
+import '../../widgets/screen_specific_widgets/legacy_widgets/dashboard_overview_widgets/market_weather.dart';
+import '../../widgets/screen_specific_widgets/legacy_widgets/dashboard_overview_widgets/signal_feed.dart';
 
 class DashboardOverview extends StatelessWidget {
   const DashboardOverview({Key? key}) : super(key: key);

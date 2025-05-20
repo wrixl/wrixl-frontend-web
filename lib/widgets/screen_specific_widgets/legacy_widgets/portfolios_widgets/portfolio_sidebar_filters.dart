@@ -1,6 +1,4 @@
-// lib\widgets\screen_specific_widgets\portfolios_widgets\portfolio_filters_widget.dart
-
-// lib/widgets/screen_specific_widgets/portfolios_widgets/portfolio_filters_widget.dart
+// lib\widgets\screen_specific_widgets\portfolios_widgets\portfolio_sidebar_filters.dart
 
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/utils/constants.dart';

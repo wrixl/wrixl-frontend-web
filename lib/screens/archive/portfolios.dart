@@ -1,9 +1,9 @@
 // lib\screens\dashboard\portfolios.dart
 
 import 'package:flutter/material.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/portfolios_widgets/portfolio_comparison_radar_widget.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/portfolios_widgets/portfolio_sidebar_filters.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/portfolios_widgets/portfolio_tiles_grid.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/portfolios_widgets/portfolio_comparison_radar_widget.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/portfolios_widgets/portfolio_sidebar_filters.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/portfolios_widgets/portfolio_tiles_grid.dart';
 import '../../utils/responsive.dart';
 
 class PortfoliosScreen extends StatefulWidget {
@@ -45,50 +45,6 @@ class _PortfoliosScreenState extends State<PortfoliosScreen> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final bool isMobile = Responsive.isMobile(context);
-
-    // Dummy data
-    final displayedPortfolios = [
-      PortfolioTilesGridData(
-        name: "AI Growth Engine",
-        confidence: 0.95,
-        similarityScore: "92%",
-        projectedRoi: "+17%",
-        volatility: "Low",
-        strategyTag: "L2 Focused",
-        sharpe: "1.20",
-        topHoldings: ["ETH", "OP", "ARB"],
-        dominantChain: "Ethereum",
-        assetTypeMix: "80% Token / 20% LP",
-        initialRecommendationDate: DateTime(2023, 6, 12),
-        isBookmarked: false,
-        onBookmark: () => debugPrint("Bookmark pressed"),
-        onPreview: () => debugPrint("Preview pressed"),
-        onAdopt: () => debugPrint("Adopt pressed"),
-        investmentGoal: "Growth",
-        goalAchieved: "52%",
-        horizon: "Mid-Term",
-      ),
-      PortfolioTilesGridData(
-        name: "DeFi Income Fund",
-        confidence: 0.92,
-        similarityScore: "88%",
-        projectedRoi: "+13%",
-        volatility: "Medium",
-        strategyTag: "Yield Farming",
-        sharpe: "1.37",
-        topHoldings: ["CRV", "LDO", "CVX"],
-        dominantChain: "Optimism",
-        assetTypeMix: "70%/30% Token/Stable",
-        initialRecommendationDate: DateTime(2023, 5, 9),
-        isBookmarked: false,
-        onBookmark: () => debugPrint("Bookmark pressed"),
-        onPreview: () => debugPrint("Preview pressed"),
-        onAdopt: () => debugPrint("Adopt pressed"),
-        investmentGoal: "Passive Yield",
-        goalAchieved: "36%",
-        horizon: "Long-Term",
-      ),
-    ];
 
     final radarData = [
       {"metric": "Risk", "value": 0.7},
@@ -139,20 +95,12 @@ class _PortfoliosScreenState extends State<PortfoliosScreen> {
         children: [
           _buildThemedCard(
             context,
-            child: PortfolioComparisonRadar(
-              radarData: radarData,
-              showRadarChart: true,
-              toggleChart: () {},
-              showOwnPortfolio: showOwnPortfolio,
-              onToggleOwn: () =>
-                  setState(() => showOwnPortfolio = !showOwnPortfolio),
-              onReset: () => setState(() => radarData.clear()),
-            ),
+            child: PortfolioComparisonRadar(),
           ),
           const SizedBox(height: 24),
           _buildThemedCard(
             context,
-            child: PortfolioTilesGrid(data: displayedPortfolios),
+            child: const PortfolioTilesGrid(),
           ),
         ],
       ),

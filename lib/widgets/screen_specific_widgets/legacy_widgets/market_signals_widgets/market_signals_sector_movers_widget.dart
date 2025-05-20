@@ -14,8 +14,8 @@ class SectorMover {
   final double txVolume;
   final double marketCapDelta;
   final List<double> sparklineData;
-  final int tokensCount; // Number of tokens in the sector.
-  final double marketCap; // Market Cap (in millions).
+  final int tokensCount;
+  final double marketCap;
 
   SectorMover({
     required this.sectorName,
@@ -31,10 +31,7 @@ class SectorMover {
 }
 
 class MarketSignalsSectorMoversWidget extends StatefulWidget {
-  final List<SectorMover> movers;
-
-  const MarketSignalsSectorMoversWidget({Key? key, required this.movers})
-      : super(key: key);
+  const MarketSignalsSectorMoversWidget({Key? key}) : super(key: key);
 
   @override
   State<MarketSignalsSectorMoversWidget> createState() =>
@@ -43,7 +40,42 @@ class MarketSignalsSectorMoversWidget extends StatefulWidget {
 
 class _MarketSignalsSectorMoversWidgetState
     extends State<MarketSignalsSectorMoversWidget> {
-  // Toggle group 1: "Top Movers" vs "My Exposure"
+  final List<SectorMover> movers = [
+    SectorMover(
+      sectorName: "DeFi",
+      icon: Icons.account_balance_wallet,
+      devActivity: 25.0,
+      walletGrowth: 18.0,
+      txVolume: -5.0,
+      marketCapDelta: 12.0,
+      sparklineData: [1.0, 1.1, 1.3, 1.2, 1.4, 1.5, 1.6],
+      tokensCount: 15,
+      marketCap: 120.0,
+    ),
+    SectorMover(
+      sectorName: "AI",
+      icon: Icons.memory,
+      devActivity: 15.0,
+      walletGrowth: 12.0,
+      txVolume: 8.0,
+      marketCapDelta: 20.0,
+      sparklineData: [0.9, 1.0, 1.05, 1.2, 1.3, 1.4, 1.5],
+      tokensCount: 10,
+      marketCap: 85.0,
+    ),
+    SectorMover(
+      sectorName: "Gaming",
+      icon: Icons.videogame_asset,
+      devActivity: -5.0,
+      walletGrowth: 10.0,
+      txVolume: 5.0,
+      marketCapDelta: 3.0,
+      sparklineData: [1.2, 1.15, 1.1, 1.05, 1.0, 0.95, 0.9],
+      tokensCount: 8,
+      marketCap: 50.0,
+    ),
+  ];
+
   String selectedFilter = 'Top Movers';
   final List<String> filters = ['Top Movers', 'My Exposure'];
   final Map<String, IconData> filterIcons = {
@@ -51,7 +83,6 @@ class _MarketSignalsSectorMoversWidgetState
     'My Exposure': Icons.insights,
   };
 
-  // Toggle group 2: Metric selection.
   String selectedMetric = 'Dev Activity';
   final List<String> metrics = [
     'Dev Activity',
@@ -80,7 +111,7 @@ class _MarketSignalsSectorMoversWidgetState
   }
 
   List<SectorMover> get filteredMovers {
-    final all = List<SectorMover>.from(widget.movers);
+    final all = List<SectorMover>.from(movers);
     if (selectedFilter == 'Top Movers') {
       all.sort((a, b) => getMetricValue(b, selectedMetric)
           .compareTo(getMetricValue(a, selectedMetric)));

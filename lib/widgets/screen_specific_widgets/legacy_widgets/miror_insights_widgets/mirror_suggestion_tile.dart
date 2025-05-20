@@ -45,9 +45,30 @@ class MirrorSuggestionData {
 }
 
 class MirrorSuggestionTile extends StatelessWidget {
+  const MirrorSuggestionTile({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final List<MirrorSuggestionData> suggestions = _demoSuggestions;
+
+    return SizedBox(
+      height: 500,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        scrollDirection: Axis.horizontal,
+        itemCount: suggestions.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 16),
+        itemBuilder: (_, i) => _MirrorSuggestionTileCard(data: suggestions[i]),
+      ),
+    );
+  }
+}
+
+class _MirrorSuggestionTileCard extends StatelessWidget {
   final MirrorSuggestionData data;
 
-  const MirrorSuggestionTile({Key? key, required this.data}) : super(key: key);
+  const _MirrorSuggestionTileCard({Key? key, required this.data})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +80,6 @@ class MirrorSuggestionTile extends StatelessWidget {
     return Container(
       width: 360,
       padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.only(bottom: 40),
       decoration: BoxDecoration(
         color: scheme.surface,
         borderRadius: BorderRadius.circular(14),
@@ -75,7 +95,6 @@ class MirrorSuggestionTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -96,10 +115,7 @@ class MirrorSuggestionTile extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 8),
-
-          // Strategy Name & Tag
           Text(
             data.name,
             style: theme.textTheme.titleMedium?.copyWith(
@@ -115,8 +131,6 @@ class MirrorSuggestionTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-
-          // Similarity & Confidence
           Row(
             children: [
               _badge("Similarity: ${data.similarityScore}", theme, scheme),
@@ -125,55 +139,37 @@ class MirrorSuggestionTile extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-
-          // ROI / Volatility / Sharpe
           Row(
             children: [
+              Expanded(child: _stat("ROI", data.projectedRoi, theme, scheme)),
               Expanded(
-                  child: _statBlock("ROI", data.projectedRoi, theme, scheme)),
-              Expanded(
-                  child:
-                      _statBlock("Volatility", data.volatility, theme, scheme)),
-              Expanded(child: _statBlock("Sharpe", data.sharpe, theme, scheme)),
+                  child: _stat("Volatility", data.volatility, theme, scheme)),
+              Expanded(child: _stat("Sharpe", data.sharpe, theme, scheme)),
             ],
           ),
           const SizedBox(height: 10),
-
-          // Holdings / Chain / Mix
-          _statBlock(
-              "Top Holdings", data.topHoldings.join(", "), theme, scheme),
+          _stat("Top Holdings", data.topHoldings.join(", "), theme, scheme),
           const SizedBox(height: 6),
           Row(
             children: [
               Expanded(
-                  child:
-                      _statBlock("Chain", data.dominantChain, theme, scheme)),
+                  child: _stat("Chain", data.dominantChain, theme, scheme)),
               Expanded(
-                  child: _statBlock(
-                      "Asset Mix", data.assetTypeMix, theme, scheme)),
+                  child: _stat("Asset Mix", data.assetTypeMix, theme, scheme)),
             ],
           ),
           const SizedBox(height: 10),
-
-          // Investment Goal
-          _statBlock("Goal", data.investmentGoal, theme, scheme),
+          _stat("Goal", data.investmentGoal, theme, scheme),
           const SizedBox(height: 6),
-
-          // Timeline row
           Row(
             children: [
+              Expanded(child: _stat("Since", dateFormatted, theme, scheme)),
               Expanded(
-                  child: _statBlock("Since", dateFormatted, theme, scheme)),
-              Expanded(
-                  child:
-                      _statBlock("Achieved", data.goalAchieved, theme, scheme)),
-              Expanded(
-                  child: _statBlock("Horizon", data.horizon, theme, scheme)),
+                  child: _stat("Achieved", data.goalAchieved, theme, scheme)),
+              Expanded(child: _stat("Horizon", data.horizon, theme, scheme)),
             ],
           ),
-          const SizedBox(height: 12),
-
-          // CTA Buttons
+          const Spacer(),
           Row(
             children: [
               Expanded(
@@ -183,13 +179,9 @@ class MirrorSuggestionTile extends StatelessWidget {
                     side: BorderSide(color: scheme.primary),
                     padding: const EdgeInsets.symmetric(vertical: 8),
                   ),
-                  child: Text(
-                    "Preview",
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: scheme.primary,
-                      fontSize: 12,
-                    ),
-                  ),
+                  child: Text("Preview",
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: scheme.primary, fontSize: 12)),
                 ),
               ),
               const SizedBox(width: 8),
@@ -200,13 +192,9 @@ class MirrorSuggestionTile extends StatelessWidget {
                     backgroundColor: scheme.primary,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                   ),
-                  child: Text(
-                    "Adopt Strategy",
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: scheme.onPrimary,
-                      fontSize: 12,
-                    ),
-                  ),
+                  child: Text("Adopt Strategy",
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: scheme.onPrimary, fontSize: 12)),
                 ),
               ),
             ],
@@ -216,7 +204,7 @@ class MirrorSuggestionTile extends StatelessWidget {
     );
   }
 
-  Widget _statBlock(
+  Widget _stat(
       String label, String value, ThemeData theme, ColorScheme scheme) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -226,11 +214,9 @@ class MirrorSuggestionTile extends StatelessWidget {
           Text(value,
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: scheme.onSurface)),
-          Text(
-            label,
-            style: theme.textTheme.labelSmall
-                ?.copyWith(color: scheme.onSurface.withOpacity(0.6)),
-          ),
+          Text(label,
+              style: theme.textTheme.labelSmall
+                  ?.copyWith(color: scheme.onSurface.withOpacity(0.6))),
         ],
       ),
     );
@@ -262,3 +248,46 @@ class MirrorSuggestionTile extends StatelessWidget {
     );
   }
 }
+
+final List<MirrorSuggestionData> _demoSuggestions = [
+  MirrorSuggestionData(
+    name: "L2 Diversifier",
+    confidence: 0.82,
+    similarityScore: "91%",
+    projectedRoi: "+17.2%",
+    volatility: "Medium",
+    strategyTag: "Cross-L2 Blend",
+    sharpe: "1.3",
+    topHoldings: ["ARB", "OP", "BASE"],
+    dominantChain: "Arbitrum",
+    assetTypeMix: "50% L2 Tokens, 30% DeFi, 20% Stable",
+    initialRecommendationDate: DateTime(2024, 11, 20),
+    investmentGoal: "Exposure to emerging L2s",
+    goalAchieved: "63%",
+    horizon: "6–12 months",
+    isBookmarked: false,
+    onBookmark: () => debugPrint("Bookmarked L2 Diversifier"),
+    onPreview: () => debugPrint("Preview L2 Diversifier"),
+    onAdopt: () => debugPrint("Adopt L2 Diversifier"),
+  ),
+  MirrorSuggestionData(
+    name: "Alt Season Signal",
+    confidence: 0.88,
+    similarityScore: "94%",
+    projectedRoi: "+23.8%",
+    volatility: "High",
+    strategyTag: "Altcoin Sprinter",
+    sharpe: "1.4",
+    topHoldings: ["DOGE", "SHIB", "PEPE"],
+    dominantChain: "Base",
+    assetTypeMix: "60% Meme, 30% L2, 10% NFTs",
+    initialRecommendationDate: DateTime(2025, 2, 14),
+    investmentGoal: "Ride short-term alt surges",
+    goalAchieved: "71%",
+    horizon: "< 3 months",
+    isBookmarked: true,
+    onBookmark: () => debugPrint("Unbookmarked Alt Season Signal"),
+    onPreview: () => debugPrint("Preview Alt Season Signal"),
+    onAdopt: () => debugPrint("Adopt Alt Season Signal"),
+  ),
+];

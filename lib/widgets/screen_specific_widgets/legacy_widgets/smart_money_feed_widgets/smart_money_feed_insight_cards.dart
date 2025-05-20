@@ -1,5 +1,3 @@
-// lib\widgets\screen_specific_widgets\smart_money_feed_widgets\smart_money_feed_insight_cards.dart
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +6,7 @@ import 'package:wrixl_frontend/utils/crypto_icons_flutter.dart';
 import 'package:wrixl_frontend/widgets/toggle_filter_icon_row_widget.dart';
 
 class SmartMoneyFeedInsightCards extends StatefulWidget {
-  final List<Map<String, dynamic>> cardsData;
-  const SmartMoneyFeedInsightCards({Key? key, required this.cardsData})
-      : super(key: key);
+  const SmartMoneyFeedInsightCards({Key? key}) : super(key: key);
 
   @override
   State<SmartMoneyFeedInsightCards> createState() =>
@@ -50,10 +46,64 @@ class _SmartMoneyFeedInsightCardsState
     return color;
   }
 
+  late final List<Map<String, dynamic>> cardsData;
+
+  @override
+  void initState() {
+    super.initState();
+    cardsData = [
+      {
+        'title': 'Biggest Daily Accumulator',
+        'stat': 'Wallet 0xFD... acquired 5M USDC',
+        'priceSpots': {
+          'FTC': [
+            FlSpot(0, 1.21),
+            FlSpot(1, 1.42),
+            FlSpot(2, 6.98),
+            FlSpot(3, 9.24),
+            FlSpot(4, 5.56),
+            FlSpot(5, 8.3),
+            FlSpot(6, 9.82),
+          ],
+        },
+        'wallets': ['0xABC...', '0xABC...'],
+        'commentary':
+            'Wallet showed strong stablecoin positioning in the last 24 hours.',
+        'totalValue': 5000000.0,
+        'confidence': 4,
+        'trendType': 'New Trend',
+        'tokens': ['FTC'],
+        'chains': ['Ethereum', 'Ripple']
+      },
+      {
+        'title': 'Smart Money Sector Shift',
+        'stat': 'Shifted to L2s',
+        'priceSpots': {
+          'ETH': [
+            FlSpot(0, 9.2),
+            FlSpot(1, 3.0),
+            FlSpot(2, 5.49),
+            FlSpot(3, 1.6),
+            FlSpot(4, 7.67),
+            FlSpot(5, 2.14),
+            FlSpot(6, 6.76),
+          ],
+        },
+        'wallets': ['0xCDE...', '0xCDE...'],
+        'commentary': 'Notable migration from ETH mainnet into L2 ecosystems.',
+        'totalValue': 12800000.0,
+        'confidence': 4,
+        'trendType': 'Trend Reversal',
+        'tokens': ['ETH'],
+        'chains': ['Ethereum']
+      },
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final filteredCards = widget.cardsData.where((e) {
+    final filteredCards = cardsData.where((e) {
       final matchesFilter = activeFilter == 'all' ||
           e['trendType'].toString().toLowerCase().contains(activeFilter);
       final matchesSearch = searchQuery.isEmpty ||
@@ -97,7 +147,8 @@ class _SmartMoneyFeedInsightCardsState
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                        color: AppConstants.accentColor.withOpacity(0.3)),
+                      color: AppConstants.accentColor.withOpacity(0.3),
+                    ),
                   ),
                 ),
               ),

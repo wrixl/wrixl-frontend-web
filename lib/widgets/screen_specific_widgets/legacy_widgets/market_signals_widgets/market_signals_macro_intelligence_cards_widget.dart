@@ -1,5 +1,3 @@
-// lib/widgets/screen_specific_widgets/market_signals_widgets/market_signals_macro_intelligence_cards_widget.dart
-
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -33,12 +31,7 @@ class MacroCardData {
 
 /// Widget displaying a row of macro intelligence cards with filtering.
 class MarketSignalsMacroIntelligenceCardsWidget extends StatefulWidget {
-  final List<MacroCardData> cards;
-
-  const MarketSignalsMacroIntelligenceCardsWidget({
-    Key? key,
-    required this.cards,
-  }) : super(key: key);
+  const MarketSignalsMacroIntelligenceCardsWidget({Key? key}) : super(key: key);
 
   @override
   State<MarketSignalsMacroIntelligenceCardsWidget> createState() =>
@@ -53,6 +46,53 @@ class _MarketSignalsMacroIntelligenceCardsWidgetState
     'All': Icons.view_comfy,
     'AI Curated': Icons.auto_awesome,
   };
+
+  List<MacroCardData> get _dummyCards {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return [
+      MacroCardData(
+        title: "Crypto vs Traditional",
+        snapshotMetric: "BTC +4.1% vs S&P −0.3%",
+        chartData: [0.9, 1.1, 1.0, 1.2, 1.1, 1.3, 1.4],
+        chartType: ChartType.line,
+        tag: "Risk‑On",
+        tagColor: scheme.primary,
+        icon: Icons.show_chart,
+        onTap: () {},
+      ),
+      MacroCardData(
+        title: "Volatility Index",
+        snapshotMetric: "VIX: 25 (7d up)",
+        chartData: [22, 23, 24, 25, 26, 25, 27],
+        chartType: ChartType.bar,
+        tag: "Volatile",
+        tagColor: scheme.error,
+        icon: Icons.trending_up,
+        onTap: () {},
+      ),
+      MacroCardData(
+        title: "Stablecoin Flows",
+        snapshotMetric: "Net minting +3M",
+        chartData: [100, 103, 105, 102, 108, 110, 115],
+        chartType: ChartType.pie,
+        tag: "Liquidity",
+        tagColor: scheme.secondary,
+        icon: Icons.water_drop,
+        onTap: () {},
+      ),
+      MacroCardData(
+        title: "Global Money Supply",
+        snapshotMetric: "M2 +1.8% QoQ",
+        chartData: [92, 93, 94, 96, 97, 98, 99],
+        chartType: ChartType.line,
+        tag: "Expansion",
+        tagColor: scheme.primary,
+        icon: Icons.public,
+        onTap: () {},
+      ),
+    ];
+  }
 
   void _showOptionsModal() {
     final theme = Theme.of(context);
@@ -89,19 +129,15 @@ class _MarketSignalsMacroIntelligenceCardsWidgetState
     final primaryColor = theme.colorScheme.primary;
     final onSurface = theme.colorScheme.onSurface;
 
-    // Filter cards by tag
     final visible = _selectedFilter == 'All'
-        ? widget.cards
-        : widget.cards
-            .where((c) => c.tag.toLowerCase().contains('ai'))
-            .toList();
+        ? _dummyCards
+        : _dummyCards.where((c) => c.tag.toLowerCase().contains('ai')).toList();
 
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title & options
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -121,7 +157,6 @@ class _MarketSignalsMacroIntelligenceCardsWidgetState
             ],
           ),
           const SizedBox(height: 8),
-          // Filters + summary
           Row(
             children: [
               ToggleFilterIconRowWidget(
@@ -141,7 +176,6 @@ class _MarketSignalsMacroIntelligenceCardsWidgetState
             ],
           ),
           const SizedBox(height: 16),
-          // Cards
           LayoutBuilder(
             builder: (ctx, cons) => Wrap(
               spacing: 30,
@@ -160,7 +194,6 @@ class _MarketSignalsMacroIntelligenceCardsWidgetState
   }
 }
 
-/// Individual macro intelligence card.
 class MacroCard extends StatelessWidget {
   final MacroCardData cardData;
   const MacroCard({Key? key, required this.cardData}) : super(key: key);

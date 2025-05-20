@@ -2,7 +2,7 @@
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../../../../utils/constants.dart'; // Provides AppConstants.
+import '../../../../../utils/constants.dart'; // Provides AppConstants.
 
 class SmartMoneyDrift extends StatefulWidget {
   const SmartMoneyDrift({Key? key}) : super(key: key);

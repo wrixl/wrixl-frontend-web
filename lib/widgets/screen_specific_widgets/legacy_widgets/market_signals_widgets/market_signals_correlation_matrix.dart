@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/widgets/toggle_filter_icon_row_widget.dart';
 
 class CorrelationMatrixWidget extends StatefulWidget {
-  final List<String> labels;
-  final List<List<double>> matrix;
+  final List<String>? labels;
+  final List<List<double>>? matrix;
   final String title;
 
   const CorrelationMatrixWidget({
     Key? key,
-    required this.labels,
-    required this.matrix,
+    this.labels,
+    this.matrix,
     this.title = "Correlation Matrix",
   }) : super(key: key);
 
@@ -28,6 +28,40 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
     "Sectors": Icons.account_tree,
     "Tokens": Icons.token,
   };
+
+  late final List<String> _labels;
+  late final List<List<double>> _matrix;
+
+  @override
+  void initState() {
+    super.initState();
+    _labels = widget.labels ??
+        [
+          "DeFi",
+          "Layer 1",
+          "Meme Coins",
+          "NFT",
+          "AI",
+          "BTC",
+          "ETH",
+          "Gold",
+          "S&P 500",
+          "NASDAQ"
+        ];
+    _matrix = widget.matrix ??
+        [
+          [1.00, 0.45, 0.30, 0.35, 0.25, 0.60, 0.55, -0.60, -0.95, 0.00],
+          [0.45, 1.00, 0.50, 0.40, 0.80, 0.55, 0.60, -0.05, 0.00, 0.05],
+          [0.30, 0.50, 1.00, 0.45, 0.35, 0.40, 0.45, -0.70, -0.05, 0.00],
+          [0.35, 0.40, 0.45, 1.00, 0.55, 0.50, 0.45, -0.405, 0.00, 0.05],
+          [0.25, 0.30, 0.35, 0.55, 1.00, 0.40, 0.35, -0.10, 0.05, 0.00],
+          [0.60, 0.55, 0.40, 0.50, 0.40, 1.00, 0.85, -0.05, -0.10, -0.05],
+          [0.55, 0.60, 0.45, 0.45, 0.35, 0.85, 1.00, 0.40, -0.75, 0.00],
+          [-0.30, -0.05, -0.10, -0.45, -0.70, -0.05, 0.00, 1.00, 0.60, 0.25],
+          [-0.50, 0.00, -0.05, 0.00, 0.05, -0.40, -0.05, 0.20, 1.00, 0.85],
+          [0.10, 0.05, 0.03, 0.45, 0.00, -0.65, 0.00, 0.25, -0.85, 1.00],
+        ];
+  }
 
   void _showOptionsModal() {
     final theme = Theme.of(context);
@@ -76,7 +110,6 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// Title and options
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -96,8 +129,6 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
                 ],
               ),
               const SizedBox(height: 12),
-
-              /// Toggle filter and AI Summary
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -106,11 +137,7 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
                       options: toggleOptions,
                       optionIcons: toggleIcons,
                       activeOption: _selectedView,
-                      onSelected: (val) {
-                        setState(() {
-                          _selectedView = val;
-                        });
-                      },
+                      onSelected: (val) => setState(() => _selectedView = val),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -124,8 +151,6 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
                 ],
               ),
               const SizedBox(height: 16),
-
-              /// Matrix table
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Table(
@@ -157,34 +182,28 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
             BoxDecoration(color: theme.colorScheme.surface.withOpacity(0.1)),
         children: [
           Container(),
-          for (final label in widget.labels)
+          for (final label in _labels)
             Padding(
               padding: const EdgeInsets.all(6),
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                style: labelStyle,
-              ),
+              child:
+                  Text(label, textAlign: TextAlign.center, style: labelStyle),
             ),
         ],
       )
     ];
 
-    for (int i = 0; i < widget.labels.length; i++) {
+    for (int i = 0; i < _labels.length; i++) {
       final rowCells = <Widget>[
         Container(
           width: 100,
           padding: const EdgeInsets.all(6),
           color: theme.colorScheme.surface.withOpacity(0.1),
-          child: Text(
-            widget.labels[i],
-            style: labelStyle,
-          ),
+          child: Text(_labels[i], style: labelStyle),
         )
       ];
 
-      for (int j = 0; j < widget.labels.length; j++) {
-        final value = widget.matrix[i][j];
+      for (int j = 0; j < _labels.length; j++) {
+        final value = _matrix[i][j];
         final isDiagonal = i == j;
 
         rowCells.add(GestureDetector(
@@ -193,12 +212,11 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
             builder: (_) => AlertDialog(
               title: const Text("Correlation Detail"),
               content: Text(
-                  "${widget.labels[i]} vs ${widget.labels[j]}\nCorrelation: ${value.toStringAsFixed(2)}"),
+                  "${_labels[i]} vs ${_labels[j]}\nCorrelation: ${value.toStringAsFixed(2)}"),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text("Close"),
-                )
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text("Close"))
               ],
             ),
           ),

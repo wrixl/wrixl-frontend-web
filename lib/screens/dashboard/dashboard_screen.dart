@@ -3,21 +3,15 @@
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:wrixl_frontend/profile/user_profile.dart';
-import 'package:wrixl_frontend/screens/dashboard/dashboard_overview.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/sidebarx_navigation.dart';
 import 'package:wrixl_frontend/utils/constants.dart';
-import 'smart_money_feed.dart';
-import 'mirror_insights.dart';
-import 'market_signals.dart';
-import 'portfolios.dart';
-import 'dashboard_overview.dart';
-import 'dashboard_screen2.dart';
 import 'portfolios_screen2.dart';
 import 'market_intelligence.dart';
 import 'activity_screen.dart';
 import 'community_game_screen.dart';
-import 'package:wrixl_frontend/screens/dashboard/demo_dashboard.dart';
+import 'package:wrixl_frontend/screens/dashboard/legacy_widgets.dart';
+import 'dashboard_screen2.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -31,18 +25,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final SidebarXController _controller = SidebarXController(selectedIndex: 0);
 
   final List<Widget> _screens = [
-    const DashboardOverview(), // 0: Old Dashboard
-    const DashboardScreen2(), // 1: New Dashboard
-    const SmartMoneyFeedScreen(), // 2: Old Smart Money
-    const MirrorInsightsScreen(), // 3: Old Mirror Insights
-    const MarketSignalsScreen(), // 4: Old Market Signals
-    const MarketIntelligenceScreen(), // 5: New Market Intelligence
-    const PortfoliosScreen(), // 6: Old Portfolio
-    const PortfoliosScreen2(), // 7: New Portfolio
-    const CommunityGameScreen(), // 8: New Community & Gamification
-    const ActivityScreen(), // 9: New Activity & Alerts
-    const DemoDashboard(), // 10: Demo Dashboard
-    const UserProfileScreen(), // 11: Profile
+    const DashboardScreen2(), // 0: New Dashboard
+    const MarketIntelligenceScreen(), // 1: New Market Intelligence
+    const PortfoliosScreen2(), // 2: New Portfolio
+    const CommunityGameScreen(), // 3: New Community & Gamification
+    const ActivityScreen(), // 4: New Activity & Alerts
+    const LegacyWidgetsScreen(), // 5: New Legacy Widgets
+    const UserProfileScreen(), // 6: Profile
   ];
 
   @override
@@ -82,29 +71,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onTap: (index) => _controller.selectIndex(index),
               items: const [
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.dashboard), label: 'Old Dashboard'), // 0
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.dashboard_customize),
-                    label: 'New Dashboard'), // 1
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.trending_up), label: 'Smart \$'), // 2
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.copy_all), label: 'Mirror'), // 3
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.auto_graph), label: 'Signals'), // 4
+                    icon: Icon(Icons.dashboard_customize), label: 'Dashboard'),
                 BottomNavigationBarItem(
                     icon: Icon(Icons.analytics_outlined),
-                    label: 'Intelligence'), // 5
+                    label: 'Intelligence'),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.archive), label: 'Old Portfolio'), // 6
+                    icon: Icon(Icons.pie_chart), label: 'Portfolio'),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.pie_chart), label: 'New Portfolio'), // 7
+                    icon: Icon(Icons.emoji_events), label: 'Community'),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.emoji_events), label: 'Community'), // 8
+                    icon: Icon(Icons.history), label: 'Activity'),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.history), label: 'Activity'), // 9
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.play_circle_outline), label: 'Demo'), // 10
+                    icon: Icon(Icons.widgets_outlined), label: 'Legacy'),
                 BottomNavigationBarItem(
                     icon: Icon(Icons.person), label: 'Profile'),
               ],

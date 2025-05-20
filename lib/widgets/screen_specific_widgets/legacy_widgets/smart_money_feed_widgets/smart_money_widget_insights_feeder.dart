@@ -1,16 +1,9 @@
-// lib\widgets\screen_specific_widgets\smart_money_feed_widgets\smart_money_widget_insights_feeder.dart
-
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/utils/crypto_icons_flutter.dart';
 import 'package:wrixl_frontend/widgets/toggle_filter_icon_row_widget.dart';
 
 class SmartMoneyWidgetInsightsFeeder extends StatefulWidget {
-  final List<Map<String, dynamic>> feedItems;
-
-  const SmartMoneyWidgetInsightsFeeder({
-    Key? key,
-    required this.feedItems,
-  }) : super(key: key);
+  const SmartMoneyWidgetInsightsFeeder({Key? key}) : super(key: key);
 
   @override
   State<SmartMoneyWidgetInsightsFeeder> createState() =>
@@ -40,12 +33,58 @@ class _SmartMoneyWidgetInsightsFeederState
     'smart lp': Icons.science,
   };
 
+  static final List<Map<String, dynamic>> _dummyFeedItems = [
+    {
+      'insight': 'Hedge funds entering DeFi yield plays',
+      'detail':
+          'Pendle, Lyra, and Aura saw 17.2M USD inflows from fund-tagged wallets.',
+      'walletType': 'fund',
+      'confidence': 4,
+      'wallets': ['0xF1...', '0xD3...', '0xE4...'],
+      'tokens': ['GBYTE', 'SUSHI', 'WBTC'],
+      'tags': ['Yield Farming', 'Rotation', 'DeFi'],
+      'timestamp': '12:02 • 04/09',
+    },
+    {
+      'insight': 'Whale cluster shedding MEME exposure',
+      'detail': 'Over 2.1M USD in MEME tokens dumped.',
+      'walletType': 'whale',
+      'confidence': 3,
+      'wallets': ['0xA2...', '0xC1...'],
+      'tokens': ['GBYTE'],
+      'tags': ['Exit Pattern', 'Risk Off'],
+      'timestamp': '11:47 • 04/09',
+    },
+    {
+      'insight': 'Fresh wallet hits 100K USD profit in 48 hours',
+      'detail':
+          'New high-frequency trader surfaced on Base. 38 trades, 82% win rate.',
+      'walletType': 'fresh wallet',
+      'confidence': 3,
+      'wallets': ['0xNew...'],
+      'tokens': ['USDC', 'ETH', 'SUSHI'],
+      'tags': ['High Activity', 'Base Chain'],
+      'timestamp': '10:55 • 04/09',
+    },
+    {
+      'insight': 'Degens rotate from NFTs into yield tokens',
+      'detail':
+          'NFT-heavy wallets exited JPEGs and moved into L2 LPs like GBYTE.',
+      'walletType': 'degen',
+      'confidence': 2,
+      'wallets': ['0xDE...', '0xGN...'],
+      'tokens': ['GBYTE', 'FTC'],
+      'tags': ['Rotation', 'Yield'],
+      'timestamp': '10:24 • 04/09',
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    final filteredFeed = widget.feedItems.where((item) {
+    final filteredFeed = _dummyFeedItems.where((item) {
       final type = (item['walletType']?.toLowerCase() ?? '');
       final matchType = activeWalletType == 'all' || type == activeWalletType;
       final matchQuery = searchQuery.isEmpty ||
@@ -149,7 +188,6 @@ class _SmartMoneyWidgetInsightsFeederState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Accent gradient bar
                     Container(
                       height: 4,
                       margin: const EdgeInsets.only(bottom: 10),
@@ -163,8 +201,6 @@ class _SmartMoneyWidgetInsightsFeederState
                         ),
                       ),
                     ),
-
-                    // Insight text + watch button
                     Row(
                       children: [
                         Expanded(
@@ -197,8 +233,6 @@ class _SmartMoneyWidgetInsightsFeederState
                         ),
                       ],
                     ),
-
-                    // Tags
                     if (tags.isNotEmpty) ...[
                       Wrap(
                         spacing: 6,
@@ -219,8 +253,6 @@ class _SmartMoneyWidgetInsightsFeederState
                       ),
                       const SizedBox(height: 8),
                     ],
-
-                    // Icons + wallet count
                     Row(
                       children: [
                         ...tokens.map((t) => Padding(
@@ -238,8 +270,6 @@ class _SmartMoneyWidgetInsightsFeederState
                       ],
                     ),
                     const SizedBox(height: 8),
-
-                    // Confidence & timestamp
                     Row(
                       children: [
                         Icon(Icons.bolt, size: 14, color: scheme.primary),

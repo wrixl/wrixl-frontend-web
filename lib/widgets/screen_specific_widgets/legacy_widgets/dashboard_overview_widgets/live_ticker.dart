@@ -8,10 +8,7 @@ import 'package:wrixl_frontend/utils/constants.dart';
 import 'package:wrixl_frontend/widgets/toggle_filter_icon_row_widget.dart';
 
 class LiveWhaleTicker extends StatefulWidget {
-  final List<String> tickerMessages;
-
-  const LiveWhaleTicker({Key? key, required this.tickerMessages})
-      : super(key: key);
+  const LiveWhaleTicker({Key? key}) : super(key: key);
 
   @override
   State<LiveWhaleTicker> createState() => _LiveWhaleTickerState();
@@ -49,6 +46,19 @@ class _LiveWhaleTickerState extends State<LiveWhaleTicker> {
     'l2': Icons.device_hub,
   };
 
+  final List<String> tickerMessages = [
+    'Whale 0xA1B bought 2.5M USDT on Base',
+    'Fund Alpha rotated from L2s into BTC',
+    'Fresh wallet deposited 200K into Curve',
+    'Smart LP added 1M liquidity to Uniswap v3',
+    'Degen wallet YOLO’d into PEPE options',
+    'Whale 0xF22 moved 5K ETH to Coinbase',
+    'AI Wallet bought AGIX and FET aggressively',
+    'Rotation detected from stablecoins to meme tokens',
+    'L2 activity spike: 3.2M bridged to Optimism',
+    'Sell-off: Wallet 0x88D dumped 10M ARB tokens',
+  ];
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -56,7 +66,6 @@ class _LiveWhaleTickerState extends State<LiveWhaleTicker> {
 
     return Column(
       children: [
-        /// Title and Search
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -97,8 +106,6 @@ class _LiveWhaleTickerState extends State<LiveWhaleTicker> {
           ],
         ),
         const SizedBox(height: 8),
-
-        /// Toggle Filter Buttons aligned left
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -118,12 +125,10 @@ class _LiveWhaleTickerState extends State<LiveWhaleTicker> {
           ],
         ),
         const SizedBox(height: 10),
-
-        /// Marquee Ticker
         SizedBox(
           height: 80,
           child: Marqueer.builder(
-            itemCount: widget.tickerMessages.length,
+            itemCount: tickerMessages.length,
             pps: 40,
             direction: MarqueerDirection.rtl,
             interaction: true,
@@ -132,7 +137,7 @@ class _LiveWhaleTickerState extends State<LiveWhaleTicker> {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             separatorBuilder: (_, __) => const SizedBox(width: 40),
             itemBuilder: (context, index) {
-              final message = widget.tickerMessages[index];
+              final message = tickerMessages[index];
               final category = _randomCategory();
               final timestamp = _formattedNow();
               final trend = _generateTrend();

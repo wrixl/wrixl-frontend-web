@@ -47,9 +47,12 @@ class _DemoDashboardState extends State<DemoDashboard> {
         switch (sizeClass) {
           case DeviceSizeClass.mobile:
             return [
-              DashboardItem(width: 12, height: 4, minWidth: 12, identifier: '1'),
-              DashboardItem(width: 12, height: 4, minWidth: 12, identifier: '2'),
-              DashboardItem(width: 12, height: 3, minWidth: 12, identifier: '3'),
+              DashboardItem(
+                  width: 12, height: 4, minWidth: 12, identifier: '1'),
+              DashboardItem(
+                  width: 12, height: 4, minWidth: 12, identifier: '2'),
+              DashboardItem(
+                  width: 12, height: 3, minWidth: 12, identifier: '3'),
             ];
           case DeviceSizeClass.tablet:
             return [
@@ -63,8 +66,18 @@ class _DemoDashboardState extends State<DemoDashboard> {
           default:
             return [
               DashboardItem(width: 6, height: 8, minWidth: 6, identifier: '1'),
-              DashboardItem(width: 5, height: 4, minWidth: 5, minHeight: 3, identifier: '2'),
-              DashboardItem(width: 4, height: 4, minWidth: 4, minHeight: 4, identifier: '3'),
+              DashboardItem(
+                  width: 5,
+                  height: 4,
+                  minWidth: 5,
+                  minHeight: 3,
+                  identifier: '2'),
+              DashboardItem(
+                  width: 4,
+                  height: 4,
+                  minWidth: 4,
+                  minHeight: 4,
+                  identifier: '3'),
               DashboardItem(width: 3, height: 5, minWidth: 3, identifier: '4'),
               DashboardItem(width: 2, height: 5, minWidth: 2, identifier: '5'),
               DashboardItem(width: 2, height: 2, minWidth: 2, identifier: '6'),

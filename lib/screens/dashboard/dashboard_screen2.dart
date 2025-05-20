@@ -6,6 +6,8 @@ import 'package:wrixl_frontend/utils/responsive.dart';
 import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 import 'package:wrixl_frontend/widgets/common/new_reusable_widget_card.dart';
 
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/smart_money_feed_widgets/smart_money_drift.dart';
+
 class DashboardScreen2 extends StatefulWidget {
   const DashboardScreen2({super.key});
 
@@ -40,50 +42,156 @@ class _DashboardScreen2State extends State<DashboardScreen2> {
     switch (selectedPreset) {
       case "Alt":
         return [
-          DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'Portfolio Snapshot'),
-          DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'Smart Money Drift'),
-          DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'AI Quick Tip'),
+          DashboardItem(
+              width: 6,
+              height: 4,
+              minWidth: 6,
+              identifier: 'Portfolio Snapshot'),
+          DashboardItem(
+              width: 6,
+              height: 4,
+              minWidth: 6,
+              identifier: 'Smart Money Drift'),
+          DashboardItem(
+              width: 6, height: 3, minWidth: 6, identifier: 'AI Quick Tip'),
         ];
       default:
         switch (sizeClass) {
           case DeviceSizeClass.mobile:
             return [
-              DashboardItem(width: 12, height: 4, minWidth: 12, identifier: 'Portfolio Snapshot'),
-              DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'Smart Money Drift'),
-              DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'AI Quick Tip'),
+              DashboardItem(
+                  width: 12,
+                  height: 4,
+                  minWidth: 12,
+                  identifier: 'Portfolio Snapshot'),
+              DashboardItem(
+                  width: 12,
+                  height: 3,
+                  minWidth: 12,
+                  identifier: 'Smart Money Drift'),
+              DashboardItem(
+                  width: 12,
+                  height: 3,
+                  minWidth: 12,
+                  identifier: 'AI Quick Tip'),
             ];
           case DeviceSizeClass.tablet:
             return [
-              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'Portfolio Snapshot'),
-              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'Smart Money Drift'),
-              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'AI Quick Tip'),
-              DashboardItem(width: 8, height: 4, minWidth: 6, identifier: 'Token Allocation'),
-              DashboardItem(width: 4, height: 3, minWidth: 4, identifier: 'Stress Radar'),
-              DashboardItem(width: 12, height: 2, minWidth: 6, identifier: 'Live Ticker'),
-              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'Model Portfolios'),
-              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'Performance Benchmarks'),
-              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'Alerts'),
-              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'Next Best Action'),
-              DashboardItem(width: 12, height: 2, minWidth: 6, identifier: 'Wrixler Rank'),
-              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'Streak Tracker'),
-              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'Missed Opportunities'),
+              DashboardItem(
+                  width: 6,
+                  height: 4,
+                  minWidth: 6,
+                  identifier: 'Portfolio Snapshot'),
+              DashboardItem(
+                  width: 6,
+                  height: 4,
+                  minWidth: 6,
+                  identifier: 'Smart Money Drift'),
+              DashboardItem(
+                  width: 6, height: 3, minWidth: 6, identifier: 'AI Quick Tip'),
+              DashboardItem(
+                  width: 8,
+                  height: 4,
+                  minWidth: 6,
+                  identifier: 'Token Allocation'),
+              DashboardItem(
+                  width: 4, height: 3, minWidth: 4, identifier: 'Stress Radar'),
+              DashboardItem(
+                  width: 12, height: 2, minWidth: 6, identifier: 'Live Ticker'),
+              DashboardItem(
+                  width: 6,
+                  height: 4,
+                  minWidth: 6,
+                  identifier: 'Model Portfolios'),
+              DashboardItem(
+                  width: 6,
+                  height: 3,
+                  minWidth: 6,
+                  identifier: 'Performance Benchmarks'),
+              DashboardItem(
+                  width: 6, height: 3, minWidth: 6, identifier: 'Alerts'),
+              DashboardItem(
+                  width: 6,
+                  height: 3,
+                  minWidth: 6,
+                  identifier: 'Next Best Action'),
+              DashboardItem(
+                  width: 12,
+                  height: 2,
+                  minWidth: 6,
+                  identifier: 'Wrixler Rank'),
+              DashboardItem(
+                  width: 6,
+                  height: 3,
+                  minWidth: 6,
+                  identifier: 'Streak Tracker'),
+              DashboardItem(
+                  width: 6,
+                  height: 3,
+                  minWidth: 6,
+                  identifier: 'Missed Opportunities'),
             ];
           case DeviceSizeClass.desktop:
           default:
             return [
-              DashboardItem(width: 6, height: 8, minWidth: 6, identifier: 'Portfolio Snapshot'),
-              DashboardItem(width: 5, height: 4, minWidth: 5, minHeight: 3, identifier: 'Smart Money Drift'),
-              DashboardItem(width: 4, height: 4, minWidth: 4, minHeight: 4, identifier: 'AI Quick Tip'),
-              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'Token Allocation'),
-              DashboardItem(width: 3, height: 4, minWidth: 3, identifier: 'Stress Radar'),
-              DashboardItem(width: 12, height: 2, minWidth: 6, identifier: 'Live Ticker'),
-              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'Model Portfolios'),
-              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'Performance Benchmarks'),
-              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'Alerts'),
-              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'Next Best Action'),
-              DashboardItem(width: 12, height: 2, minWidth: 6, identifier: 'Wrixler Rank'),
-              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'Streak Tracker'),
-              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'Missed Opportunities'),
+              DashboardItem(
+                  width: 6,
+                  height: 8,
+                  minWidth: 6,
+                  identifier: 'Portfolio Snapshot'),
+              DashboardItem(
+                  width: 5,
+                  height: 4,
+                  minWidth: 5,
+                  minHeight: 3,
+                  identifier: 'Smart Money Drift'),
+              DashboardItem(
+                  width: 4,
+                  height: 4,
+                  minWidth: 4,
+                  minHeight: 4,
+                  identifier: 'AI Quick Tip'),
+              DashboardItem(
+                  width: 6,
+                  height: 4,
+                  minWidth: 6,
+                  identifier: 'Token Allocation'),
+              DashboardItem(
+                  width: 3, height: 4, minWidth: 3, identifier: 'Stress Radar'),
+              DashboardItem(
+                  width: 12, height: 2, minWidth: 6, identifier: 'Live Ticker'),
+              DashboardItem(
+                  width: 6,
+                  height: 4,
+                  minWidth: 6,
+                  identifier: 'Model Portfolios'),
+              DashboardItem(
+                  width: 6,
+                  height: 3,
+                  minWidth: 6,
+                  identifier: 'Performance Benchmarks'),
+              DashboardItem(
+                  width: 6, height: 3, minWidth: 6, identifier: 'Alerts'),
+              DashboardItem(
+                  width: 6,
+                  height: 4,
+                  minWidth: 6,
+                  identifier: 'Next Best Action'),
+              DashboardItem(
+                  width: 12,
+                  height: 2,
+                  minWidth: 6,
+                  identifier: 'Wrixler Rank'),
+              DashboardItem(
+                  width: 6,
+                  height: 3,
+                  minWidth: 6,
+                  identifier: 'Streak Tracker'),
+              DashboardItem(
+                  width: 6,
+                  height: 3,
+                  minWidth: 6,
+                  identifier: 'Missed Opportunities'),
             ];
         }
     }
@@ -148,7 +256,8 @@ class _DashboardScreen2State extends State<DashboardScreen2> {
             onPressed: () {
               setState(() {
                 _isEditing = !_isEditing;
-                _controller = DashboardItemController<DashboardItem>(items: _currentItems);
+                _controller = DashboardItemController<DashboardItem>(
+                    items: _currentItems);
               });
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
@@ -201,12 +310,15 @@ class _DashboardScreen2State extends State<DashboardScreen2> {
 
             return WidgetCard(
               item: item,
-              child: Text(
-                'Widget $id\n'
-                'x:\${item.layoutData?.startX} y:\${item.layoutData?.startY}\n'
-                'w:\${item.layoutData?.width} h:\${item.layoutData?.height}',
-                textAlign: TextAlign.center,
-              ),
+              child: switch (id) {
+                'Smart Money Drift' => const SmartMoneyDrift(),
+                _ => Text(
+                    'Widget $id\n'
+                    'x:${item.layoutData?.startX} y:${item.layoutData?.startY}\n'
+                    'w:${item.layoutData?.width} h:${item.layoutData?.height}',
+                    textAlign: TextAlign.center,
+                  )
+              },
               isEditMode: _isEditing,
               isHidden: isHidden,
               onToggleVisibility: () {
@@ -223,4 +335,3 @@ class _DashboardScreen2State extends State<DashboardScreen2> {
     );
   }
 }
-

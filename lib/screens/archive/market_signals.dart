@@ -1,10 +1,10 @@
 // lib/screens/dashboard/market_signals.dart
 
 import 'package:flutter/material.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/market_signals_widgets/market_signals_correlation_matrix.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/market_signals_widgets/market_signals_macro_intelligence_cards_widget.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/market_signals_widgets/market_signals_sector_movers_widget.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/market_signals_widgets/market_signals_smart_news_strip_widget.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/market_signals_widgets/market_signals_correlation_matrix.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/market_signals_widgets/market_signals_macro_intelligence_cards_widget.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/market_signals_widgets/market_signals_sector_movers_widget.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/market_signals_widgets/market_signals_smart_news_strip_widget.dart';
 
 class MarketSignalsScreen extends StatelessWidget {
   const MarketSignalsScreen({Key? key}) : super(key: key);
@@ -245,8 +245,7 @@ class MarketSignalsScreen extends StatelessWidget {
             _buildThemedCard(context,
                 child: SizedBox(
                     height: 385,
-                    child: MarketSignalsMacroIntelligenceCardsWidget(
-                        cards: macroCards))),
+                    child: MarketSignalsMacroIntelligenceCardsWidget())),
             const SizedBox(height: 24),
             _buildThemedCard(context,
                 child: CorrelationMatrixWidget(
@@ -256,14 +255,11 @@ class MarketSignalsScreen extends StatelessWidget {
             const SizedBox(height: 24),
             _buildThemedCard(context,
                 child: SizedBox(
-                    height: 350,
-                    child: MarketSignalsSectorMoversWidget(movers: movers))),
+                    height: 350, child: MarketSignalsSectorMoversWidget())),
             const SizedBox(height: 24),
             _buildThemedCard(context,
                 child: SizedBox(
-                    height: 290,
-                    child: MarketSignalsSmartNewsStripWidget(
-                        newsItems: newsItems))),
+                    height: 290, child: MarketSignalsSmartNewsStripWidget())),
             const SizedBox(height: 24),
           ],
         ),

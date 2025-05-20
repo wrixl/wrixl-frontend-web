@@ -1,10 +1,8 @@
-// lib/widgets/dashboard_overview_sector_dominance_card.dart
-
-// lib/widgets/dashboard_overview_sector_dominance_card.dart
+// lib\widgets\screen_specific_widgets\dashboard_overview_widgets\dashboard_overview_sector_dominance_card.dart
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../../../../utils/constants.dart'; // Provides AppConstants.
+import '../../../../../utils/constants.dart'; // Provides AppConstants.
 
 class DynamicSectorDominanceCard extends StatefulWidget {
   const DynamicSectorDominanceCard({Key? key}) : super(key: key);

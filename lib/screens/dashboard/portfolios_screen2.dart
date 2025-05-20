@@ -75,30 +75,75 @@ class _PortfoliosScreen2State extends State<PortfoliosScreen2>
     switch (tab) {
       case "Popular":
         return [
-          DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'Model Filters'),
+          DashboardItem(
+              width: 12, height: 2, minWidth: 12, identifier: 'Model Filters'),
           for (int i = 1; i <= 4; i++)
-            DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'Model Portfolio $i'),
-          DashboardItem(width: 12, height: 4, minWidth: 6, identifier: 'Model Comparison'),
-          DashboardItem(width: 12, height: 2, minWidth: 6, identifier: 'Try Before You Mirror'),
+            DashboardItem(
+                width: 6,
+                height: 3,
+                minWidth: 6,
+                identifier: 'Model Portfolio $i'),
+          DashboardItem(
+              width: 12,
+              height: 4,
+              minWidth: 6,
+              identifier: 'Model Comparison'),
+          DashboardItem(
+              width: 12,
+              height: 2,
+              minWidth: 6,
+              identifier: 'Try Before You Mirror'),
         ];
       case "Build":
         return [
-          DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'Prompt Input'),
-          DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'Risk & ROI Sliders'),
-          DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'Token Filters'),
-          DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'Backtest Results'),
-          DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'Simulate & Save'),
+          DashboardItem(
+              width: 12, height: 2, minWidth: 12, identifier: 'Prompt Input'),
+          DashboardItem(
+              width: 12,
+              height: 3,
+              minWidth: 12,
+              identifier: 'Risk & ROI Sliders'),
+          DashboardItem(
+              width: 12, height: 3, minWidth: 12, identifier: 'Token Filters'),
+          DashboardItem(
+              width: 12,
+              height: 3,
+              minWidth: 12,
+              identifier: 'Backtest Results'),
+          DashboardItem(
+              width: 12,
+              height: 2,
+              minWidth: 12,
+              identifier: 'Simulate & Save'),
         ];
       case "Mine":
       default:
         return [
-          DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'Portfolio View Filters'),
-          DashboardItem(width: 4, height: 6, minWidth: 4, identifier: 'Filters'),
+          DashboardItem(
+              width: 12,
+              height: 2,
+              minWidth: 12,
+              identifier: 'Portfolio View Filters'),
+          DashboardItem(
+              width: 4, height: 6, minWidth: 4, identifier: 'Filters'),
           for (int i = 1; i <= 4; i++)
-            DashboardItem(width: 4, height: 4, minWidth: 4, identifier: 'Portfolio $i'),
-          DashboardItem(width: 12, height: 4, minWidth: 6, identifier: 'Portfolio Detail'),
-          DashboardItem(width: 12, height: 4, minWidth: 6, identifier: 'Portfolio Comparison Radar'),
-          DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'Create Portfolio'),
+            DashboardItem(
+                width: 4, height: 4, minWidth: 4, identifier: 'Portfolio $i'),
+          DashboardItem(
+              width: 12,
+              height: 4,
+              minWidth: 6,
+              identifier: 'Portfolio Detail'),
+          DashboardItem(
+              width: 12,
+              height: 4,
+              minWidth: 6,
+              identifier: 'Portfolio Comparison Radar'),
+          DashboardItem(
+              width: 12,
+              height: 2,
+              minWidth: 12,
+              identifier: 'Create Portfolio'),
         ];
     }
   }
@@ -137,7 +182,11 @@ class _PortfoliosScreen2State extends State<PortfoliosScreen2>
         title: const Text('Portfolios'),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [Tab(text: 'Mine'), Tab(text: 'Popular'), Tab(text: 'Build')],
+          tabs: const [
+            Tab(text: 'Mine'),
+            Tab(text: 'Popular'),
+            Tab(text: 'Build')
+          ],
         ),
         actions: [
           DropdownButton<String>(
@@ -151,7 +200,8 @@ class _PortfoliosScreen2State extends State<PortfoliosScreen2>
               });
             },
             items: availablePresets[selectedTabKey]!
-                .map((preset) => DropdownMenuItem(value: preset, child: Text(preset)))
+                .map((preset) =>
+                    DropdownMenuItem(value: preset, child: Text(preset)))
                 .toList(),
           ),
           IconButton(
@@ -160,7 +210,8 @@ class _PortfoliosScreen2State extends State<PortfoliosScreen2>
             onPressed: () {
               setState(() {
                 _isEditing = !_isEditing;
-                _controller = DashboardItemController<DashboardItem>(items: _currentItems);
+                _controller = DashboardItemController<DashboardItem>(
+                    items: _currentItems);
               });
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) _controller.isEditing = _isEditing;
@@ -191,7 +242,8 @@ class _PortfoliosScreen2State extends State<PortfoliosScreen2>
               absorbPointer: false,
               animateEverytime: false,
               physics: const BouncingScrollPhysics(),
-              slotBackgroundBuilder: SlotBackgroundBuilder.withFunction((_, __, ___, ____, _____) => null),
+              slotBackgroundBuilder: SlotBackgroundBuilder.withFunction(
+                  (_, __, ___, ____, _____) => null),
               editModeSettings: EditModeSettings(
                 longPressEnabled: true,
                 panEnabled: true,
@@ -221,7 +273,8 @@ class _PortfoliosScreen2State extends State<PortfoliosScreen2>
                   isEditMode: _isEditing,
                   isHidden: isHidden,
                   onToggleVisibility: () {
-                    setState(() => _visibility[id] = !(_visibility[id] ?? true));
+                    setState(
+                        () => _visibility[id] = !(_visibility[id] ?? true));
                   },
                   modalTitle: 'Widget $id',
                   modalSize: WidgetModalSize.medium,

@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/smart_money_feed_widgets/live_ticker.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/smart_money_feed_widgets/smart_money_feed_flow_diagram.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/smart_money_feed_widgets/smart_money_widget_insights_feeder.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/smart_money_feed_widgets/smart_money_feed_insight_cards.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/dashboard_overview_widgets/live_ticker.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/smart_money_feed_widgets/smart_money_feed_flow_diagram.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/smart_money_feed_widgets/smart_money_widget_insights_feeder.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/smart_money_feed_widgets/smart_money_feed_insight_cards.dart';
 
 /// SmartMoneyFeedScreen provides a real‑time, actionable view into the moves
 /// of top wallets and funds. It’s broken into 4 sections:
@@ -310,18 +310,6 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
       'timestamp': '11:47 • 04/09',
     },
     {
-      'insight': 'Wallet 0x44: 14 profitable days out of 15',
-      'detail':
-          'GBYTE and FTC have been top gainers for this AI-flagged Smart LP. '
-              'Historical accuracy: 92%. Avg trade gain: 4,900.',
-      'walletType': 'Smart LP',
-      'confidence': 5,
-      'wallets': ['0x44...'],
-      'tokens': ['GBYTE', 'FTC'],
-      'tags': ['PnL Consistency', 'L2 Alpha'],
-      'timestamp': '11:30 • 04/09',
-    },
-    {
       'insight': 'Fresh wallet hits 100K USD profit in 48 hours',
       'detail':
           'New high-frequency trader surfaced on Base. Executed 38 trades '
@@ -344,40 +332,6 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
       'tokens': ['GBYTE', 'FTC'],
       'tags': ['Rotation', 'Yield', 'NFT Exit'],
       'timestamp': '10:24 • 04/09',
-    },
-    {
-      'insight': 'Fund cluster frontrunning zkSync narrative',
-      'detail':
-          'Increased accumulation of XRP and FTC (+36% token flow). AI labels '
-              'this as early-stage narrative positioning.',
-      'walletType': 'Fund',
-      'confidence': 4,
-      'wallets': ['0xZK1...', '0xZK2...'],
-      'tokens': ['XRP', 'FTC'],
-      'tags': ['Narrative Play', 'Alpha Move', 'zkSync'],
-      'timestamp': '09:48 • 04/09',
-    },
-    {
-      'insight': 'Whale executes 1.2M USD GMX swing trade',
-      'detail': 'Whale 0xAlpha in/out within 2 hours, + 88K USD profit. '
-          '77% success on momentum trades. Pattern recognized across GigaByte pairs.',
-      'walletType': 'Whale',
-      'confidence': 5,
-      'wallets': ['0xAlpha...'],
-      'tokens': ['GBYTE'],
-      'tags': ['Momentum Trade', 'PnL Spike', 'Short Hold'],
-      'timestamp': '09:22 • 04/09',
-    },
-    {
-      'insight': 'Smart LPs return to LSD staking plays',
-      'detail': 'Strong inflows into XRP and GBYTE. ETH rebound confidence '
-          'detected via correlated staking patterns (corr: 0.72).',
-      'walletType': 'Smart LP',
-      'confidence': 4,
-      'wallets': ['0xLP1...', '0xLP2...'],
-      'tokens': ['XRP', 'GBYTE'],
-      'tags': ['LSD', 'Staking Rotation', 'XRP Play'],
-      'timestamp': '08:55 • 04/09',
     },
   ];
 
@@ -428,11 +382,11 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
         child: Column(
           children: [
             _buildFullWidthCard(
-              child: LiveWhaleTicker(tickerMessages: tickerMessages),
+              child: LiveWhaleTicker(),
             ),
             const SizedBox(height: 24),
             _buildFullWidthCard(
-              child: SmartMoneyFeedInsightCards(cardsData: insightCards),
+              child: SmartMoneyFeedInsightCards(),
             ),
             const SizedBox(height: 24),
             _buildFullWidthCard(
@@ -440,7 +394,7 @@ class _SmartMoneyFeedScreenState extends State<SmartMoneyFeedScreen> {
             ),
             const SizedBox(height: 24),
             _buildFullWidthCard(
-              child: SmartMoneyWidgetInsightsFeeder(feedItems: feedItems),
+              child: SmartMoneyWidgetInsightsFeeder(),
             ),
           ],
         ),

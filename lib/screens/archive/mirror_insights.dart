@@ -2,10 +2,10 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/miror_insights_widgets/mirror_strategy_builder.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/miror_insights_widgets/mirror_suggestion_tile.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/miror_insights_widgets/profit_line_chart.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/miror_insights_widgets/wallet_tile.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/miror_insights_widgets/mirror_strategy_builder.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/miror_insights_widgets/mirror_suggestion_tile.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/miror_insights_widgets/profit_line_chart.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/miror_insights_widgets/wallet_tile.dart';
 
 class MirrorInsightsScreen extends StatefulWidget {
   const MirrorInsightsScreen({Key? key}) : super(key: key);
@@ -281,7 +281,7 @@ class _MirrorInsightsScreenState extends State<MirrorInsightsScreen> {
             ),
             const SizedBox(height: 24),
             _buildFullWidthCard(
-              child: WalletTileListWidget(wallets: walletDataList),
+              child: WalletTileListWidget(),
             ),
             const SizedBox(height: 24),
             _buildFullWidthCard(
@@ -357,8 +357,7 @@ class _MirrorInsightsScreenState extends State<MirrorInsightsScreen> {
                           itemCount: suggestionList.length,
                           separatorBuilder: (_, __) =>
                               const SizedBox(width: 16),
-                          itemBuilder: (_, i) =>
-                              MirrorSuggestionTile(data: suggestionList[i]),
+                          itemBuilder: (_, i) => MirrorSuggestionTile(),
                         ),
                       ),
                     ),

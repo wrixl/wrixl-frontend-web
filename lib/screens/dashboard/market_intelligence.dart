@@ -10,7 +10,8 @@ class MarketIntelligenceScreen extends StatefulWidget {
   const MarketIntelligenceScreen({super.key});
 
   @override
-  State<MarketIntelligenceScreen> createState() => _MarketIntelligenceScreenState();
+  State<MarketIntelligenceScreen> createState() =>
+      _MarketIntelligenceScreenState();
 }
 
 enum DeviceSizeClass { mobile, tablet, desktop }
@@ -67,25 +68,47 @@ class _MarketIntelligenceScreenState extends State<MarketIntelligenceScreen>
 
     if (tab == "Insights") {
       return [
-        DashboardItem(width: 12, height: 2, minWidth: 12, identifier: "Filter Bar"),
-        DashboardItem(width: 8, height: 5, minWidth: 8, identifier: "Unified Feed"),
-        DashboardItem(width: 4, height: 5, minWidth: 4, identifier: "Live Signal Ticker"),
-        DashboardItem(width: 12, height: 4, minWidth: 12, identifier: "Capital Flow Sankey"),
+        DashboardItem(
+            width: 12, height: 2, minWidth: 12, identifier: "Filter Bar"),
+        DashboardItem(
+            width: 8, height: 5, minWidth: 8, identifier: "Unified Feed"),
+        DashboardItem(
+            width: 4, height: 5, minWidth: 4, identifier: "Live Signal Ticker"),
+        DashboardItem(
+            width: 12,
+            height: 4,
+            minWidth: 12,
+            identifier: "Capital Flow Sankey"),
       ];
     } else if (tab == "Smart \$") {
       return [
-        DashboardItem(width: 12, height: 4, minWidth: 12, identifier: "Wallet Leaderboard"),
-        DashboardItem(width: 4, height: 4, minWidth: 4, identifier: "Wallet Strategy"),
-        DashboardItem(width: 4, height: 3, minWidth: 4, identifier: "Mirror Strategy"),
-        DashboardItem(width: 4, height: 4, minWidth: 4, identifier: "Wallet Filters"),
-        DashboardItem(width: 4, height: 4, minWidth: 4, identifier: "Live Whale Ticker"),
+        DashboardItem(
+            width: 12,
+            height: 4,
+            minWidth: 12,
+            identifier: "Wallet Leaderboard"),
+        DashboardItem(
+            width: 4, height: 4, minWidth: 4, identifier: "Wallet Strategy"),
+        DashboardItem(
+            width: 4, height: 3, minWidth: 4, identifier: "Mirror Strategy"),
+        DashboardItem(
+            width: 4, height: 4, minWidth: 4, identifier: "Wallet Filters"),
+        DashboardItem(
+            width: 4, height: 4, minWidth: 4, identifier: "Live Whale Ticker"),
       ];
     } else if (tab == "Signals") {
       return [
-        DashboardItem(width: 12, height: 4, minWidth: 12, identifier: "Signal Feed"),
-        DashboardItem(width: 8, height: 4, minWidth: 8, identifier: "Top Gainers / Losers"),
-        DashboardItem(width: 8, height: 4, minWidth: 8, identifier: "Correlation Matrix"),
-        DashboardItem(width: 4, height: 4, minWidth: 4, identifier: "Signal Tags"),
+        DashboardItem(
+            width: 12, height: 4, minWidth: 12, identifier: "Signal Feed"),
+        DashboardItem(
+            width: 8,
+            height: 4,
+            minWidth: 8,
+            identifier: "Top Gainers / Losers"),
+        DashboardItem(
+            width: 8, height: 4, minWidth: 8, identifier: "Correlation Matrix"),
+        DashboardItem(
+            width: 4, height: 4, minWidth: 4, identifier: "Signal Tags"),
       ];
     }
 
@@ -135,7 +158,8 @@ class _MarketIntelligenceScreenState extends State<MarketIntelligenceScreen>
               });
             },
             items: availablePresets[selectedTabKey]!
-                .map((preset) => DropdownMenuItem(value: preset, child: Text(preset)))
+                .map((preset) =>
+                    DropdownMenuItem(value: preset, child: Text(preset)))
                 .toList(),
           ),
           IconButton(
@@ -144,7 +168,8 @@ class _MarketIntelligenceScreenState extends State<MarketIntelligenceScreen>
             onPressed: () {
               setState(() {
                 _isEditing = !_isEditing;
-                _controller = DashboardItemController<DashboardItem>(items: _currentItems);
+                _controller = DashboardItemController<DashboardItem>(
+                    items: _currentItems);
               });
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) _controller.isEditing = _isEditing;
@@ -163,7 +188,8 @@ class _MarketIntelligenceScreenState extends State<MarketIntelligenceScreen>
         children: List.generate(_tabs.length, (_) {
           return SafeArea(
             child: Dashboard<DashboardItem>(
-              key: ValueKey('$selectedPreset|$_isEditing|$_currentSizeClass|$selectedTabKey'),
+              key: ValueKey(
+                  '$selectedPreset|$_isEditing|$_currentSizeClass|$selectedTabKey'),
               dashboardItemController: _controller,
               slotCount: 12,
               slotAspectRatio: 1,
@@ -175,7 +201,8 @@ class _MarketIntelligenceScreenState extends State<MarketIntelligenceScreen>
               absorbPointer: false,
               animateEverytime: false,
               physics: const BouncingScrollPhysics(),
-              slotBackgroundBuilder: SlotBackgroundBuilder.withFunction((_, __, ___, ____, _____) => null),
+              slotBackgroundBuilder: SlotBackgroundBuilder.withFunction(
+                  (_, __, ___, ____, _____) => null),
               editModeSettings: EditModeSettings(
                 longPressEnabled: true,
                 panEnabled: true,
@@ -205,7 +232,8 @@ class _MarketIntelligenceScreenState extends State<MarketIntelligenceScreen>
                   isEditMode: _isEditing,
                   isHidden: isHidden,
                   onToggleVisibility: () {
-                    setState(() => _visibility[id] = !(_visibility[id] ?? true));
+                    setState(
+                        () => _visibility[id] = !(_visibility[id] ?? true));
                   },
                   modalTitle: 'Widget $id',
                   modalSize: WidgetModalSize.medium,

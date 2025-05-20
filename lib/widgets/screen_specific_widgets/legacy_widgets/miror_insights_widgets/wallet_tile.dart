@@ -61,15 +61,69 @@ class WalletData {
 }
 
 class WalletTileListWidget extends StatelessWidget {
-  final List<WalletData> wallets;
+  const WalletTileListWidget({Key? key}) : super(key: key);
 
-  const WalletTileListWidget({Key? key, required this.wallets})
-      : super(key: key);
+  List<WalletData> _dummyWallets() => [
+        WalletData(
+          address: "0xAa12...3F6B",
+          strategyTag: "DeFi Degen",
+          emoji: "🚀",
+          roi7d: "+12%",
+          roi30d: "+28%",
+          sharpe: "1.2",
+          winRate: "73%",
+          followers: "150K",
+          confidence: 0.8,
+          size: "tuna",
+          avgHoldMonths: 4,
+          uniqueTokens: 28,
+          reputation: 4.3,
+          recommendation: 91,
+          wrixlRank: 3,
+          roiTrend: [0.0, 0.2, 0.5, 0.9, 1.2, 1.0, 1.3],
+          topHoldings: ["ETH", "ARB", "USDC"],
+          dominantChain: "Ethereum",
+          assetTypeMix: "60% DeFi, 30% Stable, 10% NFT",
+          behaviorTags: ["Yield Farmer", "Gas Saver"],
+          activeMirrors: 1240,
+          avgMirrorRoi: "+16.7%",
+          initialRecommendationDate: DateTime(2024, 11, 10),
+          lastVerifiedDate: DateTime(2025, 4, 10),
+        ),
+        WalletData(
+          address: "0xBf98...E4C1",
+          strategyTag: "ETH Maxi",
+          emoji: "🦄",
+          roi7d: "+7%",
+          roi30d: "+15%",
+          sharpe: "1.0",
+          winRate: "65%",
+          followers: "230K",
+          confidence: 0.9,
+          size: "whale",
+          avgHoldMonths: 9,
+          uniqueTokens: 14,
+          reputation: 4.8,
+          recommendation: 96,
+          wrixlRank: 1,
+          roiTrend: [0.1, 0.2, 0.3, 0.5, 0.6, 0.6, 0.7],
+          topHoldings: ["ETH", "stETH", "wBTC"],
+          dominantChain: "Ethereum",
+          assetTypeMix: "80% ETH, 10% DeFi, 10% Bluechip",
+          behaviorTags: ["Long-Term Holder", "DCA Strategist"],
+          activeMirrors: 2120,
+          avgMirrorRoi: "+14.2%",
+          initialRecommendationDate: DateTime(2024, 10, 1),
+          lastVerifiedDate: DateTime(2025, 4, 12),
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+
+    final wallets = _dummyWallets();
 
     return Column(
       children: [
@@ -90,9 +144,7 @@ class WalletTileListWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton.icon(
-                    onPressed: () {
-                      // Simulate logic
-                    },
+                    onPressed: () {},
                     icon:
                         Icon(Icons.bar_chart, size: 18, color: scheme.primary),
                     label: Text("Simulate in Portfolio Simulator",
@@ -122,9 +174,7 @@ class WalletTileListWidget extends StatelessWidget {
                               color: scheme.primary.withOpacity(0.3)),
                         ),
                       ),
-                      onChanged: (query) {
-                        // Implement wallet filter/search logic
-                      },
+                      onChanged: (query) {},
                     ),
                   ),
                 ],
@@ -146,7 +196,7 @@ class WalletTileListWidget extends StatelessWidget {
               },
             ),
             child: GestureDetector(
-              onHorizontalDragUpdate: (_) {}, // capture drags
+              onHorizontalDragUpdate: (_) {},
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.only(right: 12),

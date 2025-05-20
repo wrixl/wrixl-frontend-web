@@ -5,6 +5,7 @@ import 'package:dashboard/dashboard.dart';
 import 'package:wrixl_frontend/utils/responsive.dart';
 import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 import 'package:wrixl_frontend/widgets/common/new_reusable_widget_card.dart';
+import 'package:wrixl_frontend/utils/dashboard_item_storage_delegate.dart'; // Import the delegate
 
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key});
@@ -16,18 +17,141 @@ class ActivityScreen extends StatefulWidget {
 enum DeviceSizeClass { mobile, tablet, desktop }
 
 class _ActivityScreenState extends State<ActivityScreen> {
+  Future<void>? _initFuture;
   late DashboardItemController<DashboardItem> _controller;
-  late List<DashboardItem> _currentItems;
+  late SharedPrefsDashboardStorage _storage;
   DeviceSizeClass? _currentSizeClass;
   bool _isEditing = false;
   final Map<String, bool> _visibility = {};
   String selectedPreset = "Default";
+  bool _layoutLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _currentItems = [];
-    _controller = DashboardItemController<DashboardItem>(items: []);
+
+    _storage = SharedPrefsDashboardStorage(
+      'activity_layout',
+      'activity_visibility',
+      fallbackBuilder: () => _getItemsForSize(DeviceSizeClass.desktop),
+    );
+
+    _controller = DashboardItemController.withDelegate(
+      itemStorageDelegate: _storage,
+    );
+
+    _storage.controller = _controller;
+
+    _controller.addListener(() async {
+      // getAllItems returns the full list (from prefs or fallback)
+      final allItems = await _storage.getAllItems(12);
+      // ensure every item has layoutData
+      for (final item in allItems) {
+        item.layoutData ??=
+            ItemLayout(startX: 0, startY: 0, width: 12, height: 3);
+      }
+      // persist the complete list
+      await _storage.onItemsUpdated(allItems, 12);
+      print('[ActivityScreen] Persisted ${allItems.length} items.');
+    });
+
+    _initFuture = _initializeLayout();
+  }
+
+  Future<void> _initializeLayout() async {
+    final items = await _controller.itemStorageDelegate!.getAllItems(12);
+
+    _controller.notifyItemsChangedExternally(items); // ✅ apply saved layout
+    _layoutLoaded = true;
+
+    final visibility = await _storage.loadVisibility();
+
+    setState(() {
+      _visibility.addAll(visibility);
+    });
+
+    await _storage.logSavedLayout();
+  }
+
+  List<DashboardItem> _getItemsForSize(DeviceSizeClass sizeClass) {
+    List<DashboardItem> createItems(List<Map<String, dynamic>> configs) {
+      return configs.map((config) {
+        return DashboardItem(
+          identifier: config['id'],
+          width: config['w'],
+          height: config['h'],
+          minWidth: config['minW'],
+          minHeight: config['minH'] ?? 1,
+          startX: config['x'],
+          startY: config['y'],
+        );
+      }).toList();
+    }
+
+    switch (selectedPreset) {
+      case "Alt":
+        return createItems([
+          {'id': 'events', 'x': 0, 'y': 0, 'w': 12, 'h': 3, 'minW': 12},
+          {'id': 'notifications', 'x': 0, 'y': 3, 'w': 6, 'h': 3, 'minW': 6},
+          {'id': 'transactions', 'x': 6, 'y': 3, 'w': 6, 'h': 3, 'minW': 6},
+        ]);
+      default:
+        switch (sizeClass) {
+          case DeviceSizeClass.mobile:
+            return createItems([
+              {
+                'id': 'notifications',
+                'x': 0,
+                'y': 0,
+                'w': 12,
+                'h': 3,
+                'minW': 12
+              },
+              {
+                'id': 'transactions',
+                'x': 0,
+                'y': 3,
+                'w': 12,
+                'h': 3,
+                'minW': 12
+              },
+              {'id': 'events', 'x': 0, 'y': 6, 'w': 12, 'h': 3, 'minW': 12},
+              {'id': 'airdrops', 'x': 0, 'y': 9, 'w': 12, 'h': 2, 'minW': 12},
+              {'id': 'alerts', 'x': 0, 'y': 11, 'w': 12, 'h': 2, 'minW': 12},
+            ]);
+          case DeviceSizeClass.tablet:
+            return createItems([
+              {
+                'id': 'notifications',
+                'x': 0,
+                'y': 0,
+                'w': 6,
+                'h': 3,
+                'minW': 6
+              },
+              {'id': 'transactions', 'x': 6, 'y': 0, 'w': 6, 'h': 3, 'minW': 6},
+              {'id': 'events', 'x': 0, 'y': 3, 'w': 12, 'h': 3, 'minW': 12},
+              {'id': 'airdrops', 'x': 0, 'y': 6, 'w': 6, 'h': 2, 'minW': 6},
+              {'id': 'alerts', 'x': 6, 'y': 6, 'w': 6, 'h': 2, 'minW': 6},
+            ]);
+          case DeviceSizeClass.desktop:
+          default:
+            return createItems([
+              {
+                'id': 'notifications',
+                'x': 0,
+                'y': 0,
+                'w': 6,
+                'h': 4,
+                'minW': 6
+              },
+              {'id': 'transactions', 'x': 6, 'y': 0, 'w': 6, 'h': 4, 'minW': 6},
+              {'id': 'events', 'x': 0, 'y': 4, 'w': 12, 'h': 3, 'minW': 6},
+              {'id': 'airdrops', 'x': 0, 'y': 7, 'w': 6, 'h': 2, 'minW': 6},
+              {'id': 'alerts', 'x': 6, 'y': 7, 'w': 6, 'h': 2, 'minW': 6},
+            ]);
+        }
+    }
   }
 
   DeviceSizeClass _getSizeClass(BuildContext context) {
@@ -36,63 +160,27 @@ class _ActivityScreenState extends State<ActivityScreen> {
     return DeviceSizeClass.desktop;
   }
 
-  List<DashboardItem> _getItemsForSize(DeviceSizeClass sizeClass) {
-    switch (selectedPreset) {
-      case "Alt":
-        return [
-          DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'events'),
-          DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'notifications'),
-          DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'transactions'),
-        ];
-      default:
-        switch (sizeClass) {
-          case DeviceSizeClass.mobile:
-            return [
-              DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'notifications'),
-              DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'transactions'),
-              DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'events'),
-              DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'airdrops'),
-              DashboardItem(width: 12, height: 2, minWidth: 12, identifier: 'alerts'),
-            ];
-          case DeviceSizeClass.tablet:
-            return [
-              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'notifications'),
-              DashboardItem(width: 6, height: 3, minWidth: 6, identifier: 'transactions'),
-              DashboardItem(width: 12, height: 3, minWidth: 12, identifier: 'events'),
-              DashboardItem(width: 6, height: 2, minWidth: 6, identifier: 'airdrops'),
-              DashboardItem(width: 6, height: 2, minWidth: 6, identifier: 'alerts'),
-            ];
-          case DeviceSizeClass.desktop:
-          default:
-            return [
-              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'notifications'),
-              DashboardItem(width: 6, height: 4, minWidth: 6, identifier: 'transactions'),
-              DashboardItem(width: 12, height: 3, minWidth: 6, identifier: 'events'),
-              DashboardItem(width: 6, height: 2, minWidth: 6, identifier: 'airdrops'),
-              DashboardItem(width: 6, height: 2, minWidth: 6, identifier: 'alerts'),
-            ];
-        }
-    }
-  }
-
-  void _resetPreset() {
+  void _resetPreset() async {
     if (_currentSizeClass == null) return;
+
     final items = _getItemsForSize(_currentSizeClass!);
-    _currentItems = items;
 
-    final newController = DashboardItemController<DashboardItem>(items: items);
+    // Save preset layout
+    await _storage.onItemsUpdated(items, 12);
+    _controller.notifyItemsChangedExternally(items);
+    await _storage.logSavedLayout(); // ✅ works now
 
+    // Preserve visibility across preset changes
     setState(() {
-      _controller = newController;
-      _visibility
-        ..clear()
-        ..addEntries(items.map((i) => MapEntry(i.identifier, true)));
+      for (final item in items) {
+        _visibility.putIfAbsent(item.identifier, () => true);
+      }
     });
 
+    await _storage.saveVisibility(_visibility);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _controller.isEditing = _isEditing;
-      }
+      if (mounted) _controller.isEditing = _isEditing;
     });
   }
 
@@ -100,9 +188,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final newSizeClass = _getSizeClass(context);
+
     if (_currentSizeClass != newSizeClass) {
       _currentSizeClass = newSizeClass;
-      _resetPreset();
+      if (!_layoutLoaded) {
+        _initFuture = _initializeLayout(); // ✅ load layout only if not loaded
+      }
     }
   }
 
@@ -133,9 +224,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
             onPressed: () {
               setState(() {
                 _isEditing = !_isEditing;
-                _controller = DashboardItemController<DashboardItem>(
-                  items: _currentItems,
-                );
               });
 
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -152,59 +240,70 @@ class _ActivityScreenState extends State<ActivityScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Dashboard<DashboardItem>(
-          key: ValueKey('$selectedPreset|$_isEditing|$_currentSizeClass'),
-          dashboardItemController: _controller,
-          slotCount: 12,
-          slotAspectRatio: 1,
-          horizontalSpace: 40,
-          verticalSpace: 40,
-          padding: const EdgeInsets.all(16),
-          shrinkToPlace: false,
-          slideToTop: false,
-          absorbPointer: false,
-          animateEverytime: false,
-          physics: const BouncingScrollPhysics(),
-          slotBackgroundBuilder: SlotBackgroundBuilder.withFunction((_, __, ___, ____, _____) => null),
-          editModeSettings: EditModeSettings(
-            longPressEnabled: true,
-            panEnabled: true,
-            draggableOutside: true,
-            autoScroll: true,
-            resizeCursorSide: 10,
-            backgroundStyle: EditModeBackgroundStyle(
-              lineColor: Colors.grey,
-              lineWidth: 0.5,
-              dualLineHorizontal: true,
-              dualLineVertical: true,
-            ),
-          ),
-          itemBuilder: (item) {
-            final id = item.identifier;
-            final isHidden = !(_visibility[id] ?? true);
-            if (!_isEditing && isHidden) return const SizedBox.shrink();
+      body: FutureBuilder<void>(
+        future: _initFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            return WidgetCard(
-              item: item,
-              child: Text(
-                'Widget $id\n'
-                'x:${item.layoutData?.startX} y:${item.layoutData?.startY}\n'
-                'w:${item.layoutData?.width} h:${item.layoutData?.height}',
-                textAlign: TextAlign.center,
+          return SafeArea(
+            child: Dashboard<DashboardItem>(
+              key: ValueKey('$selectedPreset|$_isEditing|$_currentSizeClass'),
+              dashboardItemController: _controller,
+              slotCount: 12,
+              slotAspectRatio: 1,
+              horizontalSpace: 40,
+              verticalSpace: 40,
+              padding: const EdgeInsets.all(16),
+              shrinkToPlace: false,
+              slideToTop: false,
+              absorbPointer: false,
+              animateEverytime: false,
+              physics: const BouncingScrollPhysics(),
+              slotBackgroundBuilder: SlotBackgroundBuilder.withFunction(
+                  (_, __, ___, ____, _____) => null),
+              editModeSettings: EditModeSettings(
+                longPressEnabled: true,
+                panEnabled: true,
+                draggableOutside: true,
+                autoScroll: true,
+                resizeCursorSide: 10,
+                backgroundStyle: EditModeBackgroundStyle(
+                  lineColor: Colors.grey,
+                  lineWidth: 0.5,
+                  dualLineHorizontal: true,
+                  dualLineVertical: true,
+                ),
               ),
-              isEditMode: _isEditing,
-              isHidden: isHidden,
-              onToggleVisibility: () {
-                setState(() {
-                  _visibility[id] = !(_visibility[id] ?? true);
-                });
+              itemBuilder: (item) {
+                final id = item.identifier;
+                final isHidden = !(_visibility[id] ?? true);
+                if (!_isEditing && isHidden) return const SizedBox.shrink();
+
+                return WidgetCard(
+                  item: item,
+                  child: Text(
+                    'Widget $id\n'
+                    'x:${item.layoutData?.startX} y:${item.layoutData?.startY}\n'
+                    'w:${item.layoutData?.width} h:${item.layoutData?.height}',
+                    textAlign: TextAlign.center,
+                  ),
+                  isEditMode: _isEditing,
+                  isHidden: isHidden,
+                  onToggleVisibility: () {
+                    setState(() {
+                      _visibility[id] = !(_visibility[id] ?? true);
+                    });
+                    _storage.saveVisibility(_visibility);
+                  },
+                  modalTitle: 'Widget $id',
+                  modalSize: WidgetModalSize.small,
+                );
               },
-              modalTitle: 'Widget $id',
-              modalSize: WidgetModalSize.small,
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

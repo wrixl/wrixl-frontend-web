@@ -1,4 +1,4 @@
-// lib\widgets\screen_specific_widgets\portfolios_widgets\portfolio_tiles_card.dart
+// lib\widgets\screen_specific_widgets\legacy_widgets\portfolio_tiles_grid.dart
 
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/utils/responsive.dart';
@@ -46,32 +46,71 @@ class PortfolioTilesGridData {
 }
 
 class PortfolioTilesGrid extends StatelessWidget {
-  final List<PortfolioTilesGridData> data;
+  const PortfolioTilesGrid({super.key});
 
-  const PortfolioTilesGrid({Key? key, required this.data}) : super(key: key);
+  static List<PortfolioTilesGridData> _dummyData() => [
+        PortfolioTilesGridData(
+          name: "AI Growth Engine",
+          confidence: 0.95,
+          similarityScore: "92%",
+          projectedRoi: "+17%",
+          volatility: "Low",
+          strategyTag: "L2 Focused",
+          sharpe: "1.20",
+          topHoldings: ["ETH", "OP", "ARB"],
+          dominantChain: "Ethereum",
+          assetTypeMix: "80% Token / 20% LP",
+          initialRecommendationDate: DateTime(2023, 6, 12),
+          isBookmarked: false,
+          onBookmark: () => debugPrint("Bookmark AI Growth Engine"),
+          onPreview: () => debugPrint("Preview AI Growth Engine"),
+          onAdopt: () => debugPrint("Adopt AI Growth Engine"),
+          investmentGoal: "Growth",
+          goalAchieved: "52%",
+          horizon: "Mid-Term",
+        ),
+        PortfolioTilesGridData(
+          name: "DeFi Income Fund",
+          confidence: 0.92,
+          similarityScore: "88%",
+          projectedRoi: "+13%",
+          volatility: "Medium",
+          strategyTag: "Yield Farming",
+          sharpe: "1.37",
+          topHoldings: ["CRV", "LDO", "CVX"],
+          dominantChain: "Optimism",
+          assetTypeMix: "70%/30% Token/Stable",
+          initialRecommendationDate: DateTime(2023, 5, 9),
+          isBookmarked: true,
+          onBookmark: () => debugPrint("Bookmark DeFi Income Fund"),
+          onPreview: () => debugPrint("Preview DeFi Income Fund"),
+          onAdopt: () => debugPrint("Adopt DeFi Income Fund"),
+          investmentGoal: "Passive Yield",
+          goalAchieved: "36%",
+          horizon: "Long-Term",
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final data = _dummyData();
 
-    // how many columns?
     final int columns = Responsive.isDesktop(context)
         ? 3
         : Responsive.isTablet(context)
             ? 2
             : 1;
 
-    // tweak these to control height = width / ratio
     final double aspectRatio = columns == 1
-        ? 0.75 // mobile: height ≈ width / 0.75  (taller)
+        ? 0.75
         : columns == 2
-            ? 0.65 // tablet
-            : 0.60; // desktop
+            ? 0.65
+            : 0.60;
 
     return Column(
       children: [
-        // header
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
@@ -99,8 +138,6 @@ class PortfolioTilesGrid extends StatelessWidget {
             ],
           ),
         ),
-
-        // the grid itself
         GridView.builder(
           itemCount: data.length,
           shrinkWrap: true,
@@ -150,7 +187,6 @@ class _PortfolioCard extends StatelessWidget {
         ],
       ),
       child: Column(
-        // this Column now has enough space
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
