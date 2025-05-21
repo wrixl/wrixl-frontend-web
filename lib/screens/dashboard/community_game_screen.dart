@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:dashboard/dashboard.dart';
-import 'package:wrixl_frontend/utils/responsive.dart';
+import 'package:wrixl_frontend/utils/device_size_class.dart';
+import 'package:wrixl_frontend/utils/dashboard_screen_controller.dart';
+import 'package:wrixl_frontend/widgets/common/dashboard_scaffold.dart';
 import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 import 'package:wrixl_frontend/widgets/common/new_reusable_widget_card.dart';
 
@@ -13,270 +15,344 @@ class CommunityGameScreen extends StatefulWidget {
   State<CommunityGameScreen> createState() => _CommunityGameScreenState();
 }
 
-enum DeviceSizeClass { mobile, tablet, desktop }
-
 class _CommunityGameScreenState extends State<CommunityGameScreen>
     with SingleTickerProviderStateMixin {
-  late DashboardItemController<DashboardItem> _controller;
-  late List<DashboardItem> _currentItems;
-  DeviceSizeClass? _currentSizeClass;
-  bool _isEditing = false;
-  final Map<String, bool> _visibility = {};
-  String selectedPreset = "Default";
-
+  final List<String> _tabKeys = ['Predict', 'Vote', 'Earn', 'Rank'];
   late TabController _tabController;
+  late String selectedTabKey;
+  late String selectedPreset;
+  bool _isEditing = false;
 
-  final List<Tab> _tabs = const [
-    Tab(text: 'Predict'),
-    Tab(text: 'Vote'),
-    Tab(text: 'Earn'),
-    Tab(text: 'Rank'),
-  ];
+  final Map<String, List<String>> availablePresets = {
+    'Predict': ['Default', 'Alt', 'Custom'],
+    'Vote': ['Default', 'Alt', 'Custom'],
+    'Earn': ['Default', 'Alt', 'Custom'],
+    'Rank': ['Default', 'Alt', 'Custom'],
+  };
+
+  final Map<String, DashboardScreenController> _controllers = {};
+  final Map<String, Future<void>> _initFutures = {};
 
   @override
   void initState() {
     super.initState();
-    _controller = DashboardItemController(items: []);
-    _currentItems = [];
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    selectedTabKey = _tabKeys[0];
+    selectedPreset = 'Default';
+    _tabController = TabController(length: _tabKeys.length, vsync: this);
+    _tabController.addListener(_onTabChanged);
+    _initializeController(selectedTabKey, selectedPreset);
   }
 
-  DeviceSizeClass _getSizeClass(BuildContext context) {
-    if (Responsive.isMobile(context)) return DeviceSizeClass.mobile;
-    if (Responsive.isTablet(context)) return DeviceSizeClass.tablet;
-    return DeviceSizeClass.desktop;
-  }
-
-  List<DashboardItem> _getItemsForSize(DeviceSizeClass sizeClass) {
-    switch (selectedPreset) {
-      case "Alt":
-        return [
-          DashboardItem(
-              width: 6,
-              height: 4,
-              minWidth: 6,
-              identifier: 'Predict - Signal Prediction Market'),
-          DashboardItem(
-              width: 12,
-              height: 4,
-              minWidth: 6,
-              identifier: 'Predict - Portfolio Prediction Arena'),
-        ];
-      default:
-        return [
-          DashboardItem(
-              width: 6,
-              height: 4,
-              minWidth: 6,
-              identifier: 'Predict - Signal Prediction Market'),
-          DashboardItem(
-              width: 12,
-              height: 4,
-              minWidth: 6,
-              identifier: 'Predict - Portfolio Prediction Arena'),
-          DashboardItem(
-              width: 12,
-              height: 4,
-              minWidth: 6,
-              identifier: 'Vote - Signals DAO Voting'),
-          DashboardItem(
-              width: 8,
-              height: 4,
-              minWidth: 6,
-              identifier: 'Vote - Signal Curation Submissions'),
-          DashboardItem(
-              width: 4,
-              height: 3,
-              minWidth: 3,
-              identifier: 'Vote - Referral Impact'),
-          DashboardItem(
-              width: 8,
-              height: 4,
-              minWidth: 6,
-              identifier: 'Earn - WRX Rewards Dashboard'),
-          DashboardItem(
-              width: 4,
-              height: 3,
-              minWidth: 3,
-              identifier: 'Earn - Rewards Inventory'),
-          DashboardItem(
-              width: 6,
-              height: 2,
-              minWidth: 4,
-              identifier: 'Earn - Claimable Perks'),
-          DashboardItem(
-              width: 6,
-              height: 2,
-              minWidth: 4,
-              identifier: 'Earn - Impact Score'),
-          DashboardItem(
-              width: 4,
-              height: 3,
-              minWidth: 3,
-              identifier: 'Rank - User Leaderboard'),
-          DashboardItem(
-              width: 8,
-              height: 3,
-              minWidth: 6,
-              identifier: 'Rank - Community Contests'),
-          DashboardItem(
-              width: 4,
-              height: 3,
-              minWidth: 3,
-              identifier: 'Rank - Badge Collection'),
-          DashboardItem(
-              width: 4,
-              height: 2,
-              minWidth: 3,
-              identifier: 'Rank - XP Progress'),
-          DashboardItem(
-              width: 8,
-              height: 3,
-              minWidth: 6,
-              identifier: 'Rank - Weekly Mission'),
-          DashboardItem(
-              width: 4,
-              height: 3,
-              minWidth: 3,
-              identifier: 'Rank - Wrixler Rank'),
-          DashboardItem(
-              width: 8,
-              height: 3,
-              minWidth: 6,
-              identifier: 'Rank - Sector Rankings'),
-          DashboardItem(
-              width: 12,
-              height: 6,
-              minWidth: 6,
-              identifier: 'Rank - Discussion Threads'),
-        ];
-    }
-  }
-
-  void _resetPreset() {
-    if (_currentSizeClass == null) return;
-    final items = _getItemsForSize(_currentSizeClass!);
-    _currentItems = items;
-    final newController = DashboardItemController<DashboardItem>(items: items);
+  void _onTabChanged() {
+    final newTab = _tabKeys[_tabController.index];
     setState(() {
-      _controller = newController;
-      _visibility.clear();
-      _visibility.addEntries(items.map((i) => MapEntry(i.identifier, true)));
+      selectedTabKey = newTab;
+      selectedPreset = 'Default';
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _controller.isEditing = _isEditing;
-    });
+    _initializeController(newTab, selectedPreset);
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final newSizeClass = _getSizeClass(context);
-    if (_currentSizeClass != newSizeClass) {
-      _currentSizeClass = newSizeClass;
-      _resetPreset();
+  void _syncEditingState() {
+    _controllers[selectedTabKey]?.controller.isEditing = _isEditing;
+  }
+
+  Future<void> _initializeController(String tab, String preset) async {
+    final controller = DashboardScreenController(
+      screenId: 'community_game',
+      preset: '${preset}_$tab',
+      context: context,
+      getDefaultItems: (DeviceSizeClass sizeClass) =>
+          _getItemsForTab(tab, sizeClass),
+    );
+    _controllers[tab] = controller;
+    _initFutures[tab] =
+        controller.initialize().then((_) => _syncEditingState());
+    setState(() {});
+  }
+
+  List<DashboardItem> _getItemsForTab(String tab, DeviceSizeClass sizeClass) {
+    List<DashboardItem> createItems(List<Map<String, dynamic>> configs) {
+      return configs
+          .map((config) => DashboardItem(
+                identifier: config['id'],
+                width: config['w'],
+                height: config['h'],
+                minWidth: config['minW'],
+                minHeight: config['minH'] ?? 1,
+                startX: config['x'],
+                startY: config['y'],
+              ))
+          .toList();
+    }
+
+    switch (tab) {
+      case 'Predict':
+        return createItems([
+          {
+            'id': 'Predict - Signal Prediction Market',
+            'x': 0,
+            'y': 0,
+            'w': 6,
+            'h': 4,
+            'minW': 6
+          },
+          {
+            'id': 'Predict - Portfolio Prediction Arena',
+            'x': 0,
+            'y': 4,
+            'w': 12,
+            'h': 4,
+            'minW': 6
+          },
+        ]);
+      case 'Vote':
+        return createItems([
+          {
+            'id': 'Vote - Signals DAO Voting',
+            'x': 0,
+            'y': 0,
+            'w': 12,
+            'h': 4,
+            'minW': 6
+          },
+          {
+            'id': 'Vote - Signal Curation Submissions',
+            'x': 0,
+            'y': 4,
+            'w': 8,
+            'h': 4,
+            'minW': 6
+          },
+          {
+            'id': 'Vote - Referral Impact',
+            'x': 8,
+            'y': 4,
+            'w': 4,
+            'h': 3,
+            'minW': 3
+          },
+        ]);
+      case 'Earn':
+        return createItems([
+          {
+            'id': 'Earn - WRX Rewards Dashboard',
+            'x': 0,
+            'y': 0,
+            'w': 8,
+            'h': 4,
+            'minW': 6
+          },
+          {
+            'id': 'Earn - Rewards Inventory',
+            'x': 8,
+            'y': 0,
+            'w': 4,
+            'h': 3,
+            'minW': 3
+          },
+          {
+            'id': 'Earn - Claimable Perks',
+            'x': 0,
+            'y': 4,
+            'w': 6,
+            'h': 2,
+            'minW': 4
+          },
+          {
+            'id': 'Earn - Impact Score',
+            'x': 6,
+            'y': 4,
+            'w': 6,
+            'h': 2,
+            'minW': 4
+          },
+        ]);
+      case 'Rank':
+        return createItems([
+          {
+            'id': 'Rank - User Leaderboard',
+            'x': 0,
+            'y': 0,
+            'w': 4,
+            'h': 3,
+            'minW': 3
+          },
+          {
+            'id': 'Rank - Community Contests',
+            'x': 4,
+            'y': 0,
+            'w': 8,
+            'h': 3,
+            'minW': 6
+          },
+          {
+            'id': 'Rank - Badge Collection',
+            'x': 0,
+            'y': 3,
+            'w': 4,
+            'h': 3,
+            'minW': 3
+          },
+          {
+            'id': 'Rank - XP Progress',
+            'x': 4,
+            'y': 3,
+            'w': 4,
+            'h': 2,
+            'minW': 3
+          },
+          {
+            'id': 'Rank - Weekly Mission',
+            'x': 0,
+            'y': 6,
+            'w': 8,
+            'h': 3,
+            'minW': 6
+          },
+          {
+            'id': 'Rank - Wrixler Rank',
+            'x': 8,
+            'y': 3,
+            'w': 4,
+            'h': 3,
+            'minW': 3
+          },
+          {
+            'id': 'Rank - Sector Rankings',
+            'x': 0,
+            'y': 9,
+            'w': 8,
+            'h': 3,
+            'minW': 6
+          },
+          {
+            'id': 'Rank - Discussion Threads',
+            'x': 0,
+            'y': 12,
+            'w': 12,
+            'h': 6,
+            'minW': 6
+          },
+        ]);
+      default:
+        return [];
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Community & Gamification"),
-        bottom: TabBar(controller: _tabController, tabs: _tabs),
-        actions: [
-          DropdownButton<String>(
-            value: selectedPreset,
-            underline: const SizedBox.shrink(),
-            onChanged: (value) {
-              if (value == null) return;
-              setState(() {
-                selectedPreset = value;
-                _resetPreset();
-              });
-            },
-            items: const [
-              DropdownMenuItem(value: "Default", child: Text("Default")),
-              DropdownMenuItem(value: "Alt", child: Text("Alt")),
-            ],
+    return DefaultTabController(
+      length: _tabKeys.length,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Community & Gamification"),
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: _tabKeys.map((t) => Tab(text: t)).toList(),
           ),
-          IconButton(
-            icon: Icon(_isEditing ? Icons.lock_open : Icons.lock),
-            tooltip: _isEditing ? "Lock Layout" : "Unlock Layout",
-            onPressed: () {
-              setState(() {
-                _isEditing = !_isEditing;
-                _controller = DashboardItemController<DashboardItem>(
-                    items: _currentItems);
-              });
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) _controller.isEditing = _isEditing;
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: "Reset Preset",
-            onPressed: _isEditing ? _resetPreset : null,
-          ),
-        ],
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: List.generate(_tabs.length, (tabIndex) {
-          final prefix = _tabs[tabIndex].text!;
-          final widgetsToShow = _currentItems
-              .where((w) => w.identifier.startsWith(prefix))
-              .toList();
-          return Dashboard<DashboardItem>(
-            key: ValueKey(
-                '$selectedPreset|$_isEditing|$_currentSizeClass|$tabIndex'),
-            dashboardItemController: _controller,
-            slotCount: 12,
-            slotAspectRatio: 1,
-            horizontalSpace: 40,
-            verticalSpace: 40,
-            padding: const EdgeInsets.all(16),
-            shrinkToPlace: false,
-            slideToTop: false,
-            absorbPointer: false,
-            animateEverytime: false,
-            physics: const BouncingScrollPhysics(),
-            slotBackgroundBuilder: SlotBackgroundBuilder.withFunction(
-                (_, __, ___, ____, _____) => null),
-            editModeSettings: EditModeSettings(
-              longPressEnabled: true,
-              panEnabled: true,
-              draggableOutside: true,
-              autoScroll: true,
-              resizeCursorSide: 10,
-              backgroundStyle: EditModeBackgroundStyle(
-                lineColor: Colors.grey,
-                lineWidth: 0.5,
-                dualLineHorizontal: true,
-                dualLineVertical: true,
-              ),
-            ),
-            itemBuilder: (item) {
-              final id = item.identifier;
-              final isHidden = !(_visibility[id] ?? true);
-              if (!_isEditing && isHidden) return const SizedBox.shrink();
-              return WidgetCard(
-                item: item,
-                child: Text('Widget $id\n'
-                    'x:\${item.layoutData?.startX} y:\${item.layoutData?.startY}\n'
-                    'w:\${item.layoutData?.width} h:\${item.layoutData?.height}'),
-                isEditMode: _isEditing,
-                isHidden: isHidden,
-                onToggleVisibility: () {
-                  setState(() => _visibility[id] = !(_visibility[id] ?? true));
+        ),
+        body: TabBarView(
+          controller: _tabController,
+          children: _tabKeys.map((tabKey) {
+            final controller = _controllers[tabKey];
+            final future = _initFutures[tabKey];
+            final presets = availablePresets[tabKey]!;
+
+            if (controller == null || future == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return DashboardScaffold(
+              title: 'Community - $tabKey',
+              presets: presets,
+              selectedPreset: selectedPreset,
+              isEditing: _isEditing,
+              onPresetChanged: (val) async {
+                setState(() {
+                  selectedPreset = val;
+                  _isEditing = false;
+                });
+                await _initializeController(tabKey, val);
+              },
+              onToggleEditing: () {
+                if (selectedPreset != 'Custom') {
+                  setState(() {
+                    selectedPreset = 'Custom';
+                    _isEditing = false;
+                  });
+                  _initializeController(tabKey, selectedPreset);
+                } else {
+                  setState(() {
+                    _isEditing = !_isEditing;
+                  });
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _syncEditingState();
+                  });
+                }
+              },
+              child: FutureBuilder<void>(
+                future: future,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return Dashboard<DashboardItem>(
+                    key: ValueKey('$tabKey|$selectedPreset|$_isEditing'),
+                    dashboardItemController: controller.controller,
+                    slotCount: 12,
+                    slotAspectRatio: 1,
+                    horizontalSpace: 40,
+                    verticalSpace: 40,
+                    padding: const EdgeInsets.all(16),
+                    shrinkToPlace: false,
+                    slideToTop: false,
+                    absorbPointer: false,
+                    animateEverytime: false,
+                    physics: const BouncingScrollPhysics(),
+                    slotBackgroundBuilder: SlotBackgroundBuilder.withFunction(
+                        (_, __, ___, ____, _____) => null),
+                    editModeSettings: EditModeSettings(
+                      longPressEnabled: true,
+                      panEnabled: true,
+                      draggableOutside: true,
+                      autoScroll: true,
+                      resizeCursorSide: 10,
+                      backgroundStyle: EditModeBackgroundStyle(
+                        lineColor: Colors.grey,
+                        lineWidth: 0.5,
+                        dualLineHorizontal: true,
+                        dualLineVertical: true,
+                      ),
+                    ),
+                    itemBuilder: (item) {
+                      final id = item.identifier;
+                      final isHidden = !controller.isVisible(id);
+                      if (!_isEditing && isHidden)
+                        return const SizedBox.shrink();
+
+                      return WidgetCard(
+                        item: item,
+                        child: Text(
+                          'Widget $id\n'
+                          'x:${item.layoutData?.startX} y:${item.layoutData?.startY}\n'
+                          'w:${item.layoutData?.width} h:${item.layoutData?.height}',
+                          textAlign: TextAlign.center,
+                        ),
+                        isEditMode: _isEditing,
+                        isHidden: isHidden,
+                        onToggleVisibility: () =>
+                            setState(() => controller.toggleVisibility(id)),
+                        modalTitle: 'Widget $id',
+                        modalSize: WidgetModalSize.medium,
+                      );
+                    },
+                  );
                 },
-                modalTitle: 'Widget $id',
-                modalSize: WidgetModalSize.medium,
-              );
-            },
-          );
-        }),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

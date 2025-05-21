@@ -8,13 +8,27 @@ import 'package:wrixl_frontend/utils/dashboard_item_extensions.dart';
 
 class SharedPrefsDashboardStorage
     extends DashboardItemStorageDelegate<DashboardItem> {
-  final String storageKey;
-  final String visibilityKey;
+  final String screenId;
+  final String userId;
+  final String presetName;
   final List<DashboardItem> Function()? fallbackBuilder;
+  final String deviceClass; // "desktop", "tablet", or "mobile"
+  late final String layoutKey;
+  late final String visibilityKey;
+
   DashboardItemController<DashboardItem>? controller;
 
-  SharedPrefsDashboardStorage(this.storageKey, this.visibilityKey,
-      {this.fallbackBuilder});
+  SharedPrefsDashboardStorage({
+    required this.screenId,
+    required this.userId,
+    required this.presetName,
+    required this.deviceClass,
+    this.fallbackBuilder,
+  }) {
+    layoutKey = '${screenId}_${userId}_${presetName}_${deviceClass}_layout';
+    visibilityKey =
+        '${screenId}_${userId}_${presetName}_${deviceClass}_visibility';
+  }
 
   @override
   bool get cacheItems => true;
@@ -25,7 +39,7 @@ class SharedPrefsDashboardStorage
   @override
   FutureOr<List<DashboardItem>> getAllItems(int slotCount) async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString(storageKey);
+    final jsonString = prefs.getString(layoutKey);
 
     if (jsonString != null) {
       final decoded = json.decode(jsonString) as List;
@@ -37,23 +51,22 @@ class SharedPrefsDashboardStorage
       }).toList();
     }
 
-    // Only fallback if nothing exists, and persist it!
     final fallback = fallbackBuilder?.call() ?? [];
-    await onItemsUpdated(fallback, slotCount); // 💾 persist fallback!
+    await onItemsUpdated(fallback, slotCount);
     return fallback;
   }
 
   Future<void> logSavedLayout() async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString('activity_layout');
-    print('[DEBUG] Current saved layout: $jsonString');
+    final jsonString = prefs.getString(layoutKey);
+    print('[DEBUG] Current saved layout ($layoutKey): $jsonString');
   }
 
   @override
   Future<void> onItemsUpdated(List<DashboardItem> items, int slotCount) async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(storageKey);
-    // 1) decode existing JSON (or start from fallback)
+    final raw = prefs.getString(layoutKey);
+
     List<Map<String, dynamic>> saved = [];
     if (raw != null) {
       try {
@@ -64,13 +77,11 @@ class SharedPrefsDashboardStorage
       saved = fallbackBuilder!().map((w) => w.toJson()).toList();
     }
 
-    // 2) build a map of identifier → index in that list
     final indexOf = <String, int>{};
     for (var i = 0; i < saved.length; i++) {
       indexOf[saved[i]['identifier'] as String] = i;
     }
 
-    // 3) for each widget we’re handed, overwrite its slot in that list (or append)
     for (final w in items) {
       final jsonMap = w.toJson();
       final idx = indexOf[w.identifier];
@@ -81,10 +92,9 @@ class SharedPrefsDashboardStorage
       }
     }
 
-    // 4) write back the full list
     final merged = json.encode(saved);
-    await prefs.setString(storageKey, merged);
-    print('[SharedPrefsStorage] onItemsUpdated: $merged');
+    await prefs.setString(layoutKey, merged);
+    print('[SharedPrefsStorage] onItemsUpdated for key $layoutKey: $merged');
   }
 
   @override
@@ -111,6 +121,8 @@ class SharedPrefsDashboardStorage
     final prefs = await SharedPreferences.getInstance();
     final encoded = json.encode(visibilityMap);
     await prefs.setString(visibilityKey, encoded);
+    print(
+        '[SharedPrefsStorage] saved visibility for key $visibilityKey: $encoded');
   }
 
   Future<Map<String, bool>> loadVisibility() async {

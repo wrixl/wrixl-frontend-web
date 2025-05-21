@@ -2,10 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:dashboard/dashboard.dart';
-import 'package:wrixl_frontend/utils/responsive.dart';
+import 'package:wrixl_frontend/utils/device_size_class.dart';
+import 'package:wrixl_frontend/utils/dashboard_screen_controller.dart';
+import 'package:wrixl_frontend/widgets/common/dashboard_scaffold.dart';
 import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 import 'package:wrixl_frontend/widgets/common/new_reusable_widget_card.dart';
-import 'package:wrixl_frontend/utils/dashboard_item_storage_delegate.dart'; // Import the delegate
 
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key});
@@ -14,63 +15,33 @@ class ActivityScreen extends StatefulWidget {
   State<ActivityScreen> createState() => _ActivityScreenState();
 }
 
-enum DeviceSizeClass { mobile, tablet, desktop }
-
 class _ActivityScreenState extends State<ActivityScreen> {
+  late DashboardScreenController _screenController;
   Future<void>? _initFuture;
-  late DashboardItemController<DashboardItem> _controller;
-  late SharedPrefsDashboardStorage _storage;
-  DeviceSizeClass? _currentSizeClass;
   bool _isEditing = false;
-  final Map<String, bool> _visibility = {};
-  String selectedPreset = "Default";
-  bool _layoutLoaded = false;
+  String selectedPreset = 'Default';
+
+  final List<String> presetOptions = ['Default', 'Alt', 'Custom'];
 
   @override
   void initState() {
     super.initState();
-
-    _storage = SharedPrefsDashboardStorage(
-      'activity_layout',
-      'activity_visibility',
-      fallbackBuilder: () => _getItemsForSize(DeviceSizeClass.desktop),
-    );
-
-    _controller = DashboardItemController.withDelegate(
-      itemStorageDelegate: _storage,
-    );
-
-    _storage.controller = _controller;
-
-    _controller.addListener(() async {
-      // getAllItems returns the full list (from prefs or fallback)
-      final allItems = await _storage.getAllItems(12);
-      // ensure every item has layoutData
-      for (final item in allItems) {
-        item.layoutData ??=
-            ItemLayout(startX: 0, startY: 0, width: 12, height: 3);
-      }
-      // persist the complete list
-      await _storage.onItemsUpdated(allItems, 12);
-      print('[ActivityScreen] Persisted ${allItems.length} items.');
-    });
-
-    _initFuture = _initializeLayout();
+    _initFuture = _initController();
   }
 
-  Future<void> _initializeLayout() async {
-    final items = await _controller.itemStorageDelegate!.getAllItems(12);
+  void _syncEditingState() {
+    _screenController.controller.isEditing = _isEditing;
+  }
 
-    _controller.notifyItemsChangedExternally(items); // ✅ apply saved layout
-    _layoutLoaded = true;
-
-    final visibility = await _storage.loadVisibility();
-
-    setState(() {
-      _visibility.addAll(visibility);
-    });
-
-    await _storage.logSavedLayout();
+  Future<void> _initController() async {
+    _screenController = DashboardScreenController(
+      screenId: 'activity',
+      preset: selectedPreset,
+      context: context,
+      getDefaultItems: _getItemsForSize,
+    );
+    await _screenController.initialize();
+    _syncEditingState();
   }
 
   List<DashboardItem> _getItemsForSize(DeviceSizeClass sizeClass) {
@@ -89,7 +60,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     }
 
     switch (selectedPreset) {
-      case "Alt":
+      case 'Alt':
         return createItems([
           {'id': 'events', 'x': 0, 'y': 0, 'w': 12, 'h': 3, 'minW': 12},
           {'id': 'notifications', 'x': 0, 'y': 3, 'w': 6, 'h': 3, 'minW': 6},
@@ -154,93 +125,39 @@ class _ActivityScreenState extends State<ActivityScreen> {
     }
   }
 
-  DeviceSizeClass _getSizeClass(BuildContext context) {
-    if (Responsive.isMobile(context)) return DeviceSizeClass.mobile;
-    if (Responsive.isTablet(context)) return DeviceSizeClass.tablet;
-    return DeviceSizeClass.desktop;
-  }
-
-  void _resetPreset() async {
-    if (_currentSizeClass == null) return;
-
-    final items = _getItemsForSize(_currentSizeClass!);
-
-    // Save preset layout
-    await _storage.onItemsUpdated(items, 12);
-    _controller.notifyItemsChangedExternally(items);
-    await _storage.logSavedLayout(); // ✅ works now
-
-    // Preserve visibility across preset changes
-    setState(() {
-      for (final item in items) {
-        _visibility.putIfAbsent(item.identifier, () => true);
-      }
-    });
-
-    await _storage.saveVisibility(_visibility);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _controller.isEditing = _isEditing;
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final newSizeClass = _getSizeClass(context);
-
-    if (_currentSizeClass != newSizeClass) {
-      _currentSizeClass = newSizeClass;
-      if (!_layoutLoaded) {
-        _initFuture = _initializeLayout(); // ✅ load layout only if not loaded
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Activity & Alerts'),
-        actions: [
-          DropdownButton<String>(
-            value: selectedPreset,
-            underline: const SizedBox.shrink(),
-            onChanged: (value) {
-              if (value == null) return;
-              setState(() {
-                selectedPreset = value;
-                _resetPreset();
-              });
-            },
-            items: const [
-              DropdownMenuItem(value: "Default", child: Text("Default")),
-              DropdownMenuItem(value: "Alt", child: Text("Alt")),
-            ],
-          ),
-          IconButton(
-            icon: Icon(_isEditing ? Icons.lock_open : Icons.lock),
-            tooltip: _isEditing ? "Lock Layout" : "Unlock Layout",
-            onPressed: () {
-              setState(() {
-                _isEditing = !_isEditing;
-              });
-
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  _controller.isEditing = _isEditing;
-                }
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: "Reset Preset",
-            onPressed: _isEditing ? _resetPreset : null,
-          ),
-        ],
-      ),
-      body: FutureBuilder<void>(
+    return DashboardScaffold(
+      title: 'Activity & Alerts',
+      presets: presetOptions,
+      selectedPreset: selectedPreset,
+      isEditing: _isEditing,
+      onPresetChanged: (value) async {
+        setState(() {
+          selectedPreset = value;
+          _isEditing = false;
+        });
+        _initFuture = _initController();
+        await _initFuture;
+        setState(() {});
+      },
+      onToggleEditing: () {
+        if (selectedPreset != 'Custom') {
+          setState(() {
+            selectedPreset = 'Custom';
+            _isEditing = false;
+          });
+          _initFuture = _initController();
+        } else {
+          setState(() {
+            _isEditing = !_isEditing;
+          });
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _syncEditingState();
+          });
+        }
+      },
+      child: FutureBuilder<void>(
         future: _initFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
@@ -249,8 +166,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
           return SafeArea(
             child: Dashboard<DashboardItem>(
-              key: ValueKey('$selectedPreset|$_isEditing|$_currentSizeClass'),
-              dashboardItemController: _controller,
+              key: ValueKey('$selectedPreset|$_isEditing'),
+              dashboardItemController: _screenController.controller,
               slotCount: 12,
               slotAspectRatio: 1,
               horizontalSpace: 40,
@@ -262,7 +179,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
               animateEverytime: false,
               physics: const BouncingScrollPhysics(),
               slotBackgroundBuilder: SlotBackgroundBuilder.withFunction(
-                  (_, __, ___, ____, _____) => null),
+                (_, __, ___, ____, _____) => null,
+              ),
               editModeSettings: EditModeSettings(
                 longPressEnabled: true,
                 panEnabled: true,
@@ -278,7 +196,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
               itemBuilder: (item) {
                 final id = item.identifier;
-                final isHidden = !(_visibility[id] ?? true);
+                final isHidden = !_screenController.isVisible(id);
                 if (!_isEditing && isHidden) return const SizedBox.shrink();
 
                 return WidgetCard(
@@ -293,9 +211,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   isHidden: isHidden,
                   onToggleVisibility: () {
                     setState(() {
-                      _visibility[id] = !(_visibility[id] ?? true);
+                      _screenController.toggleVisibility(id);
                     });
-                    _storage.saveVisibility(_visibility);
                   },
                   modalTitle: 'Widget $id',
                   modalSize: WidgetModalSize.small,
