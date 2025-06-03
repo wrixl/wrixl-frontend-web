@@ -103,32 +103,16 @@ class SidebarXNavigation extends StatelessWidget {
               items: const [
                 SidebarXItem(
                     icon: Icons.dashboard_customize,
-                    label: 'New Dashboard'), // 1
+                    label: 'New Dashboard'), // 0
                 SidebarXItem(
-                    icon: Icons.analytics_outlined, label: 'Intelligence'), // 5
-                SidebarXItem(
-                    icon: Icons.pie_chart, label: 'New Portfolio'), // 7
-                SidebarXItem(icon: Icons.emoji_events, label: 'Community'), // 8
-                SidebarXItem(icon: Icons.history, label: 'Activity'), // 9
-                SidebarXItem(
-                    icon: Icons.widgets_outlined,
-                    label: 'Legacy Widgets'), // 11
-                SidebarXItem(icon: Icons.person, label: 'Profile'), // 12
+                    icon: Icons.analytics_outlined, label: 'Intelligence'), // 1
+                SidebarXItem(icon: Icons.pie_chart, label: 'Strategies'), // 2
+                SidebarXItem(icon: Icons.layers, label: 'My Positions'), // 3
+                SidebarXItem(icon: Icons.emoji_events, label: 'Community'), // 4
+                SidebarXItem(icon: Icons.history, label: 'Activity'), // 5
+                SidebarXItem(icon: Icons.person, label: 'Profile'), // 6
+                SidebarXItem(icon: Icons.square, label: 'Intelligence2'), // 7
               ],
-            ),
-          ),
-
-          // ── Profile Button at Bottom ────────────────
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: IconButton(
-              onPressed: () => controller.selectIndex(6),
-              tooltip: 'Profile',
-              icon: const CircleAvatar(
-                backgroundColor: AppConstants.accentColor,
-                radius: 20,
-                child: Icon(Icons.person, color: Colors.black),
-              ),
             ),
           ),
         ],

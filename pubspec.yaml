@@ -22,6 +22,7 @@ dependencies:
   # Optional but useful for embedded content (Telegram setup or help docs)
   webview_flutter: ^4.5.0
 
+  smooth_page_indicator: ^1.2.1
   sidebarx: ^0.17.1
   tiny_charts: ^0.1.0
   chart_sparkline: ^1.1.1
@@ -30,6 +31,7 @@ dependencies:
   marqueer: ^2.0.1
   crypto_icons_flutter: ^0.0.1
   flutter_svg: ^2.0.17
+  flutter_animate: ^4.5.2
   enum_to_string: ^2.2.1
   dashboard:
     path: C:/Dev/dashboardFork/dashboard

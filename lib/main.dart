@@ -9,7 +9,7 @@ import 'providers/dashboard_provider.dart';
 import 'providers/portfolio_provider.dart';
 import 'providers/theme_provider.dart';
 
-import 'screens/dashboard/dashboard_screen.dart';
+import 'screens/main_app_screens/dashboard_screen.dart';
 import 'theme/theme.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

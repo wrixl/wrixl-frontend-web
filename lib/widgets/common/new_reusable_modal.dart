@@ -111,3 +111,21 @@ class NewWidgetModal extends StatelessWidget {
     );
   }
 }
+
+
+void showNewReusableModal(
+  BuildContext context, {
+  required String title,
+  required Widget child,
+  WidgetModalSize size = WidgetModalSize.medium,
+}) {
+  showDialog(
+    context: context,
+    builder: (_) => NewWidgetModal(
+      title: title,
+      child: child,
+      size: size,
+      onClose: () => Navigator.of(context).pop(),
+    ),
+  );
+}

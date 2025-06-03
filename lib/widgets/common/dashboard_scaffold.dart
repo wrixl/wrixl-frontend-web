@@ -12,6 +12,9 @@ class DashboardScaffold extends StatelessWidget {
   final VoidCallback? onReset;
   final Widget child;
 
+  /// allows custom widgets to appear before layout toggle
+  final List<Widget>? leadingActions;
+
   const DashboardScaffold({
     required this.title,
     required this.presets,
@@ -21,6 +24,7 @@ class DashboardScaffold extends StatelessWidget {
     required this.onToggleEditing,
     required this.child,
     this.onReset,
+    this.leadingActions, // 🔥 NEW
     super.key,
   });
 
@@ -31,8 +35,8 @@ class DashboardScaffold extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: colorScheme.surface, // ✅ solid background
-        scrolledUnderElevation: 0, // ✅ prevent color shift on scroll
+        backgroundColor: colorScheme.surface,
+        scrolledUnderElevation: 0,
         title: Text(
           title,
           style: theme.textTheme.titleLarge?.copyWith(
@@ -40,9 +44,12 @@ class DashboardScaffold extends StatelessWidget {
           ),
         ),
         actions: [
+          // Any custom widgets before layout toggle
+          if (leadingActions != null) ...leadingActions!,
+
           Container(
             decoration: BoxDecoration(
-              color: colorScheme.surface, // ✅ match AppBar background
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(8),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12),

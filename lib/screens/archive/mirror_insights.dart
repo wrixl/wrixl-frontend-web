@@ -2,10 +2,10 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/miror_insights_widgets/mirror_strategy_builder.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/miror_insights_widgets/mirror_suggestion_tile.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/miror_insights_widgets/profit_line_chart.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/miror_insights_widgets/wallet_tile.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/strategies/mirror_strategy_builder.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/strategies/mirror_suggestion_tile.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/strategies/profit_line_chart.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/strategies/wallet_tile.dart';
 
 class MirrorInsightsScreen extends StatefulWidget {
   const MirrorInsightsScreen({Key? key}) : super(key: key);

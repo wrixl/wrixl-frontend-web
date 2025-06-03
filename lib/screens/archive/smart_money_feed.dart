@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/dashboard_overview_widgets/live_ticker.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/smart_money_feed_widgets/smart_money_feed_flow_diagram.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/smart_money_feed_widgets/smart_money_widget_insights_feeder.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/smart_money_feed_widgets/smart_money_feed_insight_cards.dart';
+import 'package:wrixl_frontend/screens/archive/live_ticker.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/marketIntelligence/capital_movement_map.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/marketIntelligence/smart_money_widget_insights_feeder.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/marketIntelligence/smart_money_feed_insight_cards.dart';
 
 /// SmartMoneyFeedScreen provides a real‑time, actionable view into the moves
 /// of top wallets and funds. It’s broken into 4 sections:

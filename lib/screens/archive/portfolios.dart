@@ -1,9 +1,9 @@
 // lib\screens\dashboard\portfolios.dart
 
 import 'package:flutter/material.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/portfolios_widgets/portfolio_comparison_radar_widget.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/portfolios_widgets/portfolio_sidebar_filters.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/portfolios_widgets/portfolio_tiles_grid.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/strategies/portfolio_comparison_radar_widget.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/strategies/portfolio_sidebar_filters.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/strategies/portfolio_tiles_grid.dart';
 import '../../utils/responsive.dart';
 
 class PortfoliosScreen extends StatefulWidget {

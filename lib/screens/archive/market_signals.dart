@@ -1,10 +1,10 @@
 // lib/screens/dashboard/market_signals.dart
 
 import 'package:flutter/material.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/market_signals_widgets/market_signals_correlation_matrix.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/market_signals_widgets/market_signals_macro_intelligence_cards_widget.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/market_signals_widgets/market_signals_sector_movers_widget.dart';
-import 'package:wrixl_frontend/widgets/screen_specific_widgets/legacy_widgets/market_signals_widgets/market_signals_smart_news_strip_widget.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/marketIntelligence/market_signals_correlation_matrix.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/marketIntelligence/macro_insights.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/marketIntelligence/market_signals_sector_movers_widget.dart';
+import 'package:wrixl_frontend/widgets/screen_specific_widgets/current_widgets/marketIntelligence/market_signals_smart_news_strip_widget.dart';
 
 class MarketSignalsScreen extends StatelessWidget {
   const MarketSignalsScreen({Key? key}) : super(key: key);
