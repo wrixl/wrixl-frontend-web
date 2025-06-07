@@ -1,6 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\strategies\mint_strategy_actions.dart
 
-
 import 'package:flutter/material.dart';
 
 class MintStrategyActions extends StatefulWidget {
@@ -43,6 +42,7 @@ class _MintStrategyActionsState extends State<MintStrategyActions> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     isMobile = MediaQuery.of(context).size.width < 600;
 
     final actionButtons = [
@@ -52,8 +52,8 @@ class _MintStrategyActionsState extends State<MintStrategyActions> {
         label: const Text("Simulate"),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
-          foregroundColor: Colors.blue,
-          side: const BorderSide(color: Colors.blue),
+          foregroundColor: scheme.primary,
+          side: BorderSide(color: scheme.primary),
           elevation: 0,
         ),
       ),
@@ -65,7 +65,8 @@ class _MintStrategyActionsState extends State<MintStrategyActions> {
       ElevatedButton.icon(
         icon: const Icon(Icons.local_fire_department),
         onPressed: isMinting ? null : mintStrategy,
-        label: isMinting ? const Text("Minting...") : const Text("Mint Strategy"),
+        label:
+            isMinting ? const Text("Minting...") : const Text("Mint Strategy"),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepPurpleAccent,
           foregroundColor: Colors.white,
@@ -74,20 +75,40 @@ class _MintStrategyActionsState extends State<MintStrategyActions> {
     ];
 
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       margin: const EdgeInsets.all(16),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text("What would you like to do?", style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Mint Strategy",
+                    style: Theme.of(context).textTheme.titleMedium),
+                const Icon(Icons.local_fire_department,
+                    color: Colors.deepPurpleAccent),
+              ],
+            ),
+            const SizedBox(height: 16),
             isMobile
                 ? Column(
-                    children: actionButtons.map((btn) => Padding(padding: const EdgeInsets.only(bottom: 8), child: btn)).toList(),
+                    children: actionButtons
+                        .map((btn) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: btn,
+                            ))
+                        .toList(),
                   )
                 : Row(
-                    children: actionButtons.map((btn) => Padding(padding: const EdgeInsets.only(right: 12), child: btn)).toList(),
+                    children: actionButtons
+                        .map((btn) => Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: btn,
+                            ))
+                        .toList(),
                   ),
             const SizedBox(height: 16),
             GestureDetector(
@@ -97,26 +118,32 @@ class _MintStrategyActionsState extends State<MintStrategyActions> {
                   const Icon(Icons.info_outline),
                   const SizedBox(width: 8),
                   Text(
-                    "Show mint details",
-                    style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                    showDetails ? "Hide mint details" : "Show mint details",
+                    style: TextStyle(color: scheme.primary),
                   ),
                 ],
               ),
             ),
             AnimatedCrossFade(
               duration: const Duration(milliseconds: 300),
-              crossFadeState: showDetails ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+              crossFadeState: showDetails
+                  ? CrossFadeState.showFirst
+                  : CrossFadeState.showSecond,
               firstChild: Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
-                    Text("• WRX Cost: 180 WRX", style: TextStyle(fontWeight: FontWeight.w500)),
+                    Text("• WRX Cost: 180 WRX",
+                        style: TextStyle(fontWeight: FontWeight.w500)),
                     Text("• Gas Estimate: ~0.002 ETH"),
                     Text("• Chain: Base Mainnet"),
                     Text("• Portfolio Type: ERC-721 NFT"),
                     SizedBox(height: 8),
-                    Text("AI Comment: Strategy shows strong Sharpe, balanced risk, and unique diversification profile."),
+                    Text(
+                      "AI Comment: Strategy shows strong Sharpe, balanced risk, and unique diversification profile.",
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
                   ],
                 ),
               ),

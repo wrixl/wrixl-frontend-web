@@ -109,53 +109,55 @@ class PortfolioTilesGrid extends StatelessWidget {
             ? 0.65
             : 0.60;
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Portfolio Strategies",
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: scheme.onSurface,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Portfolio Strategies",
+                    style: theme.textTheme.titleMedium),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.filter_list, color: scheme.primary),
+                      onPressed: () => debugPrint("Filter button pressed"),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.sort, color: scheme.primary),
+                      onPressed: () => debugPrint("Sort button pressed"),
+                    ),
+                  ],
                 ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            GridView.builder(
+              itemCount: data.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(
+                horizontal: columns == 1 ? 0 : 8,
+                vertical: 8,
               ),
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.filter_list, color: scheme.primary),
-                    onPressed: () => debugPrint("Filter button pressed"),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.sort, color: scheme.primary),
-                    onPressed: () => debugPrint("Sort button pressed"),
-                  ),
-                ],
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: columns,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: aspectRatio,
               ),
-            ],
-          ),
+              itemBuilder: (context, index) => _PortfolioCard(
+                portfolio: data[index],
+              ),
+            ),
+          ],
         ),
-        GridView.builder(
-          itemCount: data.length,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(
-            horizontal: columns == 1 ? 0 : 16,
-            vertical: 8,
-          ),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: columns,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: aspectRatio,
-          ),
-          itemBuilder: (context, index) =>
-              _PortfolioCard(portfolio: data[index]),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -172,118 +174,102 @@ class _PortfolioCard extends StatelessWidget {
     final dateFormatted =
         "${portfolio.initialRecommendationDate.month}/${portfolio.initialRecommendationDate.day}/${portfolio.initialRecommendationDate.year}";
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: scheme.primary.withOpacity(0.4)),
-        boxShadow: [
-          BoxShadow(
-            color: scheme.shadow.withOpacity(0.08),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Based on Your Holdings",
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: scheme.primary.withOpacity(0.7),
-                    fontWeight: FontWeight.bold,
-                  )),
-              IconButton(
-                icon: Icon(
-                  portfolio.isBookmarked
-                      ? Icons.bookmark
-                      : Icons.bookmark_border,
-                  size: 20,
-                  color: scheme.primary,
-                ),
-                onPressed: portfolio.onBookmark,
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            portfolio.name,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: scheme.onSurface,
-            ),
-          ),
-          Text(
-            portfolio.strategyTag,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontStyle: FontStyle.italic,
-              color: scheme.onSurface.withOpacity(0.6),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              _badge("Similarity: ${portfolio.similarityScore}", context),
-              const SizedBox(width: 8),
-              Expanded(child: _confidenceBar(context, portfolio.confidence)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                  child: _statBlock("ROI", portfolio.projectedRoi, context)),
-              Expanded(
-                  child:
-                      _statBlock("Volatility", portfolio.volatility, context)),
-              Expanded(child: _statBlock("Sharpe", portfolio.sharpe, context)),
-            ],
-          ),
-          _statBlock("Top Holdings", portfolio.topHoldings.join(", "), context),
-          _statBlock("Chain", portfolio.dominantChain, context),
-          _statBlock("Mix", portfolio.assetTypeMix, context),
-          _statBlock("Goal", portfolio.investmentGoal, context),
-          Row(
-            children: [
-              Expanded(child: _statBlock("Since", dateFormatted, context)),
-              Expanded(
-                  child:
-                      _statBlock("Achieved", portfolio.goalAchieved, context)),
-              Expanded(
-                  child: _statBlock("Horizon", portfolio.horizon, context)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: portfolio.onPreview,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: scheme.primary),
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surfaceVariant,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Based on Your Holdings",
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w600,
+                    )),
+                IconButton(
+                  icon: Icon(
+                    portfolio.isBookmarked
+                        ? Icons.bookmark
+                        : Icons.bookmark_border,
+                    color: scheme.primary,
+                    size: 20,
                   ),
-                  child: const Text("Preview", style: TextStyle(fontSize: 12)),
+                  onPressed: portfolio.onBookmark,
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: portfolio.onAdopt,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: scheme.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(portfolio.name,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                )),
+            Text(portfolio.strategyTag,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontStyle: FontStyle.italic,
+                  color: scheme.onSurface.withOpacity(0.6),
+                )),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                _badge("Similarity: ${portfolio.similarityScore}", context),
+                const SizedBox(width: 8),
+                Expanded(
+                    child: _confidenceBar(context, portfolio.confidence)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                    child: _statBlock("ROI", portfolio.projectedRoi, context)),
+                Expanded(
+                    child: _statBlock(
+                        "Volatility", portfolio.volatility, context)),
+                Expanded(
+                    child: _statBlock("Sharpe", portfolio.sharpe, context)),
+              ],
+            ),
+            _statBlock("Top Holdings",
+                portfolio.topHoldings.join(", "), context),
+            _statBlock("Chain", portfolio.dominantChain, context),
+            _statBlock("Mix", portfolio.assetTypeMix, context),
+            _statBlock("Goal", portfolio.investmentGoal, context),
+            Row(
+              children: [
+                Expanded(
+                    child: _statBlock("Since", dateFormatted, context)),
+                Expanded(
+                    child:
+                        _statBlock("Achieved", portfolio.goalAchieved, context)),
+                Expanded(
+                    child:
+                        _statBlock("Horizon", portfolio.horizon, context)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: portfolio.onPreview,
+                    child: const Text("Preview", style: TextStyle(fontSize: 12)),
                   ),
-                  child: const Text("Adopt", style: TextStyle(fontSize: 12)),
                 ),
-              ),
-            ],
-          ),
-        ],
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: portfolio.onAdopt,
+                    child: const Text("Adopt", style: TextStyle(fontSize: 12)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -298,11 +284,13 @@ class _PortfolioCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(value,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: scheme.onSurface)),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: scheme.onSurface,
+              )),
           Text(label,
-              style: theme.textTheme.labelSmall
-                  ?.copyWith(color: scheme.onSurface.withOpacity(0.6))),
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: scheme.onSurface.withOpacity(0.6),
+              )),
         ],
       ),
     );

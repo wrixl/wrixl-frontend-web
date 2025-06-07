@@ -1,6 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\wallet_clusters.dart
 
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -38,23 +37,24 @@ class _WalletClustersWidgetState extends State<WalletClustersWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
     return Card(
-      margin: const EdgeInsets.all(16),
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: scheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildHeader(theme),
             const SizedBox(height: 16),
             _buildClusterSelector(theme),
             const SizedBox(height: 16),
-            _buildTopTokensTable(),
-            const SizedBox(height: 16),
-            _buildCompositionPieChart(theme),
-            const SizedBox(height: 16),
+            _buildTopTokensTable(theme),
+            const SizedBox(height: 20),
+            _buildCompositionPieChart(scheme),
+            const SizedBox(height: 20),
             _buildCTAButtons(),
           ],
         ),
@@ -66,8 +66,7 @@ class _WalletClustersWidgetState extends State<WalletClustersWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('Wallet Clusters',
-            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        Text('Wallet Clusters', style: theme.textTheme.titleMedium),
         DropdownButton<String>(
           value: 'Behavior-Based',
           items: const [
@@ -76,6 +75,7 @@ class _WalletClustersWidgetState extends State<WalletClustersWidget> {
             DropdownMenuItem(value: 'Social-Based', child: Text('Social-Based')),
           ],
           onChanged: (_) {},
+          style: theme.textTheme.bodyMedium,
         ),
       ],
     );
@@ -83,19 +83,22 @@ class _WalletClustersWidgetState extends State<WalletClustersWidget> {
 
   Widget _buildClusterSelector(ThemeData theme) {
     return SizedBox(
-      height: 40,
-      child: ListView.builder(
+      height: 38,
+      child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: clusters.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final cluster = clusters[index];
           final selected = cluster == selectedCluster;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: ChoiceChip(
-              label: Text(cluster),
-              selected: selected,
-              onSelected: (_) => setState(() => selectedCluster = cluster),
+          return ChoiceChip(
+            label: Text(cluster),
+            selected: selected,
+            onSelected: (_) => setState(() => selectedCluster = cluster),
+            selectedColor: theme.colorScheme.primary.withOpacity(0.2),
+            labelStyle: TextStyle(
+              color: selected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w500,
             ),
           );
         },
@@ -103,37 +106,56 @@ class _WalletClustersWidgetState extends State<WalletClustersWidget> {
     );
   }
 
-  Widget _buildTopTokensTable() {
+  Widget _buildTopTokensTable(ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Top Tokens by Conviction'),
-        const SizedBox(height: 8),
-        ...topTokens.map((t) => ListTile(
-              leading: CircleAvatar(child: Text(t['token'])),
-              title: Text('${t['token']} - ${t['weight']}%'),
-              subtitle: Text(
-                  'Change: ${t['change']}% | Conviction: ${t['conviction']}'),
-              trailing: Icon(Icons.trending_up),
-            )),
+        Text('Top Tokens by Conviction', style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        ...topTokens.map((t) {
+          return Container(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withOpacity(0.03),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CircleAvatar(radius: 16, child: Text(t['token'], style: const TextStyle(fontSize: 12))),
+                Text('${t['weight']}%', style: theme.textTheme.bodyMedium),
+                Text('Δ ${t['change']}%', style: TextStyle(
+                  color: t['change'] >= 0 ? Colors.greenAccent : Colors.redAccent,
+                  fontWeight: FontWeight.w600,
+                )),
+                Text(t['conviction'], style: const TextStyle(fontStyle: FontStyle.italic)),
+              ],
+            ),
+          );
+        }),
       ],
     );
   }
 
-  Widget _buildCompositionPieChart(ThemeData theme) {
+  Widget _buildCompositionPieChart(ColorScheme scheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Cluster Composition'),
-        const SizedBox(height: 8),
+        Text('Cluster Composition',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
         SizedBox(
-          height: 200,
+          height: 180,
           child: PieChart(PieChartData(
+            sectionsSpace: 1,
+            centerSpaceRadius: 30,
             sections: composition.entries
                 .map((e) => PieChartSectionData(
                       value: e.value,
-                      title: '${e.key} (${e.value.toStringAsFixed(0)}%)',
-                      radius: 50,
+                      title: '${e.key} (${e.value.toInt()}%)',
+                      titleStyle: const TextStyle(fontSize: 10),
+                      radius: 42,
                     ))
                 .toList(),
           )),
@@ -144,11 +166,23 @@ class _WalletClustersWidgetState extends State<WalletClustersWidget> {
 
   Widget _buildCTAButtons() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        ElevatedButton(onPressed: () {}, child: const Text('Simulate Cluster')),
-        ElevatedButton(onPressed: () {}, child: const Text('Track Tokens')),
-        ElevatedButton(onPressed: () {}, child: const Text('Alert on Shift')),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.analytics_outlined),
+          label: const Text('Simulate Cluster'),
+          onPressed: () {},
+        ),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.track_changes_outlined),
+          label: const Text('Track Tokens'),
+          onPressed: () {},
+        ),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.notifications_active_outlined),
+          label: const Text('Alert on Shift'),
+          onPressed: () {},
+        ),
       ],
     );
   }

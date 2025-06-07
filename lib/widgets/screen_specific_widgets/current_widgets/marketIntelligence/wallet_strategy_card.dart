@@ -1,8 +1,6 @@
 // lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\wallet_strategy_card.dart
 
-
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 
 class WalletStrategyCard extends StatefulWidget {
   final String walletAlias;
@@ -74,32 +72,46 @@ class _WalletStrategyCardState extends State<WalletStrategyCard>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
     return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.white.withOpacity(0.05),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      elevation: 4,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
+            // App bar
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('@${widget.walletAlias}',
-                    style: Theme.of(context).textTheme.titleLarge),
+                Text("@${widget.walletAlias}", style: theme.textTheme.titleMedium),
+                const SizedBox(width: 8),
+                Tooltip(
+                  message: 'Wallet tagged as ${widget.walletType}.',
+                  child: const Icon(Icons.info_outline, size: 18),
+                ),
+                const Spacer(),
                 Chip(
-                  label: Text(widget.walletType),
-                  avatar: Icon(Icons.star),
-                  backgroundColor: Colors.blue.withOpacity(0.2),
+                  label: Text(widget.walletType, style: theme.textTheme.labelLarge),
+                  avatar: const Icon(Icons.star, size: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  backgroundColor: scheme.primary.withOpacity(0.1),
                 )
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
+
+            // Tab bar
             TabBar(
               controller: _tabController,
-              labelColor: Colors.blue,
-              unselectedLabelColor: Colors.white70,
+              labelColor: scheme.primary,
+              unselectedLabelColor: scheme.onSurface.withOpacity(0.5),
+              labelStyle: theme.textTheme.labelLarge,
+              indicatorColor: scheme.primary,
+              isScrollable: true,
               tabs: const [
                 Tab(text: 'Holdings'),
                 Tab(text: 'Trades'),
@@ -107,20 +119,25 @@ class _WalletStrategyCardState extends State<WalletStrategyCard>
                 Tab(text: 'Activity'),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+
+            // Tab views
             SizedBox(
-              height: 280,
+              height: 260,
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  _buildHoldingsTab(),
-                  Center(child: Text('Trades tab coming soon...')),
-                  Center(child: Text('Conviction heatmap coming soon...')),
-                  Center(child: Text('Activity chart coming soon...')),
+                  _buildHoldingsTab(theme),
+                  Center(child: Text('Trades tab coming soon...', style: theme.textTheme.bodySmall)),
+                  Center(child: Text('Conviction heatmap coming soon...', style: theme.textTheme.bodySmall)),
+                  Center(child: Text('Activity chart coming soon...', style: theme.textTheme.bodySmall)),
                 ],
               ),
             ),
+
             const Divider(height: 32),
+
+            // Actions
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -147,25 +164,37 @@ class _WalletStrategyCardState extends State<WalletStrategyCard>
     );
   }
 
-  Widget _buildHoldingsTab() {
-    return ListView.builder(
+  Widget _buildHoldingsTab(ThemeData theme) {
+    return ListView.separated(
       itemCount: _holdings.length,
+      separatorBuilder: (_, __) => const Divider(height: 12),
       itemBuilder: (context, index) {
-        final holding = _holdings[index];
-        return ListTile(
-          leading: Icon(holding['icon'], color: _getActionColor(holding['action'])),
-          title: Text('${holding['token']} (${holding['sector']})'),
-          subtitle: Text(
-            '${holding['percent']}% — ${holding['action']}',
-            style: TextStyle(color: _getActionColor(holding['action'])),
-          ),
-          trailing: Text(
-            '${holding['priceDelta']}%',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: holding['priceDelta'] >= 0 ? Colors.green : Colors.red,
+        final h = _holdings[index];
+        final actionColor = _getActionColor(h['action']);
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(h['icon'], color: actionColor),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${h['token']} (${h['sector']})', style: theme.textTheme.bodyLarge),
+                  const SizedBox(height: 2),
+                  Text('${h['percent']}% — ${h['action']}', style: TextStyle(color: actionColor)),
+                ],
+              ),
             ),
-          ),
+            Text(
+              "${h['priceDelta']}%",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: h['priceDelta'] >= 0 ? Colors.green : Colors.red,
+              ),
+            ),
+          ],
         );
       },
     );

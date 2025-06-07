@@ -62,66 +62,89 @@ class _FyiNotificationsWidgetState extends State<FyiNotificationsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('FYI Notifications',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              DropdownButton<String>(
-                value: selectedCategory,
-                items: categories
-                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                    .toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      selectedCategory = value;
-                    });
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(8),
-            itemCount: filteredNotifications.length,
-            itemBuilder: (context, index) {
-              final notif = filteredNotifications[index];
-              return Card(
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                child: ListTile(
-                  leading:
-                      Text(notif['icon'], style: const TextStyle(fontSize: 24)),
-                  title: Text(notif['title'],
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(notif['message']),
-                      const SizedBox(height: 4),
-                      Text(formatDate(notif['timestamp']),
-                          style: TextStyle(
-                              color: Colors.grey.shade600, fontSize: 12)),
-                    ],
-                  ),
-                  trailing: TextButton(
-                    onPressed: () {},
-                    child: Text(notif['cta'] ?? 'View'),
+    final theme = Theme.of(context);
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'FYI Notifications',
+                    style: theme.textTheme.titleMedium,
                   ),
                 ),
-              );
-            },
-          ),
+                DropdownButton<String>(
+                  value: selectedCategory,
+                  style: theme.textTheme.bodyMedium,
+                  dropdownColor: theme.cardColor,
+                  underline: const SizedBox(),
+                  borderRadius: BorderRadius.circular(8),
+                  items: categories
+                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedCategory = value;
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: ListView.builder(
+                itemCount: filteredNotifications.length,
+                itemBuilder: (context, index) {
+                  final notif = filteredNotifications[index];
+                  return Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    color: theme.colorScheme.surfaceVariant,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      leading: Text(notif['icon'],
+                          style: const TextStyle(fontSize: 24)),
+                      title: Text(notif['title'],
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 15)),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(notif['message']),
+                          const SizedBox(height: 4),
+                          Text(
+                            formatDate(notif['timestamp']),
+                            style: TextStyle(
+                                color: Colors.grey.shade600, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                      trailing: TextButton(
+                        onPressed: () {
+                          // Add navigation logic
+                        },
+                        child: Text(notif['cta'] ?? 'View'),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

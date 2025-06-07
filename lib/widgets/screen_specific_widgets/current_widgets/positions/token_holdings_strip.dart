@@ -19,102 +19,121 @@ class TokenHoldingsStrip extends StatelessWidget {
     final formatter = NumberFormat.compactCurrency(symbol: '\$');
     final data = holdings ?? dummyHoldings;
 
-    return SizedBox(
-      height: 140,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        itemCount: data.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final holding = data[index];
-          final changeColor =
-              holding.change24h >= 0 ? Colors.green : Colors.red;
-          final formattedValue = formatter.format(holding.usdValue);
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: theme.colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("💰 Token Holdings",
+                    style: theme.textTheme.titleMedium),
+                const Icon(Icons.pie_chart_outline),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 140,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                itemCount: data.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final holding = data[index];
+                  final changeColor =
+                      holding.change24h >= 0 ? Colors.green : Colors.red;
+                  final formattedValue = formatter.format(holding.usdValue);
 
-          return GestureDetector(
-            onTap: () => onTap?.call(holding),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              width: 140,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.shadowColor.withOpacity(0.08),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Colors.grey.shade200,
-                        backgroundImage: NetworkImage(holding.iconUrl),
-                      ),
-                      Text(
-                        '${holding.change24h >= 0 ? '+' : ''}${holding.change24h.toStringAsFixed(1)}%',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: changeColor,
-                          fontWeight: FontWeight.bold,
+                  return GestureDetector(
+                    onTap: () => onTap?.call(holding),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      width: 140,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceVariant,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: theme.dividerColor.withOpacity(0.15),
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    holding.symbol,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    formattedValue,
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  const Spacer(),
-                  Stack(
-                    children: [
-                      Container(
-                        height: 6,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: theme.dividerColor.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      FractionallySizedBox(
-                        widthFactor:
-                            (holding.portfolioPercentage / 100).clamp(0.0, 1.0),
-                        child: Container(
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary,
-                            borderRadius: BorderRadius.circular(4),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundColor: Colors.grey.shade200,
+                                backgroundImage:
+                                    NetworkImage(holding.iconUrl),
+                              ),
+                              Text(
+                                '${holding.change24h >= 0 ? '+' : ''}${holding.change24h.toStringAsFixed(1)}%',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: changeColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
+                          const SizedBox(height: 8),
+                          Text(
+                            holding.symbol,
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            formattedValue,
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          const Spacer(),
+                          Stack(
+                            children: [
+                              Container(
+                                height: 6,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color:
+                                      theme.dividerColor.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                              FractionallySizedBox(
+                                widthFactor: (holding.portfolioPercentage / 100)
+                                    .clamp(0.0, 1.0),
+                                child: Container(
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${holding.portfolioPercentage.toStringAsFixed(1)}%',
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${holding.portfolioPercentage.toStringAsFixed(1)}%',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ],
+                    ),
+                  );
+                },
               ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }

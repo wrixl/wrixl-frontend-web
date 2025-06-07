@@ -122,93 +122,89 @@ class WalletTileListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-
     final wallets = _dummyWallets();
 
-    return Column(
-      children: [
-        // Header row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Card(
+      color: scheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              "Popular Wallets",
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: scheme.primary,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Popular Wallets",
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    )),
+                const Icon(Icons.account_balance_wallet_rounded, size: 20),
+              ],
             ),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon:
-                        Icon(Icons.bar_chart, size: 18, color: scheme.primary),
-                    label: Text("Simulate in Portfolio Simulator",
-                        style: theme.textTheme.bodyMedium
-                            ?.copyWith(color: scheme.primary)),
-                  ),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: 180,
-                    height: 36,
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: "Search wallets",
-                        prefixIcon: Icon(Icons.search,
-                            size: 18, color: scheme.onSurface),
-                        filled: true,
-                        fillColor: scheme.surface.withOpacity(0.1),
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 0, horizontal: 10),
-                        hintStyle: theme.textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurface.withOpacity(0.7),
-                          fontSize: 13,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                              color: scheme.primary.withOpacity(0.3)),
-                        ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton.icon(
+                  onPressed: () {},
+                  icon: Icon(Icons.bar_chart, size: 18, color: scheme.primary),
+                  label: Text("Simulate in Portfolio Simulator",
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                          color: scheme.primary, fontSize: 13)),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 180,
+                  height: 36,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Search wallets",
+                      prefixIcon: Icon(Icons.search,
+                          size: 18, color: scheme.onSurface),
+                      filled: true,
+                      fillColor: scheme.surface.withOpacity(0.1),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 10),
+                      hintStyle: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurface.withOpacity(0.7),
+                        fontSize: 13,
                       ),
-                      onChanged: (query) {},
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                            color: scheme.primary.withOpacity(0.3)),
+                      ),
                     ),
+                    onChanged: (query) {},
                   ),
-                ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              height: 460,
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.only(right: 12),
+                  itemCount: wallets.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 24),
+                  itemBuilder: (context, index) =>
+                      _WalletTile(data: wallets[index]),
+                ),
               ),
             ),
           ],
         ),
-
-        const SizedBox(height: 12),
-
-        // Scrollable tile list
-        SizedBox(
-          height: 440,
-          child: ScrollConfiguration(
-            behavior: ScrollConfiguration.of(context).copyWith(
-              dragDevices: {
-                PointerDeviceKind.touch,
-                PointerDeviceKind.mouse,
-              },
-            ),
-            child: GestureDetector(
-              onHorizontalDragUpdate: (_) {},
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.only(right: 12),
-                itemCount: wallets.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 40),
-                itemBuilder: (context, index) =>
-                    _WalletTile(data: wallets[index]),
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

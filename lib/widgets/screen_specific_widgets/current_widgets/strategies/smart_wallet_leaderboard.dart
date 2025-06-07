@@ -1,7 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\strategies\smart_wallet_leaderboard.dart
 
-// lib/widgets/screen_specific_widgets/current_widgets/strategies/smart_wallet_leaderboard.dart
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -45,22 +43,6 @@ class _SmartWalletLeaderboardState extends State<SmartWalletLeaderboard> {
     });
   }
 
-  Widget _buildSortHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        DropdownButton<String>(
-          value: _sortBy,
-          onChanged: _changeSort,
-          items: ['Wrixl Score', 'ROI', 'Followers']
-              .map((label) => DropdownMenuItem(value: label, child: Text(label)))
-              .toList(),
-        ),
-        Text("Top Wallets: \${wallets.length}", style: const TextStyle(fontWeight: FontWeight.bold))
-      ],
-    );
-  }
-
   Widget _buildSparkline(List<double> data) {
     return SizedBox(
       width: 100,
@@ -85,44 +67,59 @@ class _SmartWalletLeaderboardState extends State<SmartWalletLeaderboard> {
   }
 
   Widget _buildWalletCard(Map<String, dynamic> wallet) {
+    final scheme = Theme.of(context).colorScheme;
     return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      child: ListTile(
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(wallet['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: wallet['fit'] == 'High Fit' ? Colors.green[100] : Colors.yellow[100],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(wallet['fit'], style: const TextStyle(fontSize: 12)),
-            ),
-          ],
-        ),
-        subtitle: Column(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surfaceVariant,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("ROI: \${wallet['roi']}%"),
-            Text("Volatility: \${wallet['volatility']}"),
-            Text("Followers: \${wallet['followers']}"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Text(wallet['name'],
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: scheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(wallet['fit'], style: Theme.of(context).textTheme.labelSmall),
+                    ),
+                  ],
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.auto_graph, size: 16),
+                  label: const Text("Mirror"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: scheme.primary,
+                    foregroundColor: scheme.onPrimary,
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 6,
+              runSpacing: 2,
               children: wallet['tags']
                   .map<Widget>((tag) => Chip(label: Text(tag, style: const TextStyle(fontSize: 12))))
                   .toList(),
             ),
+            const SizedBox(height: 8),
+            Text("ROI: \${wallet['roi']}%  •  Volatility: \${wallet['volatility']}  •  Followers: \${wallet['followers']}",
+                style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 6),
-            _buildSparkline(wallet['sparkline']),
+            _buildSparkline(wallet['sparkline'])
           ],
-        ),
-        trailing: ElevatedButton(
-          onPressed: () {},
-          child: const Text("Mirror"),
         ),
       ),
     );
@@ -130,12 +127,34 @@ class _SmartWalletLeaderboardState extends State<SmartWalletLeaderboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildSortHeader(),
-        const SizedBox(height: 12),
-        ...wallets.map(_buildWalletCard).toList(),
-      ],
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Smart Wallet Leaderboard",
+                    style: Theme.of(context).textTheme.titleMedium),
+                DropdownButton<String>(
+                  value: _sortBy,
+                  onChanged: _changeSort,
+                  items: ['Wrixl Score', 'ROI', 'Followers']
+                      .map((label) => DropdownMenuItem(value: label, child: Text(label)))
+                      .toList(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...wallets.map(_buildWalletCard).toList(),
+          ],
+        ),
+      ),
     );
   }
 }

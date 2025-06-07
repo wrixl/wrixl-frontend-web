@@ -11,33 +11,43 @@ class FeaturedPortfolioGrid extends StatelessWidget {
     final portfolios = _demoPortfolios;
     final isMobile = MediaQuery.of(context).size.width < 600;
     final crossAxisCount = isMobile ? 1 : 2;
+    final scheme = Theme.of(context).colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.0),
-          child: Text(
-            "Featured Strategies",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Featured Strategies",
+                    style: Theme.of(context).textTheme.titleMedium),
+                const Icon(Icons.star, color: Colors.amberAccent),
+              ],
+            ),
+            const SizedBox(height: 16),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: portfolios.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                childAspectRatio: 1.4,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+              ),
+              itemBuilder: (context, index) {
+                final portfolio = portfolios[index];
+                return _PortfolioCard(portfolio: portfolio);
+              },
+            ),
+          ],
         ),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: portfolios.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            childAspectRatio: 1.4,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-          ),
-          itemBuilder: (context, index) {
-            final portfolio = portfolios[index];
-            return _PortfolioCard(portfolio: portfolio);
-          },
-        ),
-      ],
+      ),
     );
   }
 }
@@ -49,9 +59,12 @@ class _PortfolioCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.background,
+      elevation: 3,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -60,21 +73,33 @@ class _PortfolioCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  portfolio.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                Expanded(
+                  child: Text(
+                    portfolio.name,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                const Icon(Icons.trending_up, color: Colors.green),
+                const Icon(Icons.trending_up, color: Colors.green, size: 20),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Wrap(
-              spacing: 8,
+              spacing: 6,
+              runSpacing: -8,
               children: portfolio.tags
-                  .map((tag) => Chip(label: Text(tag), padding: EdgeInsets.zero))
+                  .map((tag) => Chip(
+                        label: Text(tag,
+                            style: const TextStyle(fontSize: 11)),
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                      ))
                   .toList(),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             SizedBox(
               height: 40,
               child: LineChart(
@@ -86,7 +111,7 @@ class _PortfolioCard extends StatelessWidget {
                     LineChartBarData(
                       spots: portfolio.sparkline,
                       isCurved: true,
-                      color: Colors.blue,
+                      color: Colors.blueAccent,
                       dotData: FlDotData(show: false),
                       belowBarData: BarAreaData(show: false),
                     ),
@@ -94,13 +119,11 @@ class _PortfolioCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Text("Sharpe: ${portfolio.sharpe.toStringAsFixed(2)}  "),
-                Text("CAGR: ${(portfolio.cagr * 100).toStringAsFixed(1)}%"),
-              ],
-            ),
+            const SizedBox(height: 6),
+            Text("Sharpe: ${portfolio.sharpe.toStringAsFixed(2)}",
+                style: Theme.of(context).textTheme.bodySmall),
+            Text("CAGR: ${(portfolio.cagr * 100).toStringAsFixed(1)}%",
+                style: Theme.of(context).textTheme.bodySmall),
             const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,

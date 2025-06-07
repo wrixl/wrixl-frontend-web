@@ -1,8 +1,8 @@
 // lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\conviction_radar.dart
 
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class ConvictionRadarWidget extends StatefulWidget {
   const ConvictionRadarWidget({super.key});
@@ -47,32 +47,50 @@ class _ConvictionRadarWidgetState extends State<ConvictionRadarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    final scheme = Theme.of(context).colorScheme;
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text("📡 Conviction Radar", style: theme.textTheme.titleLarge),
-            const SizedBox(width: 8),
-            Tooltip(message: "Which tokens smart wallets are buying repeatedly and holding.",
-              child: const Icon(Icons.info_outline, size: 18),
+            Row(
+              children: [
+                Text("📡 Conviction Radar",
+                    style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(width: 8),
+                Tooltip(
+                  message:
+                      "Which tokens smart wallets are buying repeatedly and holding.",
+                  child: const Icon(Icons.info_outline, size: 18),
+                ),
+                const Spacer(),
+                ToggleButtons(
+                  isSelected:
+                      clusters.map((c) => c == selectedCluster).toList(),
+                  onPressed: (index) =>
+                      setState(() => selectedCluster = clusters[index]),
+                  borderRadius: BorderRadius.circular(8),
+                  children: clusters
+                      .map((c) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(c)))
+                      .toList(),
+                ),
+              ],
             ),
-            const Spacer(),
-            ToggleButtons(
-              isSelected: clusters.map((c) => c == selectedCluster).toList(),
-              onPressed: (index) => setState(() => selectedCluster = clusters[index]),
-              children: clusters.map((c) => Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: Text(c))).toList(),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: tokens.map(_buildTokenTile).toList(),
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 16,
-          runSpacing: 16,
-          children: tokens.map(_buildTokenTile).toList(),
-        ),
-      ],
+      ),
     );
   }
 
@@ -87,27 +105,36 @@ class _ConvictionRadarWidgetState extends State<ConvictionRadarWidget> {
         padding: const EdgeInsets.all(16),
         width: 200,
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface.withOpacity(0.9),
+          color: theme.colorScheme.surfaceVariant.withOpacity(0.9),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             if (highConviction)
               BoxShadow(
-                color: theme.colorScheme.primary.withOpacity(0.4),
+                color: theme.colorScheme.primary.withOpacity(0.35),
                 blurRadius: 10,
                 spreadRadius: 1,
               )
           ],
-          border: Border.all(color: highConviction ? theme.colorScheme.primary : Colors.grey.shade300),
+          border: Border.all(
+              color: highConviction
+                  ? theme.colorScheme.primary
+                  : Colors.grey.shade300),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("🪙 ${token.ticker}", style: theme.textTheme.titleMedium),
+            Text("🪙 ${token.ticker}",
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            Text("Score: ${token.score}", style: theme.textTheme.bodySmall),
-            Text("Repeat Buys: ${token.repeatBuys}", style: theme.textTheme.bodySmall),
-            Text("Dip Buys: ${token.dipBuys}", style: theme.textTheme.bodySmall),
-            Text("Wallets: ${token.walletCount}", style: theme.textTheme.bodySmall),
+            Text("Score: ${token.score}",
+                style: theme.textTheme.bodySmall),
+            Text("Repeat Buys: ${token.repeatBuys}",
+                style: theme.textTheme.bodySmall),
+            Text("Dip Buys: ${token.dipBuys}",
+                style: theme.textTheme.bodySmall),
+            Text("Wallets: ${token.walletCount}",
+                style: theme.textTheme.bodySmall),
             const SizedBox(height: 8),
             SizedBox(height: 32, child: _buildSparkline(token.recentBuys)),
           ],
@@ -121,7 +148,11 @@ class _ConvictionRadarWidgetState extends State<ConvictionRadarWidget> {
       LineChartData(
         lineBarsData: [
           LineChartBarData(
-            spots: data.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.toDouble())).toList(),
+            spots: data
+                .asMap()
+                .entries
+                .map((e) => FlSpot(e.key.toDouble(), e.value.toDouble()))
+                .toList(),
             isCurved: true,
             color: Colors.greenAccent,
             barWidth: 2,
@@ -142,10 +173,12 @@ class _ConvictionRadarWidgetState extends State<ConvictionRadarWidget> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text("Token Conviction: ${token.ticker}"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
+        return NewWidgetModal(
+          title: "Token Conviction: ${token.ticker}",
+          size: WidgetModalSize.small,
+          onClose: () => Navigator.pop(context),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text("Conviction Score: ${token.score}"),
               Text("Repeat Buys: ${token.repeatBuys}"),
@@ -154,9 +187,6 @@ class _ConvictionRadarWidgetState extends State<ConvictionRadarWidget> {
               Text("Wallets Involved: ${token.walletCount}"),
             ],
           ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Close"))
-          ],
         );
       },
     );

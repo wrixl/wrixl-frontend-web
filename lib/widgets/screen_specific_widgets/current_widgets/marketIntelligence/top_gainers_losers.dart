@@ -40,112 +40,141 @@ class _TopGainersLosersWidgetState extends State<TopGainersLosersWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DropdownButton<String>(
-              value: selectedTimeframe,
-              items: timeframes.map((tf) => DropdownMenuItem(
-                    value: tf,
-                    child: Text(tf),
-                  )).toList(),
-              onChanged: (value) => setState(() => selectedTimeframe = value!),
+            // App Bar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Top Gainers & Losers",
+                    style: theme.textTheme.titleMedium),
+                const Icon(Icons.trending_up, color: Colors.green),
+              ],
             ),
-            DropdownButton<String>(
-              value: selectedFilter,
-              items: filters.map((f) => DropdownMenuItem(
-                    value: f,
-                    child: Text(f),
-                  )).toList(),
-              onChanged: (value) => setState(() => selectedFilter = value!),
+            const SizedBox(height: 16),
+
+            // Filter Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                DropdownButton<String>(
+                  value: selectedTimeframe,
+                  items: timeframes.map((tf) => DropdownMenuItem(
+                        value: tf,
+                        child: Text(tf),
+                      )).toList(),
+                  onChanged: (value) => setState(() => selectedTimeframe = value!),
+                ),
+                DropdownButton<String>(
+                  value: selectedFilter,
+                  items: filters.map((f) => DropdownMenuItem(
+                        value: f,
+                        child: Text(f),
+                      )).toList(),
+                  onChanged: (value) => setState(() => selectedFilter = value!),
+                ),
+              ],
             ),
+            const SizedBox(height: 16),
+
+            // Columns
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTokenColumn(context, '📈 Top Gainers', topGainers, Colors.green),
+                const SizedBox(width: 16),
+                _buildTokenColumn(context, '📉 Top Losers', topLosers, Colors.red),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.equalizer),
+                  label: const Text("Compare"),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.add),
+                  label: const Text("Add to Tracker"),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.show_chart),
+                  label: const Text("View Chart"),
+                ),
+              ],
+            )
           ],
         ),
-        const SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildColumn(context, '📈 Top Gainers', topGainers, Colors.green),
-            const SizedBox(width: 16),
-            _buildColumn(context, '📉 Top Losers', topLosers, Colors.red),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.equalizer),
-              label: const Text("Compare"),
-            ),
-            OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.add),
-              label: const Text("Add to Tracker"),
-            ),
-            OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.show_chart),
-              label: const Text("View Chart"),
-            ),
-          ],
-        )
-      ],
+      ),
     );
   }
 
-  Widget _buildColumn(
-      BuildContext context, String title, List<Map<String, String>> data, Color color) {
+  Widget _buildTokenColumn(BuildContext context, String title,
+      List<Map<String, String>> data, Color color) {
     final theme = Theme.of(context);
+
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: theme.textTheme.titleMedium),
+          Text(title,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: color,
+              )),
           const SizedBox(height: 8),
           for (final token in data)
             Container(
-              margin: const EdgeInsets.only(bottom: 8),
+              margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: color.withOpacity(0.05),
+                color: color.withOpacity(0.04),
+                border: Border.all(color: color.withOpacity(0.2)),
               ),
               child: Row(
                 children: [
                   CircleAvatar(
                     radius: 16,
-                    backgroundColor: color.withOpacity(0.2),
-                    child: Text(token['symbol']![0], style: TextStyle(color: color)),
+                    backgroundColor: color.withOpacity(0.15),
+                    child: Text(token['symbol']![0],
+                        style: TextStyle(color: color)),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          '\$${token['symbol']}',
-                          style: theme.textTheme.bodyLarge,
-                        ),
-                        Text(
-                          token['tag']!,
-                          style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
-                        )
+                        Text('\$${token['symbol']}',
+                            style: theme.textTheme.bodyLarge),
+                        Text(token['tag']!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              fontSize: 12,
+                            )),
                       ],
                     ),
                   ),
-                  Text(
-                    token['change']!,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                  )
+                  Text(token['change']!,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: color,
+                      )),
                 ],
               ),
             )

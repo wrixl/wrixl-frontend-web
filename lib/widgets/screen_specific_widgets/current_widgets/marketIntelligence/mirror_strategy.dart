@@ -21,18 +21,19 @@ class _MirrorStrategyWidgetState extends State<MirrorStrategyWidget> {
     final theme = Theme.of(context);
 
     return Card(
-      margin: const EdgeInsets.all(16),
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: theme.colorScheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
-                Text('📈 Mirror Strategy',
-                    style: theme.textTheme.headlineSmall),
+                Text(
+                  '📈 Mirror Strategy',
+                  style: theme.textTheme.titleMedium,
+                ),
                 const SizedBox(width: 8),
                 Tooltip(
                   message:
@@ -42,51 +43,50 @@ class _MirrorStrategyWidgetState extends State<MirrorStrategyWidget> {
                 const Spacer(),
                 DropdownButton<String>(
                   value: selectedTimeframe,
-                  items: timeframes.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    if (newValue != null) {
-                      setState(() => selectedTimeframe = newValue);
-                    }
-                  },
+                  items: timeframes
+                      .map((val) =>
+                          DropdownMenuItem(value: val, child: Text(val)))
+                      .toList(),
+                  onChanged: (val) =>
+                      setState(() => selectedTimeframe = val ?? '1W'),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             AspectRatio(
               aspectRatio: 1.8,
-              child: LineChart(LineChartData(
-                titlesData: FlTitlesData(show: true),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: [FlSpot(0, 10), FlSpot(1, 30), FlSpot(2, 40)],
-                    isCurved: true,
-                    color: Colors.green,
-                    barWidth: 3,
-                    dotData: FlDotData(show: false),
-                  ),
-                  LineChartBarData(
-                    spots: [FlSpot(0, 5), FlSpot(1, 15), FlSpot(2, 25)],
-                    isCurved: true,
-                    color: Colors.blue,
-                    barWidth: 3,
-                    dotData: FlDotData(show: false),
-                  ),
-                ],
-              )),
+              child: LineChart(
+                LineChartData(
+                  titlesData: FlTitlesData(show: true),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: [FlSpot(0, 10), FlSpot(1, 30), FlSpot(2, 40)],
+                      isCurved: true,
+                      color: Colors.green,
+                      barWidth: 3,
+                      dotData: FlDotData(show: false),
+                    ),
+                    LineChartBarData(
+                      spots: [FlSpot(0, 5), FlSpot(1, 15), FlSpot(2, 25)],
+                      isCurved: true,
+                      color: Colors.blue,
+                      barWidth: 3,
+                      dotData: FlDotData(show: false),
+                    ),
+                  ],
+                  borderData: FlBorderData(show: false),
+                  gridData: FlGridData(show: true),
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildStatTile('Net ROI', '+14.5%'),
-                _buildStatTile('Drawdown', '5.2%'),
-                _buildStatTile('Conviction', 'High'),
-                _buildStatTile('Token Overlap', '78%'),
+                _buildStatTile(context, 'Net ROI', '+14.5%'),
+                _buildStatTile(context, 'Drawdown', '5.2%'),
+                _buildStatTile(context, 'Conviction', 'High'),
+                _buildStatTile(context, 'Token Overlap', '78%'),
               ],
             ),
             const SizedBox(height: 20),
@@ -111,12 +111,20 @@ class _MirrorStrategyWidgetState extends State<MirrorStrategyWidget> {
     );
   }
 
-  Widget _buildStatTile(String label, String value) {
+  Widget _buildStatTile(BuildContext context, String label, String value) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(value,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: Colors.grey)),
+        Text(label,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Colors.grey)),
       ],
     );
   }
@@ -126,7 +134,8 @@ class _MirrorStrategyWidgetState extends State<MirrorStrategyWidget> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Simulated Portfolio'),
-        content: const Text('This is where a mirrored portfolio breakdown would go.'),
+        content:
+            const Text('This is where a mirrored portfolio breakdown would go.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

@@ -11,31 +11,51 @@ class AIRecommendedPortfolios extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-          child: Text(
-            'AI Recommended Portfolios',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return Card(
+      color: scheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            /// App bar style
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('AI Recommended Portfolios',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    )),
+                const Icon(Icons.lightbulb_outline, size: 20),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            /// Scrollable card list
+            SizedBox(
+              height: 260,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: portfolios.length,
+                itemBuilder: (context, index) {
+                  return _buildRecommendationCard(context, portfolios[index]);
+                },
+              ),
+            ),
+          ],
         ),
-        SizedBox(
-          height: 260,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: portfolios.length,
-            itemBuilder: (context, index) {
-              return _buildRecommendationCard(context, portfolios[index]);
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildRecommendationCard(BuildContext context, AIRecommendedPortfolio portfolio) {
+    final scheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: () => showNewReusableModal(
         context,
@@ -45,22 +65,24 @@ class AIRecommendedPortfolios extends StatelessWidget {
       ),
       child: Container(
         width: 300,
-        margin: const EdgeInsets.all(8.0),
+        margin: const EdgeInsets.only(right: 16),
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Colors.grey[900],
+          color: scheme.surfaceVariant,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Text(
-                  portfolio.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                Expanded(
+                  child: Text(
+                    portfolio.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
@@ -75,7 +97,11 @@ class AIRecommendedPortfolios extends StatelessWidget {
             Wrap(
               spacing: 4,
               children: portfolio.tags
-                  .map((tag) => Chip(label: Text(tag), backgroundColor: Colors.blueGrey[700]))
+                  .map((tag) => Chip(
+                        label: Text(tag, style: const TextStyle(fontSize: 11)),
+                        backgroundColor: scheme.primary.withOpacity(0.15),
+                        visualDensity: VisualDensity.compact,
+                      ))
                   .toList(),
             ),
             const SizedBox(height: 8),
@@ -98,9 +124,13 @@ class AIRecommendedPortfolios extends StatelessWidget {
                   lineBarsData: [
                     LineChartBarData(
                       isCurved: true,
-                      spots: portfolio.sparkline.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value)).toList(),
+                      spots: portfolio.sparkline.asMap().entries
+                          .map((e) => FlSpot(e.key.toDouble(), e.value))
+                          .toList(),
                       dotData: FlDotData(show: false),
                       belowBarData: BarAreaData(show: false),
+                      color: scheme.primary,
+                      barWidth: 2,
                     ),
                   ],
                 ),

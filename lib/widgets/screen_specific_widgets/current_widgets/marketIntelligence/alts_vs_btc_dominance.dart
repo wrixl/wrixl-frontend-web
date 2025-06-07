@@ -1,4 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\alts_vs_btc_dominance.dart
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
@@ -30,34 +31,34 @@ class _AltsVsBTCDominanceWidgetState extends State<AltsVsBTCDominanceWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // App Bar Header
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Text(
-                    'Risk-On vs Risk-Off: ETH/BTC Dominance',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.1,
-                    ),
+                Text(
+                  'ETH/BTC Dominance',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: scheme.onSurface,
                   ),
                 ),
-                Tooltip(
-                  message:
-                      'ETH/BTC dominance is a proxy for market risk appetite. ETH rising = risk-on, BTC rising = risk-off.',
-                  child: const Icon(Icons.info_outline, size: 20),
-                ),
+                const Icon(Icons.trending_up, color: Colors.blueAccent),
               ],
             ),
-            const SizedBox(height: 8),
+
+            const SizedBox(height: 16),
+
+            // Dominance Line Chart
             SizedBox(
               height: 150,
               child: LineChart(
@@ -71,8 +72,7 @@ class _AltsVsBTCDominanceWidgetState extends State<AltsVsBTCDominanceWidget> {
                       dotData: FlDotData(show: false),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: (_isRiskOn ? Colors.green : Colors.red)
-                            .withOpacity(0.1),
+                        color: (_isRiskOn ? Colors.green : Colors.red).withOpacity(0.1),
                       ),
                     ),
                   ],
@@ -82,14 +82,16 @@ class _AltsVsBTCDominanceWidgetState extends State<AltsVsBTCDominanceWidget> {
                         showTitles: true,
                         interval: 0.005,
                         reservedSize: 40,
-                        getTitlesWidget: (v, _) => Text('${(v * 100).toStringAsFixed(1)}%'),
+                        getTitlesWidget: (v, _) =>
+                            Text('${(v * 100).toStringAsFixed(1)}%', style: theme.textTheme.bodySmall),
                       ),
                     ),
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
                         interval: (_selectedRange == '7D') ? 1 : (_selectedRange == '30D') ? 5 : 15,
-                        getTitlesWidget: (v, _) => Text('Day ${v.toInt()}'),
+                        getTitlesWidget: (v, _) =>
+                            Text('Day ${v.toInt()}', style: theme.textTheme.bodySmall),
                       ),
                     ),
                     topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -101,48 +103,60 @@ class _AltsVsBTCDominanceWidgetState extends State<AltsVsBTCDominanceWidget> {
                 duration: const Duration(milliseconds: 250),
               ),
             ),
-            const SizedBox(height: 12),
+
+            const SizedBox(height: 16),
+
+            // Sentiment & Delta Row
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _isRiskOn ? Colors.greenAccent : Colors.redAccent,
+                    color: _isRiskOn ? Colors.greenAccent.withOpacity(0.25) : Colors.redAccent.withOpacity(0.25),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     _isRiskOn ? '🟢 Risk-On Mode' : '🔴 Risk-Off Mode',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _isRiskOn ? Colors.green.shade800 : Colors.red.shade800,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 16),
-                Text(
-                  'Δ ${_delta.toStringAsFixed(2)}% over $_selectedRange',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Δ ${_delta.toStringAsFixed(2)}% over $_selectedRange',
+                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
+
             const SizedBox(height: 8),
+
+            // Narrative Tagline
             Text(
-              'Narratives affected: ${_topNarratives.join(', ')}',
-              style: theme.textTheme.bodySmall,
+              '🔥 Leading Narratives: ${_topNarratives.join(', ')}',
+              style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.6)),
             ),
+
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+
+            // Range Selector
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 6,
               children: ['7D', '30D', '90D'].map((range) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: ChoiceChip(
-                    label: Text(range),
-                    selected: _selectedRange == range,
-                    onSelected: (_) => setState(() => _selectedRange = range),
-                  ),
+                return ChoiceChip(
+                  label: Text(range),
+                  selected: _selectedRange == range,
+                  onSelected: (_) => setState(() => _selectedRange = range),
+                  selectedColor: scheme.primary.withOpacity(0.15),
                 );
               }).toList(),
-            )
+            ),
           ],
         ),
       ),

@@ -17,42 +17,58 @@ class BuildOverviewSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final textStyle = theme.textTheme.bodyMedium;
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      margin: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text("📊 Build Overview Summary", style: theme.textTheme.titleLarge),
-            const SizedBox(height: 16),
-            Wrap(
-              runSpacing: 12,
-              spacing: 12,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildMetricTile("Total Strategies Built", "$totalStrategies", Icons.layers),
-                _buildMetricTile("WRX Burned (Total)", "$wrxBurned WRX", Icons.local_fire_department, color: Colors.orange),
-                _buildMetricTile("Avg Sharpe Ratio", avgSharpe.toStringAsFixed(2), Icons.trending_up, color: Colors.green),
-                _buildMetricTile("AI-Guided Builds", "$aiGuidedBuilds / $totalStrategies", Icons.smart_toy_outlined),
-                _buildMetricTile("Top Theme", '"$topTheme"', Icons.star, color: Colors.purple),
-                _buildMetricTile("Success Rate", "${((strategiesMinted / totalStrategies) * 100).round()}% ($strategiesMinted/$totalStrategies Minted)", Icons.emoji_events, color: Colors.amber),
+                Text("Build Overview Summary",
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    )),
+                const Icon(Icons.analytics_outlined, color: Colors.deepPurpleAccent),
               ],
             ),
-            const Divider(height: 32),
-            Text("🔍 Custom Tags Used", style: theme.textTheme.titleSmall),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                _buildMetricTile("Total Strategies Built", "$totalStrategies", Icons.layers, context),
+                _buildMetricTile("WRX Burned (Total)", "$wrxBurned WRX", Icons.local_fire_department, context, color: Colors.orange),
+                _buildMetricTile("Avg Sharpe Ratio", avgSharpe.toStringAsFixed(2), Icons.trending_up, context, color: Colors.green),
+                _buildMetricTile("AI-Guided Builds", "$aiGuidedBuilds / $totalStrategies", Icons.smart_toy_outlined, context),
+                _buildMetricTile("Top Theme", '"$topTheme"', Icons.star, context, color: Colors.purple),
+                _buildMetricTile("Success Rate", "${((strategiesMinted / totalStrategies) * 100).round()}% ($strategiesMinted/$totalStrategies Minted)", Icons.emoji_events, context, color: Colors.amber),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Divider(height: 24),
+            Text("Custom Tags Used",
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: scheme.primary,
+                )),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               children: customTags.map((tag) => Chip(label: Text(tag))).toList(),
             ),
             const SizedBox(height: 16),
-            Text("📅 Last Strategy Created: ${DateFormat.yMMMMd().format(lastCreated)}", style: textStyle),
-            const SizedBox(height: 24),
+            Text(
+              "📅 Last Strategy Created: ${DateFormat.yMMMMd().format(lastCreated)}",
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -67,33 +83,46 @@ class BuildOverviewSummary extends StatelessWidget {
                   label: const Text("Export as JSON"),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMetricTile(String label, String value, IconData icon, {Color? color}) {
+  Widget _buildMetricTile(String label, String value, IconData icon, BuildContext context, {Color? color}) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(12),
+      constraints: const BoxConstraints(minWidth: 160, maxWidth: 200),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: scheme.surfaceVariant.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outline.withOpacity(0.15)),
       ),
-      width: 200,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: color ?? Colors.blueGrey),
+              Icon(icon, color: color ?? scheme.primary),
               const SizedBox(width: 8),
-              Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold))),
+              Expanded(
+                child: Text(label,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    )),
+              ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          Text(value,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: scheme.onSurface,
+              )),
         ],
       ),
     );

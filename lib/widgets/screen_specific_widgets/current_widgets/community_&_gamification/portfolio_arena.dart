@@ -1,7 +1,8 @@
 // lib\widgets\screen_specific_widgets\current_widgets\community_&_gamification\portfolio_arena.dart
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:wrixl_frontend/theme/theme.dart';
 
 class PortfolioArenaWidget extends StatefulWidget {
   const PortfolioArenaWidget({Key? key}) : super(key: key);
@@ -33,6 +34,8 @@ class _PortfolioContest {
 }
 
 class _PortfolioArenaWidgetState extends State<PortfolioArenaWidget> {
+  int _hoverIndex = -1;
+
   final List<_PortfolioContest> _contests = [
     _PortfolioContest(
       name: 'L2 Alpha Stack',
@@ -53,6 +56,36 @@ class _PortfolioArenaWidgetState extends State<PortfolioArenaWidget> {
       estimatedReturn: 3.0,
       userEntered: false,
       contestType: '🏁 Top 3',
+    ),
+    _PortfolioContest(
+      name: 'Meme Wars',
+      goal: 'Highest Return in 12h',
+      timeRemaining: const Duration(hours: 12),
+      entries: 150,
+      prizePool: 800,
+      estimatedReturn: 2.8,
+      userEntered: false,
+      contestType: '🚀 Rapid Return',
+    ),
+    _PortfolioContest(
+      name: 'Bluechip Brawl',
+      goal: 'Beat ETH by 2%',
+      timeRemaining: const Duration(hours: 18, minutes: 15),
+      entries: 75,
+      prizePool: 1000,
+      estimatedReturn: 1.7,
+      userEntered: true,
+      contestType: '📊 Benchmark',
+    ),
+    _PortfolioContest(
+      name: 'DEX Duel',
+      goal: 'Top 10 by Volume Gain',
+      timeRemaining: const Duration(hours: 24),
+      entries: 65,
+      prizePool: 1100,
+      estimatedReturn: 3.4,
+      userEntered: false,
+      contestType: '⚔️ Volume Battle',
     ),
   ];
 
@@ -108,58 +141,140 @@ class _PortfolioArenaWidgetState extends State<PortfolioArenaWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: _contests.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
-      itemBuilder: (context, index) {
-        final contest = _contests[index];
-        return Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    final theme = Theme.of(context);
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 3,
+      color: theme.colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('🧠 Portfolio: ${contest.name}', style: Theme.of(context).textTheme.titleMedium),
-                    Text(contest.contestType),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text('🎯 Goal: ${contest.goal}'),
-                const SizedBox(height: 4),
-                Text('⏱ Ends in: ${_formatDuration(contest.timeRemaining)}   👥 Entries: ${contest.entries}'),
-                const SizedBox(height: 4),
-                Text('🏆 Prize Pool: ${contest.prizePool.toStringAsFixed(0)} WRX'),
-                const SizedBox(height: 4),
-                Text('💼 Est. Return: ${contest.estimatedReturn.toStringAsFixed(1)}×'),
-                const SizedBox(height: 12),
-                if (contest.userEntered)
-                  Text('✅ You’re in! Est. rank: Top 24%', style: TextStyle(color: Colors.blueAccent)),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text('📈 View Portfolio'),
-                    ),
-                    const SizedBox(width: 12),
-                    TextButton(
-                      onPressed: () => _openEntryModal(contest),
-                      child: const Text('🎯 Enter Contest'),
-                    ),
-                  ],
-                )
+                Text('Portfolio Arena', style: theme.textTheme.titleMedium),
+                const Spacer(),
+                const Icon(Icons.emoji_events_outlined,
+                    color: Colors.amber, size: 22),
               ],
             ),
-          ),
-        );
-      },
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 250,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: _contests.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 14),
+                  itemBuilder: (context, index) {
+                    final contest = _contests[index];
+
+                    final childCard = Container(
+                      width: 300,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface.withOpacity(0.98),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.colorScheme.shadow.withOpacity(0.2),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withOpacity(0.25),
+                          width: 1,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Text('🧠 ${contest.name}',
+                                      style: theme.textTheme.titleSmall,
+                                      overflow: TextOverflow.ellipsis),
+                                ),
+                                Text(contest.contestType,
+                                    style: TextStyle(
+                                        color: theme.colorScheme.secondary)),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text('🎯 Goal: ${contest.goal}',
+                                style: const TextStyle(fontSize: 14)),
+                            const SizedBox(height: 4),
+                            Text(
+                              '⏱ Ends in: ${_formatDuration(contest.timeRemaining)}',
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.75)),
+                            ),
+                            Text('👥 Entries: ${contest.entries}',
+                                style: const TextStyle(fontSize: 13)),
+                            Text(
+                                '🏆 Prize: ${contest.prizePool.toStringAsFixed(0)} WRX',
+                                style: const TextStyle(fontSize: 13)),
+                            Text(
+                                '💼 Return: ${contest.estimatedReturn.toStringAsFixed(1)}×',
+                                style: const TextStyle(fontSize: 13)),
+                            if (contest.userEntered) ...[
+                              const SizedBox(height: 6),
+                              Text('✅ You’re in! Est. rank: Top 24%',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      color: theme.colorScheme.primary)),
+                            ],
+                            const Spacer(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () {},
+                                  child: const Text('📈 View Portfolio'),
+                                ),
+                                TextButton(
+                                  onPressed: () => _openEntryModal(contest),
+                                  child: const Text('🎯 Enter'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+
+                    return kIsWeb
+                        ? MouseRegion(
+                            onEnter: (_) =>
+                                setState(() => _hoverIndex = index),
+                            onExit: (_) =>
+                                setState(() => _hoverIndex = -1),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              decoration: _hoverIndex == index
+                                  ? WrixlTheme.getHoverGlow()
+                                  : null,
+                              child: childCard,
+                            ),
+                          )
+                        : childCard;
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

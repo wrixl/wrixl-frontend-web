@@ -442,39 +442,43 @@ class _PerformanceOverTimeChartState extends State<PerformanceOverTimeChart> {
   // --------------------------
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header row: Title on left, toggles on the top right.
+            // App bar style header
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Text(
-                    "Performance Over Time",
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: AppConstants.accentColor,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                    textAlign: TextAlign.start,
-                  ),
+                Text(
+                  "Performance Comparison",
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
-                _buildToggleButtons(),
+                IconButton(
+                  icon: const Icon(Icons.bar_chart_rounded),
+                  tooltip: "Expand or explain",
+                  onPressed: () {}, // You can add modal logic here
+                ),
               ],
             ),
-            // If "Sectors" is active, show a row of FilterChips below toggles.
+            const SizedBox(height: 12),
+
+            // Toggle buttons for series
+            _buildToggleButtons(),
             if (_sectors) ...[
               const SizedBox(height: 8),
               _buildSectorChips(),
             ],
-            const SizedBox(height: 8),
-            // The Multi-Line Time-Series Chart.
+            const SizedBox(height: 16),
+
+            // Chart
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -484,7 +488,16 @@ class _PerformanceOverTimeChartState extends State<PerformanceOverTimeChart> {
                 ),
               ),
             ),
-            const SizedBox(height: 10),
+
+            const SizedBox(height: 12),
+            Text(
+              "📊 Visualize your portfolio’s relative growth over time. Tap a legend item to filter views.",
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontStyle: FontStyle.italic,
+                color: scheme.onSurface.withOpacity(0.7),
+              ),
+              textAlign: TextAlign.center,
+            )
           ],
         ),
       ),

@@ -29,33 +29,37 @@ class _MirroringDriftRadarState extends State<MirroringDriftRadar> {
   double get averageDrift {
     double total = 0;
     for (int i = 0; i < _userData.length; i++) {
-      total += ( (_userData[i] - _idealData[i]).abs() / 100 );
+      total += ((_userData[i] - _idealData[i]).abs() / 100);
     }
     return (total / _userData.length) * 100;
   }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Mirroring Drift Radar",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text("Mirroring Drift Radar",
+                    style: Theme.of(context).textTheme.titleMedium),
                 ElevatedButton.icon(
                   onPressed: () {
                     // TODO: Open rebalance modal
                   },
                   icon: const Icon(Icons.auto_fix_high),
                   label: const Text("Rebalance"),
-                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
                 ),
               ],
             ),
@@ -97,12 +101,14 @@ class _MirroringDriftRadarState extends State<MirroringDriftRadar> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Average Drift: ${averageDrift.toStringAsFixed(1)}%",
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                Text(
+                  "⚖️ Average Drift: ${averageDrift.toStringAsFixed(1)}%",
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
                 IconButton(
                   icon: Icon(_showDetails ? Icons.expand_less : Icons.expand_more),
                   onPressed: () => setState(() => _showDetails = !_showDetails),
-                )
+                ),
               ],
             ),
             if (_showDetails)
@@ -112,9 +118,11 @@ class _MirroringDriftRadarState extends State<MirroringDriftRadar> {
                   return ListTile(
                     dense: true,
                     contentPadding: EdgeInsets.zero,
-                    title: Text(_traits[index]),
-                    subtitle: Text("Drift: ${drift.toStringAsFixed(1)}%"),
-                    trailing: Icon(Icons.info_outline_rounded, size: 18, color: Colors.grey[600]),
+                    leading: const Icon(Icons.compare_arrows, size: 18, color: Colors.grey),
+                    title: Text(_traits[index], style: Theme.of(context).textTheme.labelLarge),
+                    subtitle: Text("Drift: ${drift.toStringAsFixed(1)}%",
+                        style: Theme.of(context).textTheme.bodySmall),
+                    trailing: const Icon(Icons.info_outline_rounded, size: 18, color: Colors.grey),
                   );
                 }),
               ),

@@ -88,29 +88,20 @@ class _MyBadgeCollectionWidgetState extends State<MyBadgeCollectionWidget> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              badge.emoji,
-              style: const TextStyle(fontSize: 48),
-            ),
+            Text(badge.emoji, style: const TextStyle(fontSize: 48)),
             const SizedBox(height: 8),
-            Text(
-              badge.description,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
+            Text(badge.description,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 12),
-            badge.isUnlocked
-                ? Text('Earned on ${badge.dateEarned}',
-                    style: const TextStyle(color: Colors.green))
-                : badge.progress > 0.0
-                    ? Text(
-                        'Progress: ${(badge.progress * 100).round()}%\nKeep going to unlock!',
-                        textAlign: TextAlign.center,
-                      )
-                    : Text(
-                        'Locked — ${badge.description}',
-                        textAlign: TextAlign.center,
-                      )
+            if (badge.isUnlocked)
+              Text('Earned on ${badge.dateEarned}',
+                  style: const TextStyle(color: Colors.green))
+            else if (badge.progress > 0.0)
+              Text('Progress: ${(badge.progress * 100).round()}%\nKeep going to unlock!',
+                  textAlign: TextAlign.center)
+            else
+              Text('Locked — ${badge.description}', textAlign: TextAlign.center),
           ],
         ),
       ),
@@ -143,10 +134,7 @@ class _MyBadgeCollectionWidgetState extends State<MyBadgeCollectionWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              badge.emoji,
-              style: const TextStyle(fontSize: 32),
-            ),
+            Text(badge.emoji, style: const TextStyle(fontSize: 32)),
             const SizedBox(height: 4),
             Text(
               badge.title,
@@ -164,52 +152,57 @@ class _MyBadgeCollectionWidgetState extends State<MyBadgeCollectionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final scheme = Theme.of(context).colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'My Badge Collection',
-          style: theme.textTheme.titleLarge,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("My Badge Collection", style: Theme.of(context).textTheme.titleMedium),
+                const Icon(Icons.emoji_events_outlined, color: Colors.amberAccent),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: scheme.primary.withOpacity(0.05),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('🎖 Tier: ${getCurrentTier()}'),
+                  Text('🏅 ${getUnlockedCount()} / ${getTotalBadges()} Badges')
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            GridView.count(
+              crossAxisCount: MediaQuery.of(context).size.width < 600 ? 3 : 5,
+              shrinkWrap: true,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              physics: const NeverScrollableScrollPhysics(),
+              children: badges.map(_buildBadgeCell).toList(),
+            ),
+            const SizedBox(height: 12),
+            Center(
+              child: TextButton(
+                onPressed: () {},
+                child: const Text('View All Badges'),
+              ),
+            )
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          'Your achievements, unlocked.',
-          style: theme.textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: theme.cardColor.withOpacity(0.1),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('🎖 Tier: ${getCurrentTier()}'),
-              Text('🏅 ${getUnlockedCount()} / ${getTotalBadges()} Badges')
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        GridView.count(
-          crossAxisCount: MediaQuery.of(context).size.width < 600 ? 3 : 5,
-          shrinkWrap: true,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-          physics: const NeverScrollableScrollPhysics(),
-          children: badges.map(_buildBadgeCell).toList(),
-        ),
-        const SizedBox(height: 12),
-        Center(
-          child: TextButton(
-            onPressed: () {},
-            child: const Text('View All Badges'),
-          ),
-        )
-      ],
+      ),
     );
   }
 }

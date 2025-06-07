@@ -30,39 +30,56 @@ class _AlertsCenterWidgetState extends State<AlertsCenterWidget>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Alerts Center',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Alerts Center',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined),
+                  onPressed: () {
+                    // Open alert preferences modal
+                  },
+                )
+              ],
             ),
-            IconButton(
-              icon: const Icon(Icons.settings_outlined),
-              onPressed: () {
-                // Open alert preferences modal
-              },
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: theme.dividerColor),
+                ),
+              ),
+              child: TabBar(
+                controller: _tabController,
+                tabs: tabs.map((t) => Tab(text: t)).toList(),
+                labelColor: theme.colorScheme.primary,
+                unselectedLabelColor: theme.disabledColor,
+                indicatorColor: theme.colorScheme.primary,
+                isScrollable: false,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: tabs.map((tab) => _buildAlertList(tab)).toList(),
+              ),
             )
           ],
         ),
-        TabBar(
-          controller: _tabController,
-          tabs: tabs.map((t) => Tab(text: t)).toList(),
-          labelColor: theme.colorScheme.primary,
-          unselectedLabelColor: theme.disabledColor,
-          indicatorColor: theme.colorScheme.primary,
-        ),
-        const SizedBox(height: 12),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: tabs.map((tab) => _buildAlertList(tab)).toList(),
-          ),
-        )
-      ],
+      ),
     );
   }
 
@@ -75,6 +92,7 @@ class _AlertsCenterWidgetState extends State<AlertsCenterWidget>
     }
 
     return ListView.separated(
+      padding: const EdgeInsets.only(top: 4),
       itemCount: alerts.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
@@ -88,7 +106,7 @@ class _AlertsCenterWidgetState extends State<AlertsCenterWidget>
     final Color urgencyColor = _urgencyColor(alert['urgency']);
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 3,
+      elevation: 2,
       child: Column(
         children: [
           Container(

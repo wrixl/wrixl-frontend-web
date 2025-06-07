@@ -80,87 +80,115 @@ class _SignalCurationFeedWidgetState extends State<SignalCurationFeedWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ListView.separated(
-      itemCount: _proposals.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final p = _proposals[index];
-        return GestureDetector(
-onTap: () => showDialog(
-  context: context,
-  builder: (_) => NewWidgetModal(
-    title: p.title,
-    size: WidgetModalSize.medium,
-    onClose: () => Navigator.of(context).pop(),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(p.title, style: theme.textTheme.headlineSmall),
-          const SizedBox(height: 12),
-          Text(p.description, style: theme.textTheme.bodyMedium),
-          const SizedBox(height: 16),
-          Text("Submitted by ${p.proposer} in ${p.category}",
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
-        ],
-      ),
-    ),
-  ),
-),
-
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.cardColor,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.shadowColor.withOpacity(0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: theme.colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(p.title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 6),
-                      Text(p.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodySmall),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Text(p.category.toUpperCase(), style: theme.textTheme.labelSmall?.copyWith(color: theme.primaryColor)),
-                          const SizedBox(width: 12),
-                          Text(_timeAgo(p.submittedAt), style: theme.textTheme.labelSmall?.copyWith(color: theme.hintColor)),
-                          const SizedBox(width: 12),
-                          Text("by ${p.proposer}", style: theme.textTheme.labelSmall?.copyWith(color: theme.hintColor)),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_upward),
-                      tooltip: "Upvote",
-                      onPressed: () => _upvote(index),
-                    ),
-                    Text("${p.upvotes}", style: theme.textTheme.labelMedium),
-                  ],
-                )
+                Text('Signal Curation Feed', style: theme.textTheme.titleMedium),
+                const Icon(Icons.insights, color: Colors.teal),
               ],
             ),
-          ),
-        );
-      },
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.separated(
+                itemCount: _proposals.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final p = _proposals[index];
+                  return GestureDetector(
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (_) => NewWidgetModal(
+                        title: p.title,
+                        size: WidgetModalSize.medium,
+                        onClose: () => Navigator.of(context).pop(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(p.title, style: theme.textTheme.headlineSmall),
+                              const SizedBox(height: 12),
+                              Text(p.description, style: theme.textTheme.bodyMedium),
+                              const SizedBox(height: 16),
+                              Text("Submitted by ${p.proposer} in ${p.category}",
+                                style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.shadowColor.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(p.title,
+                                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                                const SizedBox(height: 4),
+                                Text(p.description,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 13)),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    Text(p.category.toUpperCase(),
+                                      style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary)),
+                                    const SizedBox(width: 12),
+                                    Text(_timeAgo(p.submittedAt),
+                                      style: theme.textTheme.labelSmall?.copyWith(color: theme.hintColor)),
+                                    const SizedBox(width: 12),
+                                    Text("by ${p.proposer}",
+                                      style: theme.textTheme.labelSmall?.copyWith(color: theme.hintColor)),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Column(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.arrow_upward),
+                                tooltip: "Upvote",
+                                onPressed: () => _upvote(index),
+                              ),
+                              Text("${p.upvotes}", style: theme.textTheme.labelMedium),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,6 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\narrative_intelligence_feed.dart
 
-
 import 'package:flutter/material.dart';
 
 class NarrativeIntelligenceFeed extends StatefulWidget {
@@ -60,44 +59,58 @@ class _NarrativeIntelligenceFeedState extends State<NarrativeIntelligenceFeed> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildHeader(context),
-        const SizedBox(height: 8),
-        _buildFilterChips(),
-        const SizedBox(height: 12),
-        Expanded(child: _buildFeed()),
-      ],
-    );
-  }
+    final scheme = Theme.of(context).colorScheme;
 
-  Widget _buildHeader(BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          'Narrative Intelligence Feed',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  '🧠 Narrative Intelligence Feed',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(width: 8),
+                Tooltip(
+                  message: 'Social and influencer narrative pulse',
+                  child: const Icon(Icons.info_outline, size: 18),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildFilterChips(),
+            const SizedBox(height: 12),
+            Expanded(child: _buildFeed()),
+          ],
         ),
-        const SizedBox(width: 8),
-        Tooltip(
-          message: 'Social and influencer narrative pulse',
-          child: const Icon(Icons.info_outline, size: 18),
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildFilterChips() {
     final filters = ['All', 'Tokens', 'Memes', 'Influencers', 'Chains', 'Alt L1s'];
+    final theme = Theme.of(context);
+
     return Wrap(
       spacing: 8,
+      runSpacing: 8,
       children: filters.map((filter) {
         final selected = _activeFilter == filter;
         return ChoiceChip(
           label: Text(filter),
           selected: selected,
           onSelected: (_) => setState(() => _activeFilter = filter),
+          selectedColor: theme.colorScheme.primary.withOpacity(0.2),
+          backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.2),
+          labelStyle: TextStyle(
+            color: selected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+          ),
         );
       }).toList(),
     );
@@ -106,27 +119,37 @@ class _NarrativeIntelligenceFeedState extends State<NarrativeIntelligenceFeed> {
   Widget _buildFeed() {
     return ListView.separated(
       itemCount: _posts.length,
-      separatorBuilder: (_, __) => const Divider(),
+      separatorBuilder: (_, __) => const Divider(height: 24),
       itemBuilder: (_, index) {
         final post = _posts[index];
-        return ListTile(
-          leading: Icon(post.icon, color: Colors.orange),
-          title: Text('${post.username} • ${post.timestamp}'),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(post.content),
-              const SizedBox(height: 4),
-              Text(
-                '🏷️ ${post.tags.join(", ")}',
-                style: const TextStyle(fontSize: 12),
+        final theme = Theme.of(context);
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(post.icon, color: Colors.orange, size: 28),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${post.username} • ${post.timestamp}',
+                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 4),
+                  Text(post.content, style: theme.textTheme.bodyMedium),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    children: post.tags.map((tag) => Chip(label: Text(tag, style: const TextStyle(fontSize: 12)))).toList(),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '💬 ${post.source} | 🧠 Trend Score: ${post.trendScore} | ${post.tokens.map((e) => '\$$e').join(" ")}',
+                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                  ),
+                ],
               ),
-              Text(
-                '💬 ${post.source} | 🧠 Trend Score: ${post.trendScore} | ${post.tokens.map((e) => '\$$e').join(" ")}',
-                style: const TextStyle(fontSize: 12),
-              ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );

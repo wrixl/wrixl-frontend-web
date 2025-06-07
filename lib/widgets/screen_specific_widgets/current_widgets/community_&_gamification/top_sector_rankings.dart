@@ -27,6 +27,7 @@ class _TopSectorRankingsWidgetState extends State<TopSectorRankingsWidget> {
       context: context,
       builder: (_) => NewWidgetModal(
         title: 'Full Sector Leaderboard',
+        size: WidgetModalSize.medium,
         onClose: () => Navigator.of(context).pop(),
         child: const Padding(
           padding: EdgeInsets.all(16),
@@ -40,106 +41,131 @@ class _TopSectorRankingsWidgetState extends State<TopSectorRankingsWidget> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("📊 Top Sector Rankings", style: theme.textTheme.titleLarge),
-        const SizedBox(height: 8),
-
-        // User Highlight
-        Container(
-          padding: const EdgeInsets.all(12),
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            border: Border.all(color: theme.colorScheme.primary.withOpacity(0.6)),
-            borderRadius: BorderRadius.circular(12),
-            color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
-          ),
-          child: const Text("You’re #4 in AI Sector • +15.2% WRX gain"),
-        ),
-
-        // Sector Tabs
-        SizedBox(
-          height: 36,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: sectors.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              final sector = sectors[index];
-              final isActive = sector == activeSector;
-              return GestureDetector(
-                onTap: () => setState(() => activeSector = sector),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: isActive ? theme.colorScheme.primary : theme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: theme.colorScheme.primary.withOpacity(0.4)),
-                  ),
-                  child: Text(
-                    sector,
-                    style: theme.textTheme.labelLarge!.copyWith(
-                      color: isActive ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Leaderboard Table
-        Column(
-          children: dummyLeaderboard.map((entry) {
-            final isUser = entry['name'] == 'You';
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: isUser
-                    ? theme.colorScheme.primary.withOpacity(0.2)
-                    : theme.cardColor,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('${entry['rank'] <= 3 ? ['🥇','🥈','🥉'][entry['rank']-1] : entry['rank']}.',
-                    style: theme.textTheme.bodyLarge),
-                  Expanded(
-                    child: Text(
-                      entry['name'],
-                      style: theme.textTheme.bodyLarge,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Text(
-                    '+${entry['gain'].toStringAsFixed(1)}%',
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        ),
-
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: theme.colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ElevatedButton(
-              onPressed: _openFullLeaderboardModal,
-              child: const Text("View Full Leaderboard"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("📊 Top Sector Rankings",
+                    style: theme.textTheme.titleMedium),
+                IconButton(
+                  icon: const Icon(Icons.bar_chart),
+                  tooltip: "View Full Leaderboard",
+                  onPressed: _openFullLeaderboardModal,
+                )
+              ],
             ),
-            TextButton(
-              onPressed: () {},
-              child: const Text("Earn your AI badge"),
+            const SizedBox(height: 12),
+
+            // User Highlight
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                border: Border.all(color: theme.colorScheme.primary.withOpacity(0.6)),
+                borderRadius: BorderRadius.circular(12),
+                color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+              ),
+              child: Text("You’re #4 in AI Sector • +15.2% WRX gain",
+                  style: theme.textTheme.bodyMedium),
+            ),
+            const SizedBox(height: 16),
+
+            // Sector Tabs
+            SizedBox(
+              height: 36,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: sectors.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final sector = sectors[index];
+                  final isActive = sector == activeSector;
+                  return GestureDetector(
+                    onTap: () => setState(() => activeSector = sector),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isActive ? theme.colorScheme.primary : theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: theme.colorScheme.primary.withOpacity(0.4)),
+                      ),
+                      child: Text(
+                        sector,
+                        style: theme.textTheme.labelLarge!.copyWith(
+                          color: isActive ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Leaderboard Table
+            Column(
+              children: dummyLeaderboard.map((entry) {
+                final isUser = entry['name'] == 'You';
+                return Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: isUser
+                        ? theme.colorScheme.primary.withOpacity(0.2)
+                        : theme.cardColor,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${entry['rank'] <= 3 ? ['🥇','🥈','🥉'][entry['rank']-1] : entry['rank']}.',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                      Expanded(
+                        child: Text(
+                          entry['name'],
+                          style: theme.textTheme.bodyLarge,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Text(
+                        '+${entry['gain'].toStringAsFixed(1)}%',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: _openFullLeaderboardModal,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text("View Full Leaderboard"),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text("Earn your AI badge"),
+                ),
+              ],
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 }

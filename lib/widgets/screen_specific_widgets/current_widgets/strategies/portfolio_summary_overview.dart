@@ -14,8 +14,8 @@ class PortfolioSummaryOverview extends StatelessWidget {
   final double wrxCost;
   final int mintCount;
   final DateTime lastUpdated;
-  final double smartOverlap; // 0.0 to 1.0
-  final double userFit; // 0.0 to 1.0
+  final double smartOverlap;
+  final double userFit;
   final List<double> sparklineData;
 
   const PortfolioSummaryOverview({
@@ -40,60 +40,90 @@ class PortfolioSummaryOverview extends StatelessWidget {
     final now = DateTime.now();
     final daysAgo = now.difference(lastUpdated).inDays;
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
     return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: scheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header: Name & Tags
+            /// App bar style header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Portfolio Summary",
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    )),
+                const Icon(Icons.auto_graph_rounded, size: 20),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            /// Name & Last Updated
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: Text(name,
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: scheme.onSurface,
+                      )),
                 ),
                 Text("Updated ${daysAgo == 0 ? "Today" : "$daysAgo days ago"}",
-                    style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurface.withOpacity(0.6),
+                    )),
               ],
             ),
+
             const SizedBox(height: 4),
+
+            /// Tags
             Wrap(
               spacing: 6,
               runSpacing: -6,
-              children: tags.map((t) => Chip(label: Text(t), padding: EdgeInsets.zero)).toList(),
+              children: tags
+                  .map((t) => Chip(
+                        label: Text(t),
+                        padding: EdgeInsets.zero,
+                        labelStyle: theme.textTheme.bodySmall,
+                        backgroundColor: scheme.primary.withOpacity(0.1),
+                        visualDensity: VisualDensity.compact,
+                      ))
+                  .toList(),
             ),
-            const SizedBox(height: 12),
 
-            // KPI Metrics Row
+            const SizedBox(height: 16),
+
+            /// KPI Metrics Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _metric("Sharpe", sharpe.toStringAsFixed(2), "Higher is better (risk-adjusted return)"),
                 _metric("Volatility", "${(volatility * 100).toStringAsFixed(1)}%", "Portfolio price variability"),
                 _metric("CAGR", "${(cagr * 100).toStringAsFixed(1)}%", "Compound Annual Growth Rate"),
-                _metric("WRX Cost", "$wrxCost", "Cost to mint this strategy"),
-                _metric("Mints", mintCount.toString(), "How many users minted this"),
+                _metric("WRX Cost", "\${wrxCost.toStringAsFixed(2)}", "Cost to mint this strategy"),
+                _metric("Mints", mintCount.toString(), "Number of users who minted this"),
               ],
             ),
+
             const SizedBox(height: 16),
 
-            // Smart Fit Progress Bars
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _scoreBar("Smart Wallet Overlap", smartOverlap, Colors.green),
-                const SizedBox(height: 6),
-                _scoreBar("Your Holdings Fit", userFit, Colors.blue),
-              ],
-            ),
-            const SizedBox(height: 12),
+            /// Smart Fit Progress Bars
+            _scoreBar("Smart Wallet Overlap", smartOverlap, Colors.green),
+            const SizedBox(height: 10),
+            _scoreBar("Your Holdings Fit", userFit, Colors.blue),
 
-            // Sparkline
+            const SizedBox(height: 16),
+
+            /// Sparkline
             SizedBox(
               height: 60,
               child: LineChart(LineChartData(
@@ -106,15 +136,16 @@ class PortfolioSummaryOverview extends StatelessWidget {
                     isCurved: true,
                     dotData: FlDotData(show: false),
                     belowBarData: BarAreaData(show: false),
-                    color: theme.colorScheme.primary,
+                    color: scheme.primary,
                     barWidth: 2,
                   )
                 ],
               )),
             ),
+
             const SizedBox(height: 16),
 
-            // Action Buttons
+            /// Action Buttons
             Wrap(
               spacing: 8,
               children: [

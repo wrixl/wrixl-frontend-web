@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 class DriftMeterRadar extends StatelessWidget {
-  final double alignmentScore; // e.g., 72.5
-  final String driftDirection; // e.g., 'Risky', 'Yield'
+  final double alignmentScore;
+  final String driftDirection;
   final List<DriftDriver> driftDrivers;
 
   const DriftMeterRadar({
@@ -45,104 +45,132 @@ class DriftMeterRadar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final scoreColor = _getScoreColor(alignmentScore);
     final label = _getScoreLabel(alignmentScore);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // Compass Radar with Drift Vector
-        SizedBox(
-          height: 180,
-          width: 180,
-          child: CustomPaint(
-            painter: DriftRadarPainter(
-              driftAngle: _directionToAngle(driftDirection),
-              severity: (100 - alignmentScore) / 100,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("📡 Drift Meter",
+                    style: theme.textTheme.titleMedium),
+                Icon(_getDriftIcon(driftDirection),
+                    color: scoreColor, size: 22),
+              ],
             ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          '${alignmentScore.toStringAsFixed(1)}% Aligned',
-          style: theme.textTheme.headlineSmall?.copyWith(
-            color: scoreColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          label,
-          style: theme.textTheme.labelLarge,
-        ),
-        const SizedBox(height: 12),
-
-        // Drift Drivers Horizontal Strip
-        SizedBox(
-          height: 100,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: driftDrivers.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final driver = driftDrivers[index];
-              return Container(
-                width: 120,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: theme.colorScheme.surface,
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.shadowColor.withOpacity(0.05),
-                      blurRadius: 6,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+            const SizedBox(height: 16),
+            Center(
+              child: SizedBox(
+                height: 180,
+                width: 180,
+                child: CustomPaint(
+                  painter: DriftRadarPainter(
+                    driftAngle: _directionToAngle(driftDirection),
+                    severity: (100 - alignmentScore) / 100,
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 12,
-                          backgroundImage: NetworkImage(driver.iconUrl),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            driver.symbol,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Column(
+              children: [
+                Text(
+                  '${alignmentScore.toStringAsFixed(1)}% Aligned',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    color: scoreColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  label,
+                  style: theme.textTheme.labelLarge,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text("Drift Drivers",
+                style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: scheme.primary)),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 100,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                itemCount: driftDrivers.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final driver = driftDrivers[index];
+                  return Container(
+                    width: 120,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: theme.cardColor,
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.shadowColor.withOpacity(0.05),
+                          blurRadius: 6,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    const Spacer(),
-                    Text(
-                      driver.drift > 0
-                          ? '+${driver.drift.toStringAsFixed(1)}%'
-                          : '${driver.drift.toStringAsFixed(1)}%',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: driver.drift > 0 ? Colors.red : Colors.green,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 12,
+                              backgroundImage: NetworkImage(driver.iconUrl),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                driver.symbol,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Text(
+                          driver.drift > 0
+                              ? '+${driver.drift.toStringAsFixed(1)}%'
+                              : '${driver.drift.toStringAsFixed(1)}%',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: driver.drift > 0
+                                ? Colors.red
+                                : Colors.green,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          driver.label,
+                          style: theme.textTheme.labelSmall,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                    Text(
-                      driver.label,
-                      style: theme.textTheme.labelSmall,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

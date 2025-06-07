@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'dart:math';
 
 class ClaimablePerksWidget extends StatefulWidget {
   const ClaimablePerksWidget({Key? key}) : super(key: key);
@@ -51,47 +50,55 @@ class _ClaimablePerksWidgetState extends State<ClaimablePerksWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final unclaimedPerks = perks.where((p) => !p.claimed).toList();
-    final claimedPerks = perks.where((p) => p.claimed).toList();
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final unclaimed = perks.where((p) => !p.claimed).toList();
+    final claimed = perks.where((p) => p.claimed).toList();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("🎯 Claimable Perks", style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: 12),
-        if (unclaimedPerks.isEmpty)
-          _buildEmptyState()
-        else
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: unclaimedPerks.map((perk) => _buildPerkCard(perk, false)).toList(),
-          ),
-        const SizedBox(height: 24),
-        if (claimedPerks.isNotEmpty)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("✅ Claimed", style: Theme.of(context).textTheme.titleMedium),
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("🎯 Claimable Perks", style: textTheme.titleMedium),
+            const SizedBox(height: 12),
+            if (unclaimed.isEmpty)
+              _buildEmptyState()
+            else
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: unclaimed.map((perk) => _buildPerkCard(perk, false)).toList(),
+              ),
+            const SizedBox(height: 24),
+            if (claimed.isNotEmpty) ...[
+              Text("✅ Claimed", style: textTheme.titleSmall),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: claimedPerks.map((perk) => _buildPerkCard(perk, true)).toList(),
+                children: claimed.map((perk) => _buildPerkCard(perk, true)).toList(),
               ),
             ],
-          ),
-      ],
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildPerkCard(Perk perk, bool claimed) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.all(16),
       width: 200,
       decoration: BoxDecoration(
-        color: claimed ? Colors.grey[900] : Colors.blueGrey[900],
+        color: claimed ? scheme.surfaceVariant : scheme.primaryContainer,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           if (!claimed)
@@ -107,13 +114,15 @@ class _ClaimablePerksWidgetState extends State<ClaimablePerksWidget> {
         children: [
           Text(perk.icon, style: const TextStyle(fontSize: 32)),
           const SizedBox(height: 8),
-          Text(perk.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(perk.source, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          Text(perk.title, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+          Text(perk.source, style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7))),
           const SizedBox(height: 8),
-          Text(claimed
+          Text(
+            claimed
               ? "Claimed on ${DateFormat('MMM d').format(perk.dateEarned)}"
-              : "Unlocked ${DateFormat('MMM d').format(perk.dateEarned)}"),
+              : "Unlocked ${DateFormat('MMM d').format(perk.dateEarned)}",
+            style: textTheme.bodySmall,
+          ),
           const SizedBox(height: 12),
           if (!claimed)
             ElevatedButton(
@@ -132,6 +141,7 @@ class _ClaimablePerksWidgetState extends State<ClaimablePerksWidget> {
   }
 
   Widget _buildEmptyState() {
+    final textTheme = Theme.of(context).textTheme;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -140,13 +150,13 @@ class _ClaimablePerksWidgetState extends State<ClaimablePerksWidget> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
-        children: const [
-          Icon(Icons.card_giftcard, size: 48, color: Colors.grey),
-          SizedBox(height: 8),
-          Text("No perks unlocked yet.", style: TextStyle(fontSize: 16)),
-          SizedBox(height: 4),
+        children: [
+          const Icon(Icons.card_giftcard, size: 48, color: Colors.grey),
+          const SizedBox(height: 8),
+          Text("No perks unlocked yet.", style: textTheme.bodyLarge),
+          const SizedBox(height: 4),
           Text("Keep predicting, voting, and earning to unlock perks!",
-              style: TextStyle(fontSize: 14, color: Colors.grey)),
+              style: textTheme.bodySmall?.copyWith(color: Colors.grey)),
         ],
       ),
     );

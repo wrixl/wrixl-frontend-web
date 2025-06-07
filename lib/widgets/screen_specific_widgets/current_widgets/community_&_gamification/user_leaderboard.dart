@@ -33,14 +33,21 @@ class _UserLeaderboardWidgetState extends State<UserLeaderboardWidget> {
     final userTier = 'Gold';
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: theme.colorScheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Sticky Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("User Leaderboard", style: theme.textTheme.titleMedium),
+                const Icon(Icons.leaderboard, color: Colors.amber),
+              ],
+            ),
+            const SizedBox(height: 16),
             Container(
               decoration: BoxDecoration(
                 color: theme.colorScheme.primary.withOpacity(0.1),
@@ -73,8 +80,6 @@ class _UserLeaderboardWidgetState extends State<UserLeaderboardWidget> {
                 ],
               ),
             ),
-
-            // Filter Chips
             Wrap(
               spacing: 8,
               runSpacing: 4,
@@ -88,8 +93,6 @@ class _UserLeaderboardWidgetState extends State<UserLeaderboardWidget> {
               ],
             ),
             const SizedBox(height: 12),
-
-            // Leaderboard Table
             Expanded(
               child: ListView.separated(
                 itemCount: _dummyUsers.length,

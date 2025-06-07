@@ -33,23 +33,45 @@ class _SmartMoneyTickerState extends State<SmartMoneyTicker> {
 
   @override
   Widget build(BuildContext context) {
-    if (_actions.isEmpty) {
-      return const Center(
-        child: Text(
-          'No smart money activity yet... 💤',
-          style: TextStyle(fontStyle: FontStyle.italic),
-        ),
-      );
-    }
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
-    return SizedBox(
-      height: 140,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _actions.length,
-        itemBuilder: (context, index) {
-          return SmartMoneyCard(action: _actions[index]);
-        },
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Smart Money Ticker", style: theme.textTheme.titleMedium),
+                const Icon(Icons.bolt_rounded, color: Colors.amber),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (_actions.isEmpty)
+              const Center(
+                child: Text(
+                  'No smart money activity yet... 💤',
+                  style: TextStyle(fontStyle: FontStyle.italic),
+                ),
+              )
+            else
+              SizedBox(
+                height: 140,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _actions.length,
+                  itemBuilder: (context, index) {
+                    return SmartMoneyCard(action: _actions[index]);
+                  },
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -115,9 +137,11 @@ class SmartMoneyCard extends StatelessWidget {
       ActionType.rotate => '🟡',
     };
 
+    final theme = Theme.of(context);
+
     return Container(
       width: 220,
-      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color,
@@ -134,15 +158,15 @@ class SmartMoneyCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('$icon ${action.actionType.name.toUpperCase()} ${action.token}',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
           Text('${action.walletName} moved \$${action.amount.toStringAsFixed(0)}',
-              style: const TextStyle(fontSize: 12)),
+              style: theme.textTheme.bodySmall),
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Chip(label: Text(action.fit), backgroundColor: Colors.grey.shade200),
+              Chip(label: Text(action.fit, style: theme.textTheme.labelSmall), backgroundColor: Colors.grey.shade200),
               TextButton(
                 onPressed: () {},
                 style: TextButton.styleFrom(minimumSize: Size.zero, padding: const EdgeInsets.all(6)),

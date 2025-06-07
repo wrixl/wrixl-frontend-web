@@ -1,5 +1,7 @@
 // lib\widgets\screen_specific_widgets\current_widgets\community_&_gamification\signals_dao_voting.dart
 
+// lib\widgets\screen_specific_widgets\current_widgets\community_\&_gamification\signals_dao_voting.dart
+
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -11,16 +13,40 @@ class SignalsDAOVotingWidget extends StatefulWidget {
 }
 
 class _SignalsDAOVotingWidgetState extends State<SignalsDAOVotingWidget> {
-  final List<Map<String, dynamic>> _proposals = List.generate(4, (i) {
-    return {
-      'title': 'Signal ${['L2 Surge', 'AI Rotation', 'DEX Spike', 'Stablecoin Divergence'][i]}',
-      'description': 'Community proposal to prioritize ${['layer 2 protocols', 'AI narratives', 'DEX volume spikes', 'stablecoin flows'][i]} as high-confidence trade signals.',
-      'yes': Random().nextInt(70) + 15,
-      'no': Random().nextInt(30) + 5,
-      'timeLeft': '${Random().nextInt(5) + 1}h ${Random().nextInt(59)}m',
-      'userVote': null, // 'yes' or 'no'
-    };
-  });
+  final List<Map<String, dynamic>> _proposals = [
+    {
+      'title': 'Signal L2 Surge',
+      'description': 'Community proposal to prioritize layer 2 protocols as high-confidence trade signals.',
+      'yes': 28,
+      'no': 27,
+      'timeLeft': '5h 34m',
+      'userVote': null
+    },
+    {
+      'title': 'Signal AI Rotation',
+      'description': 'Community proposal to prioritize AI narratives as high-confidence trade signals.',
+      'yes': 67,
+      'no': 24,
+      'timeLeft': '5h 4m',
+      'userVote': null
+    },
+    {
+      'title': 'Signal DEX Spike',
+      'description': 'Community proposal to prioritize DEX volume spikes as high-confidence trade signals.',
+      'yes': 18,
+      'no': 15,
+      'timeLeft': '4h 4m',
+      'userVote': null
+    },
+    {
+      'title': 'Signal Stablecoin Divergence',
+      'description': 'Community proposal to prioritize stablecoin flows as high-confidence trade signals.',
+      'yes': 40,
+      'no': 26,
+      'timeLeft': '3h 56m',
+      'userVote': null
+    },
+  ];
 
   void _vote(int index, String vote) {
     setState(() {
@@ -31,131 +57,115 @@ class _SignalsDAOVotingWidgetState extends State<SignalsDAOVotingWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12.0),
-          child: Text(
-            'Signals DAO Voting',
-            style: theme.textTheme.headlineSmall,
-          ),
-        ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: _proposals.length,
-            itemBuilder: (context, index) {
-              final proposal = _proposals[index];
-              final totalVotes = proposal['yes'] + proposal['no'];
-              final yesPercent = (proposal['yes'] / totalVotes) * 100;
-              final noPercent = 100 - yesPercent;
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 3,
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Text('Signals DAO Voting', style: theme.textTheme.titleMedium),
+                const Spacer(),
+                const Icon(Icons.how_to_vote, color: Colors.deepPurple),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.separated(
+                itemCount: _proposals.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final proposal = _proposals[index];
+                  final totalVotes = proposal['yes'] + proposal['no'];
+                  final yesPercent = (proposal['yes'] / totalVotes) * 100;
+                  final noPercent = 100 - yesPercent;
 
-              return Card(
-                margin: const EdgeInsets.only(bottom: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 3,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.how_to_vote, color: theme.colorScheme.primary),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              proposal['title'],
-                              style: theme.textTheme.titleMedium,
-                            ),
-                          ),
-                          Text(
-                            proposal['timeLeft'],
-                            style: theme.textTheme.labelMedium,
-                          ),
-                        ],
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: scheme.surfaceVariant.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: scheme.primary.withOpacity(0.15),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        proposal['description'],
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 16),
-                      Stack(
-                        children: [
-                          Container(
-                            height: 12,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: theme.colorScheme.surfaceVariant,
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Container(
-                                width: yesPercent * 2,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: Colors.teal,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('👍 ${yesPercent.toStringAsFixed(1)}%'),
-                          Text('👎 ${noPercent.toStringAsFixed(1)}%'),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      if (proposal['userVote'] == null)
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            ElevatedButton.icon(
-                              onPressed: () => _vote(index, 'yes'),
-                              icon: const Icon(Icons.thumb_up),
-                              label: const Text('Vote Yes'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.teal,
-                              ),
+                            Icon(Icons.analytics_outlined, color: scheme.secondary),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(proposal['title'], style: theme.textTheme.titleSmall),
                             ),
-                            ElevatedButton.icon(
-                              onPressed: () => _vote(index, 'no'),
-                              icon: const Icon(Icons.thumb_down),
-                              label: const Text('Vote No'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.redAccent,
-                              ),
-                            ),
+                            Text(proposal['timeLeft'], style: theme.textTheme.labelMedium),
                           ],
-                        )
-                      else
-                        Center(
-                          child: Text(
-                            'You voted ${proposal['userVote'].toUpperCase()}',
-                            style: theme.textTheme.labelLarge?.copyWith(
-                              color: theme.colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(proposal['description'], style: theme.textTheme.bodyMedium),
+                        const SizedBox(height: 16),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: LinearProgressIndicator(
+                            value: yesPercent / 100,
+                            minHeight: 12,
+                            backgroundColor: scheme.surface.withOpacity(0.3),
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
                           ),
                         ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+                        const SizedBox(height: 6),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('👍 ${yesPercent.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 12)),
+                            Text('👎 ${noPercent.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 12)),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        if (proposal['userVote'] == null)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: () => _vote(index, 'yes'),
+                                icon: const Icon(Icons.thumb_up),
+                                label: const Text('Yes'),
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+                              ),
+                              ElevatedButton.icon(
+                                onPressed: () => _vote(index, 'no'),
+                                icon: const Icon(Icons.thumb_down),
+                                label: const Text('No'),
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                              ),
+                            ],
+                          )
+                        else
+                          Center(
+                            child: Text(
+                              'You voted ${proposal['userVote'].toUpperCase()}',
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: scheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

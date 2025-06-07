@@ -1,4 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\strategies\mirrored_wallet_summary.dart
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
@@ -11,7 +12,6 @@ class MirroredWalletSummary extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    // Example mock values — these should be provided via controller/model
     const int totalWallets = 5;
     const double roi7d = 8.7;
     const double smartMoneyOverlap = 68.0;
@@ -20,65 +20,73 @@ class MirroredWalletSummary extends StatelessWidget {
     const int underperformingWallets = 1;
     const bool showRebalanceCTA = true;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: scheme.shadow.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _statBlock("Total Wallets", "$totalWallets mirrored", context,
-                icon: Icons.groups_rounded,
-                tooltip: "Number of wallets you're actively mirroring."),
-
-            const SizedBox(width: 24),
-
-            _roiBlock(context, roi7d),
-
-            const SizedBox(width: 24),
-
-            _statBlock("Smart Overlap", "$smartMoneyOverlap%", context,
-                icon: Icons.bolt_rounded,
-                badge: _overlapLevel(smartMoneyOverlap),
-                tooltip: "How closely your current strategy overlaps with smart money actors."),
-
-            const SizedBox(width: 24),
-
-            _statBlock("Strategy Drift", "$driftDelta%", context,
-                icon: Icons.track_changes,
-                badge: driftDelta > 20 ? "High" : driftDelta > 10 ? "Med" : "Low",
-                tooltip: "How far your holdings have diverged from original mirrored allocations."),
-
-            if (showAlert) ...[
-              const SizedBox(width: 24),
-              _alertBadge("$underperformingWallets wallet${underperformingWallets > 1 ? 's' : ''} underperforming")
-            ],
-
-            if (showRebalanceCTA) ...[
-              const SizedBox(width: 32),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.sync_alt, size: 18),
-                label: const Text("Rebalance Now"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: scheme.primary,
-                  foregroundColor: scheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  textStyle: theme.textTheme.labelLarge,
-                ),
-              )
-            ]
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Mirrored Wallet Summary",
+                    style: theme.textTheme.titleMedium),
+                const Icon(Icons.wallet, color: Colors.teal, size: 22),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _statBlock("Total Wallets", "$totalWallets mirrored", context,
+                      icon: Icons.groups_rounded,
+                      tooltip:
+                          "Number of wallets you're actively mirroring."),
+                  const SizedBox(width: 24),
+                  _roiBlock(context, roi7d),
+                  const SizedBox(width: 24),
+                  _statBlock("Smart Overlap", "$smartMoneyOverlap%", context,
+                      icon: Icons.bolt_rounded,
+                      badge: _overlapLevel(smartMoneyOverlap),
+                      tooltip:
+                          "How closely your current strategy overlaps with smart money actors."),
+                  const SizedBox(width: 24),
+                  _statBlock("Strategy Drift", "$driftDelta%", context,
+                      icon: Icons.track_changes,
+                      badge: driftDelta > 20
+                          ? "High"
+                          : driftDelta > 10
+                              ? "Med"
+                              : "Low",
+                      tooltip:
+                          "How far your holdings have diverged from original mirrored allocations."),
+                  if (showAlert) ...[
+                    const SizedBox(width: 24),
+                    _alertBadge(
+                        "$underperformingWallets wallet${underperformingWallets > 1 ? 's' : ''} underperforming")
+                  ],
+                  if (showRebalanceCTA) ...[
+                    const SizedBox(width: 32),
+                    ElevatedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.sync_alt, size: 18),
+                      label: const Text("Rebalance Now"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: scheme.primary,
+                        foregroundColor: scheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        textStyle: theme.textTheme.labelLarge,
+                      ),
+                    )
+                  ]
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -160,9 +168,10 @@ class MirroredWalletSummary extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text("7D ROI", style: theme.textTheme.bodySmall?.copyWith(
-            color: scheme.onSurface.withOpacity(0.6),
-          ))
+          Text("7D ROI",
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurface.withOpacity(0.6),
+              ))
         ],
       ),
     );
@@ -170,12 +179,16 @@ class MirroredWalletSummary extends StatelessWidget {
 
   Widget _alertBadge(String message) {
     return Tooltip(
-      message: "One or more mirrored wallets are significantly underperforming.",
+      message:
+          "One or more mirrored wallets are significantly underperforming.",
       child: Row(
         children: [
           Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
           const SizedBox(width: 6),
-          Text(message, style: TextStyle(color: Colors.orange.shade800))
+          Text(message,
+              style: TextStyle(
+                  color: Colors.orange.shade800,
+                  fontWeight: FontWeight.w600))
         ],
       ),
     );

@@ -1,7 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\activity_&_alerts\ai_next_step.dart
 
-// lib/widgets/screen_specific_widgets/current_widgets/activity_&_alerts/ai_next_step.dart
-
 import 'package:flutter/material.dart';
 
 class AINextStepWidget extends StatefulWidget {
@@ -17,38 +15,39 @@ class _AINextStepWidgetState extends State<AINextStepWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     if (_dismissed) {
-      return Center(
-        child: Text(
-          'No current suggestions. ✅',
-          style: TextStyle(
-            fontSize: 16,
-            color: theme.colorScheme.secondary,
+      return Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        elevation: 3,
+        child: const Padding(
+          padding: EdgeInsets.all(16),
+          child: Center(
+            child: Text(
+              'No current suggestions. ✅',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
           ),
         ),
       );
     }
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      color: theme.colorScheme.surfaceVariant,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 3,
+      color: theme.colorScheme.surface,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
-                const Icon(Icons.bolt_outlined, size: 28, color: Colors.amber),
+                const Icon(Icons.bolt_outlined, size: 24, color: Colors.amber),
                 const SizedBox(width: 8),
                 Text(
                   'AI Next Step',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
-                  ),
+                  style: theme.textTheme.titleMedium,
                 ),
               ],
             ),
@@ -70,11 +69,11 @@ class _AINextStepWidgetState extends State<AINextStepWidget> {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
+            Wrap(
+              spacing: 12,
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6),
@@ -82,13 +81,13 @@ class _AINextStepWidgetState extends State<AINextStepWidget> {
                   child: const Text(
                     'Confidence: 87%',
                     style: TextStyle(
-                        color: Colors.green, fontWeight: FontWeight.w500),
+                      color: Colors.green,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 12),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6),
@@ -96,7 +95,9 @@ class _AINextStepWidgetState extends State<AINextStepWidget> {
                   child: const Text(
                     'Act within 3h ⏱️',
                     style: TextStyle(
-                        color: Colors.orange, fontWeight: FontWeight.w500),
+                      color: Colors.orange,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],
@@ -108,14 +109,14 @@ class _AINextStepWidgetState extends State<AINextStepWidget> {
                 TextButton.icon(
                   icon: const Icon(Icons.auto_graph_outlined),
                   onPressed: () {
-                    // Simulate modal logic here
+                    // Simulate modal logic
                   },
                   label: const Text('Simulate'),
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton(
                   onPressed: () {
-                    // Navigate to action or strategy page
+                    // Action logic
                   },
                   child: const Text('Take Action'),
                 ),
@@ -124,13 +125,11 @@ class _AINextStepWidgetState extends State<AINextStepWidget> {
                   tooltip: 'Dismiss Suggestion',
                   icon: const Icon(Icons.close_rounded),
                   onPressed: () {
-                    setState(() {
-                      _dismissed = true;
-                    });
+                    setState(() => _dismissed = true);
                   },
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),

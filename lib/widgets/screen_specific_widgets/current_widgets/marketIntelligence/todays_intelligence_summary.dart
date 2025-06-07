@@ -1,4 +1,4 @@
-// lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\todays_intelligence_summary.dart
+// lib/widgets/screen_specific_widgets/current_widgets/marketIntelligence/todays_intelligence_summary.dart
 
 import 'package:flutter/material.dart';
 
@@ -6,10 +6,12 @@ class TodaysIntelligenceSummary extends StatefulWidget {
   const TodaysIntelligenceSummary({super.key});
 
   @override
-  State<TodaysIntelligenceSummary> createState() => _TodaysIntelligenceSummaryState();
+  State<TodaysIntelligenceSummary> createState() =>
+      _TodaysIntelligenceSummaryState();
 }
 
-class _TodaysIntelligenceSummaryState extends State<TodaysIntelligenceSummary> {
+class _TodaysIntelligenceSummaryState
+    extends State<TodaysIntelligenceSummary> {
   String _selectedTimeframe = 'Today';
   bool _showExplanation = false;
 
@@ -41,7 +43,6 @@ class _TodaysIntelligenceSummaryState extends State<TodaysIntelligenceSummary> {
         'explanation': 'Derivatives open interest down 5%; TradFi sentiment cooling.'
       },
     ],
-    // Placeholder example for other timeframes
     'Last 24h': [],
     'This Week': [],
   };
@@ -57,44 +58,54 @@ class _TodaysIntelligenceSummaryState extends State<TodaysIntelligenceSummary> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final insights = _summaryData[_selectedTimeframe] ?? [];
 
     return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      margin: const EdgeInsets.all(8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(Icons.today, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  "Today’s Intelligence Summary",
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                Row(
+                  children: [
+                    const Icon(Icons.today, size: 20),
+                    const SizedBox(width: 8),
+                    Text("Today’s Intelligence Summary",
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 8),
+                    Tooltip(
+                      message:
+                          'Auto-generated daily snapshot from narratives, signals, smart wallets & macro cues.',
+                      child: const Icon(Icons.info_outline, size: 18),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Tooltip(
-                  message:
-                      'Auto-generated daily snapshot from narratives, signals, smart wallets & macro cues.',
-                  child: const Icon(Icons.info_outline, size: 18),
-                ),
-                const Spacer(),
                 ToggleButtons(
-                  borderRadius: BorderRadius.circular(12),
-                  constraints: const BoxConstraints(minWidth: 64, minHeight: 32),
+                  borderRadius: BorderRadius.circular(8),
+                  constraints: const BoxConstraints(minHeight: 32, minWidth: 64),
                   isSelected: ['Today', 'Last 24h', 'This Week']
                       .map((e) => _selectedTimeframe == e)
                       .toList(),
-                  onPressed: (index) => _toggleTimeframe(['Today', 'Last 24h', 'This Week'][index]),
-                  children: const [Text('Today'), Text('24h'), Text('Week')],
+                  onPressed: (index) => _toggleTimeframe(
+                      ['Today', 'Last 24h', 'This Week'][index]),
+                  children: const [
+                    Text('Today'),
+                    Text('24h'),
+                    Text('Week'),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
+
+            // Summary bullets
             ...insights.map((item) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Column(
@@ -118,25 +129,32 @@ class _TodaysIntelligenceSummaryState extends State<TodaysIntelligenceSummary> {
                           padding: const EdgeInsets.only(left: 32, top: 4),
                           child: Text(
                             item['explanation']!,
-                            style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontStyle: FontStyle.italic,
+                              color: scheme.onSurface.withOpacity(0.65),
+                            ),
                           ),
                         ),
                     ],
                   ),
                 )),
-            const SizedBox(height: 12),
+
+            const SizedBox(height: 16),
+            // Footer
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "Source: Wrixl AI, Wallet Intel, Social APIs",
-                  style: theme.textTheme.bodySmall,
-                ),
+                Text("Source: Wrixl AI, Wallet Intel, Social APIs",
+                    style: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurface.withOpacity(0.6))),
                 TextButton.icon(
                   onPressed: _toggleExplanation,
-                  icon: Icon(_showExplanation ? Icons.visibility_off : Icons.visibility, size: 16),
+                  icon: Icon(
+                    _showExplanation ? Icons.visibility_off : Icons.visibility,
+                    size: 16,
+                  ),
                   label: Text(_showExplanation ? "Hide Details" : "Explain This"),
-                )
+                ),
               ],
             )
           ],

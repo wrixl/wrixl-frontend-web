@@ -1,6 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\strategies\compare_portfolio_models.dart
 
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -12,51 +11,86 @@ class ComparePortfolioModels extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Compare Portfolio Models',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    final scheme = Theme.of(context).colorScheme;
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Compare Portfolio Models",
+                    style: Theme.of(context).textTheme.titleMedium),
+                const Icon(Icons.compare_arrows, color: Colors.teal),
+              ],
+            ),
+            const SizedBox(height: 16),
+            portfolios.isEmpty
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Text(
+                        'Drag or select up to 3 portfolios to compare.',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  )
+                : SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children:
+                          portfolios.map((p) => _buildPortfolioColumn(context, p)).toList(),
+                    ),
+                  ),
+          ],
         ),
-        const SizedBox(height: 12),
-        portfolios.isEmpty
-            ? const Center(
-                child: Text('Drag or select up to 3 portfolios to compare.'),
-              )
-            : SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: portfolios.map((p) => _buildPortfolioColumn(context, p)).toList(),
-                ),
-              ),
-      ],
+      ),
     );
   }
 
   Widget _buildPortfolioColumn(BuildContext context, Map<String, dynamic> p) {
+    final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(right: 12),
-      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: scheme.background,
       child: Container(
         width: 280,
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(p['name'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(p['name'],
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(fontWeight: FontWeight.bold)),
+                ),
+                const Icon(Icons.star_border, size: 20, color: Colors.amber),
+              ],
+            ),
             const SizedBox(height: 6),
             Wrap(
               spacing: 6,
-              children: List.generate(p['tags'].length, (i) => Chip(label: Text(p['tags'][i]))),
+              children:
+                  List.generate(p['tags'].length, (i) => Chip(label: Text(p['tags'][i]))),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             _statRow("Sharpe Ratio", p['sharpe'].toStringAsFixed(2), Colors.teal),
             _statRow("CAGR", "${(p['cagr'] * 100).toStringAsFixed(1)}%", Colors.indigo),
             _statRow("Volatility", "${(p['volatility'] * 100).toStringAsFixed(1)}%", Colors.red),
             _statRow("WRX Cost", "${p['wrx_cost']} WRX", Colors.deepPurple),
             _statRow("Mint Count", "${p['mint_count']}", Colors.orange),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text("Allocation", style: Theme.of(context).textTheme.labelMedium),
             const SizedBox(height: 6),
             _buildMiniPieChart(),
@@ -64,8 +98,15 @@ class ComparePortfolioModels extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                OutlinedButton.icon(onPressed: () {}, icon: const Icon(Icons.play_arrow), label: const Text("Simulate")),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.bookmark_border)),
+                OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text("Simulate"),
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.bookmark_border),
+                ),
               ],
             )
           ],
@@ -80,7 +121,8 @@ class ComparePortfolioModels extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: Text(label)),
-          Text(value, style: TextStyle(color: color, fontWeight: FontWeight.w600)),
+          Text(value,
+              style: TextStyle(color: color, fontWeight: FontWeight.w600)),
         ],
       ),
     );

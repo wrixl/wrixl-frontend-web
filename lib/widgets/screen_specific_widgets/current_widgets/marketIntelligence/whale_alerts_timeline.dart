@@ -58,29 +58,32 @@ class _WhaleAlertsTimelineWidgetState extends State<WhaleAlertsTimelineWidget> {
     );
   });
 
+  String _selectedDuration = '4h';
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
     return Card(
-      margin: const EdgeInsets.all(16),
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(Icons.timeline, size: 20),
-                const SizedBox(width: 8),
-                Text('Whale Alerts Timeline', style: theme.textTheme.titleMedium),
-                const Spacer(),
+                Text("Whale Alerts Timeline", style: theme.textTheme.titleMedium),
                 DropdownButton<String>(
-                  value: '4h',
+                  value: _selectedDuration,
+                  onChanged: (val) {
+                    if (val != null) setState(() => _selectedDuration = val);
+                  },
                   items: ['1h', '4h', '24h'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                  onChanged: (_) {},
-                )
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -90,35 +93,56 @@ class _WhaleAlertsTimelineWidgetState extends State<WhaleAlertsTimelineWidget> {
                 itemBuilder: (_, i) {
                   final s = _signals[i];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6.0),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 500),
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Container(
                       decoration: BoxDecoration(
-                        color: s.color.withOpacity(0.1),
-                        border: Border.all(color: s.color.withOpacity(0.4)),
                         borderRadius: BorderRadius.circular(12),
+                        color: s.color.withOpacity(0.06),
+                        border: Border.all(color: s.color.withOpacity(0.4)),
                       ),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: s.color.withOpacity(0.2),
-                          child: Text(s.emoji),
-                        ),
-                        title: Text('${s.token} — ${s.amount.toStringAsFixed(2)} ${s.action} @ \$${s.price.toStringAsFixed(2)}'),
-                        subtitle: Text('${s.confidenceTag} • ${s.tag} • ${_formatTime(s.time)}'),
-                        trailing: Text(
-                          '${s.priceChange > 0 ? '+' : ''}${s.priceChange.toStringAsFixed(2)}%',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: s.priceChange > 0 ? Colors.green : Colors.red,
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: s.color.withOpacity(0.2),
+                            child: Text(s.emoji, style: const TextStyle(fontSize: 18)),
                           ),
-                        ),
-                        onTap: () {},
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${s.token} — ${s.amount.toStringAsFixed(2)} ${s.action} @ \$${s.price.toStringAsFixed(2)}',
+                                  style: theme.textTheme.titleSmall,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${s.confidenceTag} • ${s.tag} • ${_formatTime(s.time)}',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: scheme.onSurface.withOpacity(0.7),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${s.priceChange > 0 ? '+' : ''}${s.priceChange.toStringAsFixed(2)}%',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: s.priceChange > 0 ? Colors.green : Colors.red,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   );
                 },
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -45,11 +45,13 @@ class _WeeklyQuestProgressWidgetState extends State<WeeklyQuestProgressWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     int completed = quests.where((q) => q.current >= q.total).length;
     int total = quests.length;
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
+      color: theme.colorScheme.surface,
       margin: const EdgeInsets.all(16),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -57,23 +59,23 @@ class _WeeklyQuestProgressWidgetState extends State<WeeklyQuestProgressWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('🎯 Weekly Challenges', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const Spacer(),
-                Text('⏳ Ends in: ${_formatDuration(_timeLeft)}', style: const TextStyle(color: Colors.grey))
+                Text('🎯 Weekly Challenges', style: theme.textTheme.titleMedium),
+                Text('⏳ Ends in: ${_formatDuration(_timeLeft)}', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline))
               ],
             ),
             const SizedBox(height: 16),
-            ...quests.map((q) => _buildQuestCard(q)),
+            ...quests.map((q) => _buildQuestCard(q, theme)),
             const SizedBox(height: 12),
-            _buildFinalReward(completed, total),
+            _buildFinalReward(completed, total, theme),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildQuestCard(_Quest q) {
+  Widget _buildQuestCard(_Quest q, ThemeData theme) {
     bool isComplete = q.current >= q.total;
     double percent = (q.current / q.total).clamp(0.0, 1.0);
 
@@ -82,7 +84,7 @@ class _WeeklyQuestProgressWidgetState extends State<WeeklyQuestProgressWidget> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isComplete ? Colors.green.withOpacity(0.05) : Colors.transparent,
-        border: Border.all(color: isComplete ? Colors.green : Colors.grey.shade300),
+        border: Border.all(color: isComplete ? Colors.green : theme.dividerColor),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -92,10 +94,14 @@ class _WeeklyQuestProgressWidgetState extends State<WeeklyQuestProgressWidget> {
             children: [
               Text(q.icon, style: const TextStyle(fontSize: 20)),
               const SizedBox(width: 8),
-              Expanded(child: Text('${q.title} +${q.reward} XP')),
+              Expanded(child: Text('${q.title} +${q.reward} XP', style: theme.textTheme.bodyMedium)),
               if (!isComplete)
                 ElevatedButton(
                   onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
                   child: Text('→ ${q.actionLabel}'),
                 )
               else
@@ -103,15 +109,18 @@ class _WeeklyQuestProgressWidgetState extends State<WeeklyQuestProgressWidget> {
             ],
           ),
           const SizedBox(height: 4),
-          LinearProgressIndicator(value: percent),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(value: percent),
+          ),
           const SizedBox(height: 4),
-          Text('${q.current}/${q.total} completed', style: const TextStyle(fontSize: 12, color: Colors.grey))
+          Text('${q.current}/${q.total} completed', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline))
         ],
       ),
     );
   }
 
-  Widget _buildFinalReward(int completed, int total) {
+  Widget _buildFinalReward(int completed, int total, ThemeData theme) {
     bool allComplete = completed == total;
     double percent = (completed / total).clamp(0.0, 1.0);
 
@@ -119,23 +128,26 @@ class _WeeklyQuestProgressWidgetState extends State<WeeklyQuestProgressWidget> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: allComplete ? Colors.amber.withOpacity(0.1) : Colors.transparent,
-        border: Border.all(color: allComplete ? Colors.amber : Colors.grey.shade300),
+        border: Border.all(color: allComplete ? Colors.amber : theme.dividerColor),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Text('🏁 Complete All Quests', style: TextStyle(fontWeight: FontWeight.bold)),
-              Spacer(),
-              Text('+100 XP 🎁')
+            children: [
+              Text('🏁 Complete All Quests', style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+              const Spacer(),
+              const Text('+100 XP 🎁')
             ],
           ),
           const SizedBox(height: 4),
-          LinearProgressIndicator(value: percent, color: Colors.amber),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(value: percent, color: Colors.amber),
+          ),
           const SizedBox(height: 4),
-          Text('$completed/$total Quests Complete', style: const TextStyle(fontSize: 12, color: Colors.grey))
+          Text('$completed/$total Quests Complete', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline))
         ],
       ),
     );

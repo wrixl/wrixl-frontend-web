@@ -147,36 +147,31 @@ class _MarketWeatherState extends State<MarketWeather> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       child: Padding(
-        padding: const EdgeInsets.all(12.0), // Compact padding.
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Header: Title and Options Button.
+            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "Market Weather",
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppConstants.accentColor,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
-                ),
+                Text("Market Weather", style: theme.textTheme.titleMedium),
                 IconButton(
                   icon: const Icon(Icons.more_vert),
                   onPressed: _showDetailsModal,
-                  tooltip: "Options",
+                  tooltip: "More Info",
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
 
-            /// Row for Time Frame Toggle and a Dummy Overall Rating.
+            // Time Toggle and Market Label
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -184,20 +179,21 @@ class _MarketWeatherState extends State<MarketWeather> {
                   onPressed: _toggleTimeFrame,
                   child: Text(
                     timeFrameLabel,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
                 Text(
-                  "Stable", // Dummy rating, can be dynamic.
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
+                  "Stable",
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.blueAccent,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
             /// Expanded donut chart area that scales between the toggle and the forecast text.
             Expanded(

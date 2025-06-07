@@ -30,19 +30,19 @@ class XPLevelProgressWidget extends StatelessWidget {
     final xpRemaining = nextLevelXP - currentXP;
 
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      margin: const EdgeInsets.all(8),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('🎖', style: TextStyle(fontSize: 20)),
-                const SizedBox(width: 8),
-                Text('XP & Rank Progress', style: theme.textTheme.titleMedium),
+                Text("XP & Rank Progress",
+                    style: theme.textTheme.titleMedium),
+                const Icon(Icons.trending_up, color: Colors.amber),
               ],
             ),
             const SizedBox(height: 16),
@@ -50,7 +50,9 @@ class XPLevelProgressWidget extends StatelessWidget {
               children: [
                 Text(
                   '$tierIcon Level ${_getLevel(currentXP)} – $currentTier',
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 if (isLevelingUp)
                   const Padding(
@@ -72,13 +74,20 @@ class XPLevelProgressWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              '$currentXP XP / $nextLevelXP XP',
-              style: theme.textTheme.bodyMedium,
-            ),
-            Text(
-              '+$xpRemaining XP to $nextTier',
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '$currentXP XP / $nextLevelXP XP',
+                  style: theme.textTheme.bodyMedium,
+                ),
+                Text(
+                  '+$xpRemaining XP to $nextTier',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             Align(
@@ -95,7 +104,6 @@ class XPLevelProgressWidget extends StatelessWidget {
   }
 
   int _getLevel(int xp) {
-    // Sample logic; replace with real XP thresholds
     if (xp >= 5000) return 6;
     if (xp >= 3000) return 5;
     if (xp >= 2000) return 4;

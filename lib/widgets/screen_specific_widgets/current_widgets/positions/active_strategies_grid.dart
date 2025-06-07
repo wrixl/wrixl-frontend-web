@@ -20,93 +20,116 @@ class ActiveStrategiesGrid extends StatelessWidget {
     final isMobile = width < 600;
     final formatter = NumberFormat.compactCurrency(symbol: '\$');
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: isMobile ? 1 : 2,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        childAspectRatio: isMobile ? 1.8 : 1.6,
-      ),
-      itemCount: strategies.length,
-      itemBuilder: (context, index) {
-        final strategy = strategies[index];
-        final changeColor = strategy.change >= 0 ? Colors.green : Colors.red;
-        final tileColor = strategy.change >= 5
-            ? Colors.green.withOpacity(0.05)
-            : strategy.change <= -5
-                ? Colors.red.withOpacity(0.05)
-                : theme.colorScheme.surface;
-
-        return GestureDetector(
-          onTap: () => onTap?.call(strategy),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: tileColor,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.shadowColor.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: theme.colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  strategy.name,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${formatter.format(strategy.capital)}  •  ${strategy.percentOfPortfolio.toStringAsFixed(1)}%',
-                  style: theme.textTheme.bodySmall,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text(
-                      '${strategy.change >= 0 ? '+' : ''}${strategy.change.toStringAsFixed(2)}%',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: changeColor,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      strategy.lastAction,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.hintColor,
-                      ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                Row(
-                  children: strategy.tokenIcons.take(3).map((iconUrl) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: CircleAvatar(
-                        radius: 14,
-                        backgroundImage: NetworkImage(iconUrl),
-                        backgroundColor: Colors.transparent,
-                      ),
-                    );
-                  }).toList(),
-                ),
+                Text("📊 Active Strategies",
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    )),
+                const Icon(Icons.auto_graph, color: Colors.indigoAccent),
               ],
             ),
-          ),
-        );
-      },
+            const SizedBox(height: 16),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: isMobile ? 1 : 2,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: isMobile ? 1.8 : 1.6,
+              ),
+              itemCount: strategies.length,
+              itemBuilder: (context, index) {
+                final strategy = strategies[index];
+                final changeColor = strategy.change >= 0 ? Colors.green : Colors.red;
+                final tileColor = strategy.change >= 5
+                    ? Colors.green.withOpacity(0.05)
+                    : strategy.change <= -5
+                        ? Colors.red.withOpacity(0.05)
+                        : theme.colorScheme.surface;
+
+                return GestureDetector(
+                  onTap: () => onTap?.call(strategy),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: tileColor,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.shadowColor.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          strategy.name,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${formatter.format(strategy.capital)}  •  ${strategy.percentOfPortfolio.toStringAsFixed(1)}%',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Text(
+                              '${strategy.change >= 0 ? '+' : ''}${strategy.change.toStringAsFixed(2)}%',
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: changeColor,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              strategy.lastAction,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.hintColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Row(
+                          children: strategy.tokenIcons.take(3).map((iconUrl) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: CircleAvatar(
+                                radius: 14,
+                                backgroundImage: NetworkImage(iconUrl),
+                                backgroundColor: Colors.transparent,
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

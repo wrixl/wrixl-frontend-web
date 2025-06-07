@@ -14,7 +14,6 @@ class PortfolioSidebarFilters extends StatelessWidget {
   final ValueChanged<MapEntry<String, bool>> onTimeframeSelected;
   final ValueChanged<MapEntry<String, bool>> onThemeSelected;
 
-  // Advanced Filter Props
   final double minAIConfidence;
   final double minSharpeRatio;
   final double minSmartMoneyOverlap;
@@ -24,7 +23,6 @@ class PortfolioSidebarFilters extends StatelessWidget {
   final ValueChanged<double> onMinSmartMoneyOverlapChanged;
   final ValueChanged<bool> onHideVolatileChanged;
 
-  // New toggle parameters integrated in this widget.
   final bool showModelPortfolios;
   final ValueChanged<int> onToggle;
 
@@ -60,27 +58,15 @@ class PortfolioSidebarFilters extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Reset Filters",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text("Reset Filters", style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             const Text("Reset all filters back to their default values?"),
             const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
-                  child: const Text("Cancel"),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                ElevatedButton(
-                  child: const Text("Reset"),
-                  onPressed: () {
-                    // TODO: Hook up actual reset logic via callback
-                    Navigator.pop(context);
-                  },
-                ),
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+                ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text("Reset")),
               ],
             )
           ],
@@ -91,85 +77,60 @@ class PortfolioSidebarFilters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Title + Reset button
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      color: scheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              "Portfolio Filters",
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppConstants.accentColor,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Portfolio Filters", style: Theme.of(context).textTheme.titleMedium),
+                IconButton(icon: const Icon(Icons.refresh), onPressed: () => _showResetModal(context)),
+              ],
             ),
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              tooltip: "Reset Filters",
-              onPressed: () => _showResetModal(context),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ToggleButtons(
+                constraints: const BoxConstraints.tightFor(width: 60, height: 30),
+                isSelected: [showModelPortfolios, !showModelPortfolios],
+                onPressed: onToggle,
+                borderRadius: BorderRadius.circular(8),
+                children: const [
+                  Text("Model", style: TextStyle(fontSize: 12)),
+                  Text("Personal", style: TextStyle(fontSize: 12)),
+                ],
+              ),
             ),
+            const SizedBox(height: 16),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildFilterColumn(context, label: "Risk", values: riskTolerances, selectedValues: selectedRisks, onSelected: onRiskSelected),
+                  const SizedBox(width: 32),
+                  _buildFilterColumn(context, label: "Timeframe", values: timeframes, selectedValues: selectedTimeframes, onSelected: onTimeframeSelected),
+                  const SizedBox(width: 32),
+                  _buildFilterColumn(context, label: "Themes", values: themes, selectedValues: selectedThemes, onSelected: onThemeSelected),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Divider(thickness: 1),
+            _buildAdvancedFilters(context),
           ],
         ),
-        const SizedBox(height: 8),
-        // Integrated model vs. personal toggle.
-        Align(
-          alignment: Alignment.centerLeft,
-          child: ToggleButtons(
-            constraints: const BoxConstraints.tightFor(width: 60, height: 30),
-            isSelected: [showModelPortfolios, !showModelPortfolios],
-            onPressed: onToggle,
-            borderRadius: BorderRadius.circular(8),
-            children: const [
-              Text("Model", style: TextStyle(fontSize: 12)),
-              Text("Personal", style: TextStyle(fontSize: 12)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Horizontal scrolling filter bar
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildFilterColumn(
-                context,
-                label: "Risk",
-                values: riskTolerances,
-                selectedValues: selectedRisks,
-                onSelected: onRiskSelected,
-              ),
-              const SizedBox(width: 32),
-              _buildFilterColumn(
-                context,
-                label: "Timeframe",
-                values: timeframes,
-                selectedValues: selectedTimeframes,
-                onSelected: onTimeframeSelected,
-              ),
-              const SizedBox(width: 32),
-              _buildFilterColumn(
-                context,
-                label: "Themes",
-                values: themes,
-                selectedValues: selectedThemes,
-                onSelected: onThemeSelected,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-        const Divider(thickness: 1),
-        _buildAdvancedFilters(context),
-      ],
+      ),
     );
   }
 
-  Widget _buildFilterColumn(
-    BuildContext context, {
+  Widget _buildFilterColumn(BuildContext context, {
     required String label,
     required List<String> values,
     required Set<String> selectedValues,
@@ -178,10 +139,7 @@ class PortfolioSidebarFilters extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text(label, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -204,72 +162,46 @@ class PortfolioSidebarFilters extends StatelessWidget {
       tilePadding: EdgeInsets.zero,
       collapsedIconColor: AppConstants.accentColor,
       iconColor: AppConstants.neonGreen,
-      title: Text(
-        "Advanced Filters",
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: AppConstants.neonGreen,
-              fontWeight: FontWeight.bold,
-            ),
-      ),
+      title: Text("Advanced Filters", style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppConstants.neonGreen, fontWeight: FontWeight.bold)),
       children: [
         const SizedBox(height: 16),
-        Text(
-          "Min AI Confidence (${minAIConfidence.toStringAsFixed(0)}%)",
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        Slider(
-          value: minAIConfidence,
-          min: 60,
-          max: 100,
-          divisions: 8,
-          label: "${minAIConfidence.toStringAsFixed(0)}%",
-          onChanged: onMinAIConfidenceChanged,
-          activeColor: AppConstants.neonGreen,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          "Min Sharpe Ratio (${minSharpeRatio.toStringAsFixed(2)})",
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        Slider(
-          value: minSharpeRatio,
-          min: 0,
-          max: 3,
-          divisions: 30,
-          label: minSharpeRatio.toStringAsFixed(2),
-          onChanged: onMinSharpeRatioChanged,
-          activeColor: AppConstants.neonGreen,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          "Smart Money Overlap (${minSmartMoneyOverlap.toStringAsFixed(0)}%)",
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        Slider(
-          value: minSmartMoneyOverlap,
-          min: 0,
-          max: 100,
-          divisions: 10,
-          label: "${minSmartMoneyOverlap.toStringAsFixed(0)}%",
-          onChanged: onMinSmartMoneyOverlapChanged,
-          activeColor: AppConstants.neonGreen,
-        ),
+        _buildSlider(context, label: "Min AI Confidence", value: minAIConfidence, min: 60, max: 100, divisions: 8, onChanged: onMinAIConfidenceChanged, unit: "%"),
+        _buildSlider(context, label: "Min Sharpe Ratio", value: minSharpeRatio, min: 0, max: 3, divisions: 30, onChanged: onMinSharpeRatioChanged),
+        _buildSlider(context, label: "Smart Money Overlap", value: minSmartMoneyOverlap, min: 0, max: 100, divisions: 10, onChanged: onMinSmartMoneyOverlapChanged, unit: "%"),
         const SizedBox(height: 16),
         Row(
           children: [
-            Checkbox(
-              value: hideVolatile,
-              onChanged: (val) => onHideVolatileChanged(val ?? false),
-              activeColor: AppConstants.neonRed,
-            ),
+            Checkbox(value: hideVolatile, onChanged: (val) => onHideVolatileChanged(val ?? false), activeColor: AppConstants.neonRed),
             const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                "Hide high-volatility portfolios",
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ),
+            Flexible(child: Text("Hide high-volatility portfolios", style: Theme.of(context).textTheme.bodyMedium)),
           ],
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildSlider(BuildContext context, {
+    required String label,
+    required double value,
+    required double min,
+    required double max,
+    required int divisions,
+    required ValueChanged<double> onChanged,
+    String unit = "",
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("$label (${value.toStringAsFixed(unit == "%" ? 0 : 2)}$unit)", style: Theme.of(context).textTheme.bodyMedium),
+        Slider(
+          value: value,
+          min: min,
+          max: max,
+          divisions: divisions,
+          label: "${value.toStringAsFixed(unit == "%" ? 0 : 2)}$unit",
+          onChanged: onChanged,
+          activeColor: AppConstants.neonGreen,
         ),
         const SizedBox(height: 16),
       ],

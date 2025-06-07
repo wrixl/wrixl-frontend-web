@@ -1,6 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\strategies\risk_&_return_sliders.dart
 
-
 import 'package:flutter/material.dart';
 
 class RiskReturnSliders extends StatefulWidget {
@@ -39,19 +38,20 @@ class _RiskReturnSlidersState extends State<RiskReturnSliders> {
       children: [
         Row(
           children: [
-            Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(width: 8),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(width: 8),
             Tooltip(
               message: tooltip,
-              child: Icon(Icons.info_outline, size: 16, color: Colors.grey),
+              child: const Icon(Icons.info_outline, size: 16, color: Colors.grey),
             )
           ],
         ),
+        const SizedBox(height: 4),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(labelStart, style: TextStyle(color: Colors.grey)),
-            Text(labelEnd, style: TextStyle(color: Colors.grey)),
+            Text(labelStart, style: const TextStyle(color: Colors.grey)),
+            Text(labelEnd, style: const TextStyle(color: Colors.grey)),
           ],
         ),
         Slider(
@@ -63,57 +63,77 @@ class _RiskReturnSlidersState extends State<RiskReturnSliders> {
           min: min,
           max: max,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 12),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildSlider(
-          title: "Risk Appetite (Sharpe)",
-          labelStart: "Low (0.5)",
-          labelEnd: "High (2.0)",
-          value: _sharpe,
-          min: 0.5,
-          max: 2.0,
-          tooltip: "Higher Sharpe Ratio = better risk-adjusted return.",
-          onChanged: (val) => setState(() => _sharpe = val),
+    final theme = Theme.of(context);
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      margin: const EdgeInsets.all(16),
+      elevation: 3,
+      color: theme.colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Risk & Return Sliders", style: theme.textTheme.titleMedium),
+                const Icon(Icons.tune, color: Colors.indigo),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildSlider(
+              title: "Risk Appetite (Sharpe)",
+              labelStart: "Low (0.5)",
+              labelEnd: "High (2.0)",
+              value: _sharpe,
+              min: 0.5,
+              max: 2.0,
+              tooltip: "Higher Sharpe Ratio = better risk-adjusted return.",
+              onChanged: (val) => setState(() => _sharpe = val),
+            ),
+            _buildSlider(
+              title: "Target Return (CAGR %)",
+              labelStart: "5%",
+              labelEnd: "40%",
+              value: _cagr,
+              min: 5,
+              max: 40,
+              tooltip: "Compound Annual Growth Rate you're targeting.",
+              onChanged: (val) => setState(() => _cagr = val),
+            ),
+            _buildSlider(
+              title: "Max Drawdown Tolerance (%)",
+              labelStart: "5%",
+              labelEnd: "60%",
+              value: _drawdown,
+              min: 5,
+              max: 60,
+              tooltip: "Largest acceptable loss from peak to trough.",
+              onChanged: (val) => setState(() => _drawdown = val),
+            ),
+            _buildSlider(
+              title: "Allocation Concentration (%)",
+              labelStart: "Equal-Weight",
+              labelEnd: "Concentrated",
+              value: _concentration,
+              min: 5,
+              max: 50,
+              tooltip: "Max allocation any single asset can have.",
+              onChanged: (val) => setState(() => _concentration = val),
+            ),
+          ],
         ),
-        _buildSlider(
-          title: "Target Return (CAGR %)",
-          labelStart: "5%",
-          labelEnd: "40%",
-          value: _cagr,
-          min: 5,
-          max: 40,
-          tooltip: "Compound Annual Growth Rate you're targeting.",
-          onChanged: (val) => setState(() => _cagr = val),
-        ),
-        _buildSlider(
-          title: "Max Drawdown Tolerance (%)",
-          labelStart: "5%",
-          labelEnd: "60%",
-          value: _drawdown,
-          min: 5,
-          max: 60,
-          tooltip: "Largest acceptable loss from peak to trough.",
-          onChanged: (val) => setState(() => _drawdown = val),
-        ),
-        _buildSlider(
-          title: "Allocation Concentration (%)",
-          labelStart: "Equal-Weight",
-          labelEnd: "Concentrated",
-          value: _concentration,
-          min: 5,
-          max: 50,
-          tooltip: "Max allocation any single asset can have.",
-          onChanged: (val) => setState(() => _concentration = val),
-        ),
-      ],
+      ),
     );
   }
 }

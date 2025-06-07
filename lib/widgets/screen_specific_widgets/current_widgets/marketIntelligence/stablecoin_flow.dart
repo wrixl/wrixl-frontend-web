@@ -43,35 +43,34 @@ class _StablecoinFlowWidgetState extends State<StablecoinFlowWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final data = _mockData[_selectedRange]!;
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Header
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Text(
-                    '🧊 Dry Powder Tracker: Stablecoin Inflow/Outflow',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.1,
-                    ),
+                Text(
+                  'Stablecoin Flow',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: scheme.onSurface,
                   ),
                 ),
-                Tooltip(
-                  message:
-                      'Tracks daily stablecoin movements to/from exchanges — a signal of market readiness or retreat.',
-                  child: const Icon(Icons.info_outline, size: 20),
-                ),
+                const Icon(Icons.compare_arrows_rounded, color: Colors.blueAccent),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
+
+            // Chart
             SizedBox(
               height: 150,
               child: BarChart(
@@ -84,14 +83,15 @@ class _StablecoinFlowWidgetState extends State<StablecoinFlowWidget> {
                       sideTitles: SideTitles(
                         showTitles: true,
                         interval: (_selectedRange == '7D') ? 1 : (_selectedRange == '30D') ? 5 : 15,
-                        getTitlesWidget: (value, _) => Text('Day ${value.toInt() + 1}'),
+                        getTitlesWidget: (value, _) =>
+                            Text('Day ${value.toInt() + 1}', style: theme.textTheme.bodySmall),
                       ),
                     ),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 40,
-                        getTitlesWidget: (v, _) => Text('\$${v.toInt()}M'),
+                        getTitlesWidget: (v, _) => Text('\$${v.toInt()}M', style: theme.textTheme.bodySmall),
                       ),
                     ),
                     rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -113,53 +113,65 @@ class _StablecoinFlowWidgetState extends State<StablecoinFlowWidget> {
                       ),
                     ]);
                   }),
-                  gridData: const FlGridData(show: true),
+                  gridData: FlGridData(show: true),
                   borderData: FlBorderData(show: false),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+
+            const SizedBox(height: 16),
+
+            // Sentiment Summary Row
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _isRiskOn ? Colors.greenAccent : Colors.redAccent,
+                    color: _isRiskOn ? Colors.greenAccent.withOpacity(0.25) : Colors.redAccent.withOpacity(0.25),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    _isRiskOn ? '↑ Risk Appetite Increasing' : '↓ Risk-Off Sentiment',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    _isRiskOn ? '↑ Risk-On Appetite' : '↓ Risk-Off Sentiment',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _isRiskOn ? Colors.green.shade800 : Colors.red.shade800,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 16),
-                Text(
-                  'Net Change: \$${_netDelta.abs().toStringAsFixed(0)}M ($_selectedRange)',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Net Flow: \$${_netDelta.abs().toStringAsFixed(0)}M ($_selectedRange)',
+                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
+
             const SizedBox(height: 8),
+
+            // Narrative tags
             Text(
-              'Most Impacted: ${_narratives.join(', ')}',
-              style: theme.textTheme.bodySmall,
+              '📈 Narratives Impacted: ${_narratives.join(', ')}',
+              style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.6)),
             ),
+
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+
+            // Timeframe toggle
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 6,
               children: ['7D', '30D', '90D'].map((range) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: ChoiceChip(
-                    label: Text(range),
-                    selected: _selectedRange == range,
-                    onSelected: (_) => setState(() => _selectedRange = range),
-                  ),
+                return ChoiceChip(
+                  label: Text(range),
+                  selected: _selectedRange == range,
+                  onSelected: (_) => setState(() => _selectedRange = range),
+                  selectedColor: scheme.primary.withOpacity(0.15),
                 );
               }).toList(),
-            )
+            ),
           ],
         ),
       ),

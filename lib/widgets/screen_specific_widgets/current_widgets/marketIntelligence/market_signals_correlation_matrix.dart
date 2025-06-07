@@ -95,78 +95,80 @@ class _CorrelationMatrixWidgetState extends State<CorrelationMatrixWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
-    final surface = theme.colorScheme.surface;
-    final onSurface = theme.colorScheme.onSurface;
+    final scheme = theme.colorScheme;
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: surface,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: primary,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                    ),
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 🌟 Updated App Bar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: scheme.onSurface,
                   ),
-                  IconButton(
-                    icon: Icon(Icons.more_vert, color: onSurface),
-                    onPressed: _showOptionsModal,
-                    tooltip: "Options",
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: ToggleFilterIconRowWidget(
-                      options: toggleOptions,
-                      optionIcons: toggleIcons,
-                      activeOption: _selectedView,
-                      onSelected: (val) => setState(() => _selectedView = val),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Flexible(
-                    child: Text(
-                      "Correlation hot zones reveal concentrated risk or opportunity across $_selectedView.",
-                      style: theme.textTheme.bodyLarge,
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Table(
-                  defaultColumnWidth: const FixedColumnWidth(120),
-                  border: TableBorder.all(
-                    color: theme.dividerColor,
-                    width: 0.5,
-                  ),
-                  children: _buildTableRows(context),
                 ),
+                IconButton(
+                  icon: const Icon(Icons.more_vert),
+                  onPressed: _showOptionsModal,
+                  tooltip: "Options",
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // 🌟 Updated Subtitle Row
+            Row(
+              children: [
+                ToggleFilterIconRowWidget(
+                  options: toggleOptions,
+                  optionIcons: toggleIcons,
+                  activeOption: _selectedView,
+                  onSelected: (val) => setState(() => _selectedView = val),
+                ),
+                const Spacer(),
+                Flexible(
+                  child: Text(
+                    "Correlation hot zones reveal clustered risk and hidden signal across $_selectedView.",
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontStyle: FontStyle.italic,
+                      color: scheme.onSurface.withOpacity(0.7),
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+            // Table and rest unchanged...
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Table(
+                defaultColumnWidth: const FixedColumnWidth(120),
+                border: TableBorder.all(
+                  color: theme.dividerColor,
+                  width: 0.5,
+                ),
+                children: _buildTableRows(context),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   List<TableRow> _buildTableRows(BuildContext context) {

@@ -43,29 +43,39 @@ class _NarrativeFilterWidgetState extends State<NarrativeFilterWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    final scheme = theme.colorScheme;
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text("🎯 Narrative Filter", style: theme.textTheme.titleLarge),
-            const SizedBox(width: 8),
-            Tooltip(
-              message: "Select the themes you want to track",
-              child: const Icon(Icons.info_outline, size: 18),
+            Row(
+              children: [
+                Text("🎯 Narrative Filter", style: theme.textTheme.titleMedium),
+                const SizedBox(width: 8),
+                Tooltip(
+                  message: "Select the themes you want to track",
+                  child: const Icon(Icons.info_outline, size: 18),
+                ),
+                const Spacer(),
+                if (_selectedFilters.isNotEmpty)
+                  TextButton.icon(
+                    onPressed: _clearAll,
+                    icon: const Icon(Icons.clear),
+                    label: const Text("Clear All"),
+                  ),
+              ],
             ),
-            const Spacer(),
-            if (_selectedFilters.isNotEmpty)
-              TextButton.icon(
-                onPressed: _clearAll,
-                icon: const Icon(Icons.clear),
-                label: const Text("Clear All"),
-              ),
+            const SizedBox(height: 16),
+            ..._filters.entries.map((entry) => _buildFilterGroup(entry.key, entry.value)).toList(),
           ],
         ),
-        const SizedBox(height: 12),
-        ..._filters.entries.map((entry) => _buildFilterGroup(entry.key, entry.value)).toList(),
-      ],
+      ),
     );
   }
 
@@ -74,8 +84,8 @@ class _NarrativeFilterWidgetState extends State<NarrativeFilterWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(group, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
+        Text(group, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -86,7 +96,7 @@ class _NarrativeFilterWidgetState extends State<NarrativeFilterWidget> {
               selected: selected,
               onSelected: (_) => _toggleFilter(item),
               selectedColor: theme.colorScheme.primary.withOpacity(0.2),
-              backgroundColor: Colors.grey.withOpacity(0.1),
+              backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.2),
               checkmarkColor: theme.colorScheme.primary,
               labelStyle: TextStyle(
                 color: selected ? theme.colorScheme.primary : theme.colorScheme.onSurface,

@@ -154,102 +154,99 @@ class _MarketSignalsSectorMoversWidgetState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = theme.colorScheme.primary;
-    final surfaceColor = theme.colorScheme.surface;
-    final onSurfaceColor = theme.colorScheme.onSurface;
-    final positiveColor = theme.colorScheme.secondary;
-    final negativeColor = theme.colorScheme.error;
-    final neutralColor = onSurfaceColor.withOpacity(0.6);
+    final scheme = theme.colorScheme;
+    final primary = scheme.primary;
+    final surface = scheme.surface;
+    final onSurface = scheme.onSurface;
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header row: title + options
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Sector Movers",
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: primaryColor,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // AppBar-style title row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Sector Movers", style: theme.textTheme.titleMedium),
+                IconButton(
+                  icon: Icon(Icons.more_vert, color: onSurface.withOpacity(0.7)),
+                  onPressed: _showOptionsModal,
+                  tooltip: "Options",
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Filter rows
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ToggleFilterIconRowWidget(
+                  options: filters,
+                  optionIcons: filterIcons,
+                  activeOption: selectedFilter,
+                  onSelected: (val) => setState(() => selectedFilter = val),
+                ),
+                ToggleFilterIconRowWidget(
+                  options: metrics,
+                  optionIcons: metricIcons,
+                  activeOption: selectedMetric,
+                  onSelected: (val) => setState(() => selectedMetric = val),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Cards
+            ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(
+                dragDevices: {
+                  PointerDeviceKind.touch,
+                  PointerDeviceKind.mouse,
+                },
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: filteredMovers.map((mover) {
+                    final value = getMetricValue(mover, selectedMetric);
+                    final color = value >= 0
+                        ? scheme.secondary
+                        : scheme.error;
+                    final trendIcon = Icon(
+                      value > 0
+                          ? Icons.arrow_upward
+                          : value < 0
+                              ? Icons.arrow_downward
+                              : Icons.remove,
+                      size: 16,
+                      color: value > 0
+                          ? color
+                          : value < 0
+                              ? color
+                              : onSurface.withOpacity(0.6),
+                    );
+
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 20),
+                      child: _SectorMoverCard(
+                        mover: mover,
+                        metricValue: value,
+                        metricLabel: selectedMetric,
+                        trendIcon: trendIcon,
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.more_vert, color: onSurfaceColor),
-                onPressed: _showOptionsModal,
-                tooltip: "Options",
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          // Filters
-          Wrap(
-            spacing: 8.0,
-            runSpacing: 8.0,
-            children: [
-              ToggleFilterIconRowWidget(
-                options: filters,
-                optionIcons: filterIcons,
-                activeOption: selectedFilter,
-                onSelected: (val) => setState(() => selectedFilter = val),
-              ),
-              ToggleFilterIconRowWidget(
-                options: metrics,
-                optionIcons: metricIcons,
-                activeOption: selectedMetric,
-                onSelected: (val) => setState(() => selectedMetric = val),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Card row
-          ScrollConfiguration(
-            behavior: ScrollConfiguration.of(context).copyWith(
-              dragDevices: {
-                PointerDeviceKind.touch,
-                PointerDeviceKind.mouse,
-              },
             ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.only(right: 12),
-              child: Row(
-                children: filteredMovers.map((mover) {
-                  final value = getMetricValue(mover, selectedMetric);
-                  final icon = value > 0
-                      ? Icons.arrow_upward
-                      : value < 0
-                          ? Icons.arrow_downward
-                          : Icons.remove;
-                  final trend = Icon(
-                    icon,
-                    size: 16,
-                    color: value > 0
-                        ? positiveColor
-                        : value < 0
-                            ? negativeColor
-                            : neutralColor,
-                  );
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 40),
-                    child: _SectorMoverCard(
-                      mover: mover,
-                      metricValue: value,
-                      metricLabel: selectedMetric,
-                      trendIcon: trend,
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

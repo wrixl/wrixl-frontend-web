@@ -1,8 +1,6 @@
 // lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\narrative_momentum_heatmap.dart
 
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'dart:math';
 
 class NarrativeMomentumHeatmap extends StatefulWidget {
   const NarrativeMomentumHeatmap({Key? key}) : super(key: key);
@@ -27,7 +25,6 @@ class _NarrativeData {
 
 class _NarrativeMomentumHeatmapState extends State<NarrativeMomentumHeatmap> {
   String selectedTimeframe = "1H";
-
   final List<String> timeframes = ["1H", "4H", "24H", "7D"];
 
   final List<_NarrativeData> dummyData = [
@@ -63,23 +60,30 @@ class _NarrativeMomentumHeatmapState extends State<NarrativeMomentumHeatmap> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(children: [
-                  const Text("🔥 Narrative Momentum Heatmap", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(width: 6),
-                  Tooltip(message: "Visualizes velocity of narrative momentum", child: const Icon(Icons.info_outline, size: 16)),
-                ]),
+                Row(
+                  children: [
+                    Text("🔥 Narrative Momentum Heatmap", style: textTheme.titleMedium),
+                    const SizedBox(width: 6),
+                    const Tooltip(
+                      message: "Visualizes velocity of narrative momentum",
+                      child: Icon(Icons.info_outline, size: 18),
+                    ),
+                  ],
+                ),
                 DropdownButton<String>(
                   value: selectedTimeframe,
                   underline: const SizedBox(),
@@ -111,19 +115,19 @@ class _NarrativeMomentumHeatmapState extends State<NarrativeMomentumHeatmap> {
                           children: [
                             Flexible(
                               child: Text(data.label,
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                  style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
                                   overflow: TextOverflow.ellipsis),
                             ),
-                            Icon(_getTrendIcon(data.trend), size: 18, color: _getColor(data.velocity))
+                            Icon(_getTrendIcon(data.trend), size: 18, color: _getColor(data.velocity)),
                           ],
                         ),
                         const SizedBox(height: 6),
                         Text("${data.velocity > 0 ? "+" : ""}${data.velocity.toStringAsFixed(0)}%",
-                            style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
-                        Text(data.trend, style: theme.textTheme.bodySmall),
+                            style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+                        Text(data.trend, style: textTheme.bodySmall),
                         const SizedBox(height: 4),
                         Text("Tokens: ${data.topTokens.join(", ")}",
-                            style: theme.textTheme.labelSmall?.copyWith(color: Colors.grey[700]))
+                            style: textTheme.labelSmall?.copyWith(color: scheme.onSurface.withOpacity(0.6))),
                       ],
                     ),
                   ),

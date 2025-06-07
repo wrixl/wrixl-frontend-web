@@ -43,15 +43,18 @@ class _RotationsMapWidgetState extends State<RotationsMapWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
     return Card(
-      elevation: 4,
-      margin: const EdgeInsets.all(12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(),
+            _buildHeader(theme),
             const SizedBox(height: 16),
             _buildSectorTiles(),
           ],
@@ -60,14 +63,11 @@ class _RotationsMapWidgetState extends State<RotationsMapWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(ThemeData theme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          'Rotations Map',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        Text("Rotations Map", style: theme.textTheme.titleMedium),
         ToggleButtons(
           isSelected: timeframes.map((t) => t == selectedTimeframe).toList(),
           onPressed: (index) {
@@ -75,10 +75,16 @@ class _RotationsMapWidgetState extends State<RotationsMapWidget> {
               selectedTimeframe = timeframes[index];
             });
           },
-          children: timeframes.map((t) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(t),
-          )).toList(),
+          borderRadius: BorderRadius.circular(8),
+          selectedColor: Theme.of(context).colorScheme.primary,
+          fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold),
+          children: timeframes.map((t) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(t),
+            );
+          }).toList(),
         ),
       ],
     );
@@ -86,36 +92,42 @@ class _RotationsMapWidgetState extends State<RotationsMapWidget> {
 
   Widget _buildSectorTiles() {
     return Column(
-      children: sectors.map((sector) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: _buildSectorTile(sector),
-      )).toList(),
+      children: sectors
+          .map((sector) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: _buildSectorTile(sector),
+              ))
+          .toList(),
     );
   }
 
   Widget _buildSectorTile(Map<String, dynamic> sector) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: sector['color'].withOpacity(0.1),
-        border: Border.all(color: sector['color'], width: 1.5),
+        color: sector['color'].withOpacity(0.06),
+        border: Border.all(color: sector['color'], width: 1.25),
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            sector['label'],
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text(sector['label'],
+              style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600, color: sector['color'])),
           const SizedBox(height: 4),
-          Text('${sector['inflow']}% net flow • ${sector['wallets']} wallets'),
+          Text(
+            '${sector['inflow']}% net flow • ${sector['wallets']} wallets',
+            style: theme.textTheme.bodySmall,
+          ),
           const SizedBox(height: 4),
           Text(
             sector['behavior'],
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: theme.textTheme.bodySmall
+                ?.copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           SizedBox(
             height: 40,
             child: LineChart(
@@ -134,6 +146,7 @@ class _RotationsMapWidgetState extends State<RotationsMapWidget> {
                     color: sector['color'],
                     dotData: FlDotData(show: false),
                     belowBarData: BarAreaData(show: false),
+                    barWidth: 2.5,
                   ),
                 ],
               ),

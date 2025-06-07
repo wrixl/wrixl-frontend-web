@@ -9,6 +9,8 @@ class PortfolioComparisonToOwn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     // Dummy radar input
     final List<Map<String, dynamic>> radarData = [
       {"metric": "Risk", "value": 0.7},
@@ -18,7 +20,6 @@ class PortfolioComparisonToOwn extends StatelessWidget {
       {"metric": "AI Score", "value": 0.9},
     ];
 
-    // Convert to compareData with casted doubles
     final compareData = radarData.map((entry) {
       final double value = (entry["value"] as num).toDouble();
       return {
@@ -33,23 +34,20 @@ class PortfolioComparisonToOwn extends StatelessWidget {
     };
 
     return Card(
-      color: AppConstants.primaryColor,
-      margin: const EdgeInsets.all(12.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // AppBar-style row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   "Compare to My Portfolio",
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppConstants.accentColor,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 0.8,
                       ),
                 ),
                 IconButton(
@@ -58,29 +56,20 @@ class PortfolioComparisonToOwn extends StatelessWidget {
                   onPressed: () {
                     debugPrint("Reset tapped");
                   },
-                  color: AppConstants.neonGreen,
                 ),
               ],
             ),
             const SizedBox(height: 4),
-
-            // Subheading (Selected model name)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                selectedModelForComparison['name'] ?? 'Unnamed Model',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: AppConstants.textColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
+            Text(
+              selectedModelForComparison['name'] ?? 'Unnamed Model',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: scheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
-
-            const SizedBox(height: 20),
-
-            // Radar Chart
+            const SizedBox(height: 16),
             SizedBox(
-              height: 240,
+              height: 260,
               child: RadarChart(
                 RadarChartData(
                   dataSets: [
@@ -89,48 +78,49 @@ class PortfolioComparisonToOwn extends StatelessWidget {
                           .map((d) => RadarEntry(
                               value: (d['modelValue'] as num).toDouble()))
                           .toList(),
-                      fillColor: AppConstants.accentColor.withOpacity(0.3),
-                      borderColor: AppConstants.accentColor,
+                      fillColor: scheme.primary.withOpacity(0.25),
+                      borderColor: scheme.primary,
                       borderWidth: 2,
-                      entryRadius: 4,
+                      entryRadius: 3,
                     ),
                     RadarDataSet(
                       dataEntries: compareData
                           .map((d) => RadarEntry(
                               value: (d['personalValue'] as num).toDouble()))
                           .toList(),
-                      fillColor: AppConstants.neonGreen.withOpacity(0.3),
-                      borderColor: AppConstants.neonGreen,
+                      fillColor: scheme.tertiary.withOpacity(0.25),
+                      borderColor: scheme.tertiary,
                       borderWidth: 2,
-                      entryRadius: 4,
+                      entryRadius: 3,
                     ),
                   ],
                   tickCount: 5,
                   gridBorderData: BorderSide(
-                    color: AppConstants.accentColor.withOpacity(0.4),
+                    color: scheme.primary.withOpacity(0.3),
                     width: 1,
                   ),
-                  tickBorderData:
-                      const BorderSide(color: Colors.grey, width: 1),
+                  tickBorderData: BorderSide(
+                    color: scheme.onSurface.withOpacity(0.15),
+                    width: 1,
+                  ),
                   getTitle: (index, angle) {
                     final metric = compareData[index]['metric'] ?? '';
-                    return RadarChartTitle(
-                      text: metric,
-                      angle: angle,
-                    );
+                    return RadarChartTitle(text: metric, angle: angle);
                   },
                   titlePositionPercentageOffset: 0.2,
                   radarBackgroundColor: Colors.transparent,
                   radarShape: RadarShape.circle,
                 ),
-                swapAnimationDuration: const Duration(milliseconds: 150),
-                swapAnimationCurve: Curves.linear,
+                swapAnimationDuration: const Duration(milliseconds: 300),
+                swapAnimationCurve: Curves.easeInOut,
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // CTA Button
+            const SizedBox(height: 12),
+            const Text(
+              "📊 Overlap, Sharpe, and risk profile measured against your current holdings.",
+              style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+            ),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -138,7 +128,6 @@ class PortfolioComparisonToOwn extends StatelessWidget {
                   debugPrint("Adopt tapped");
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppConstants.accentColor,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 child: const Text("Adopt Strategy",

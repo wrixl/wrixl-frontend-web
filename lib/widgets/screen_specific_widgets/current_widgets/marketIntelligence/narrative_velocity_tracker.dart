@@ -1,6 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\narrative_velocity_tracker.dart
 
-import 'dart:math';
 import 'package:flutter/material.dart';
 
 class NarrativeVelocityTracker extends StatefulWidget {
@@ -49,57 +48,50 @@ class _NarrativeVelocityTrackerState extends State<NarrativeVelocityTracker> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final data = _mockData[_selectedTimeframe]!;
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            /// Header with title, tooltip, and toggle
+            // Header
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Text(
-                    '🚀 Narrative Velocity Tracker',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.1,
-                    ),
+                Text(
+                  'Narrative Velocity',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: scheme.onSurface,
                   ),
                 ),
-                Tooltip(
-                  message: 'Tracks how fast each narrative is gaining mentions across social and news platforms.',
-                  child: const Icon(Icons.info_outline, size: 20),
-                ),
+                const Icon(Icons.bolt_rounded, color: Colors.orangeAccent),
               ],
-            ),
-            const SizedBox(height: 12),
-
-            /// Timeframe toggle
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: timeframes.map((tf) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: ChoiceChip(
-                    label: Text(tf),
-                    selected: _selectedTimeframe == tf,
-                    onSelected: (_) {
-                      setState(() {
-                        _selectedTimeframe = tf;
-                      });
-                    },
-                  ),
-                );
-              }).toList(),
             ),
             const SizedBox(height: 16),
 
-            /// List of narrative entries
+            // Timeframe Chips
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 6,
+              children: timeframes.map((tf) {
+                return ChoiceChip(
+                  label: Text(tf),
+                  selected: _selectedTimeframe == tf,
+                  onSelected: (_) => setState(() => _selectedTimeframe = tf),
+                  selectedColor: scheme.primary.withOpacity(0.15),
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Narrative List
             ...data.map((narrative) {
               final int delta = narrative['delta'];
               final String tag = narrative['tag'];
@@ -136,7 +128,7 @@ class _NarrativeVelocityTrackerState extends State<NarrativeVelocityTracker> {
                         trend,
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontStyle: FontStyle.italic,
-                          color: Colors.grey[600],
+                          color: scheme.onSurface.withOpacity(0.7),
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -146,10 +138,15 @@ class _NarrativeVelocityTrackerState extends State<NarrativeVelocityTracker> {
               );
             }).toList(),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            const Divider(height: 1),
+            const SizedBox(height: 8),
             Text(
-              'Source: Twitter, Telegram, News (Real-Time)',
-              style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
+              '📡 Source: Twitter, Telegram, News (Real-Time)',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurface.withOpacity(0.5),
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ],
         ),

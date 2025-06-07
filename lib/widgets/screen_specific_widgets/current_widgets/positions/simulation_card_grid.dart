@@ -11,130 +11,159 @@ class SimulationCardGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return GridView.builder(
-      padding: const EdgeInsets.all(12),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 1.1,
-      ),
-      itemCount: strategies.length,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) {
-        final sim = strategies[index];
-        final perfColor =
-            sim.performance >= 0 ? Colors.greenAccent : Colors.redAccent;
+    final width = MediaQuery.of(context).size.width;
+    final isMobile = width < 600;
 
-        return GestureDetector(
-          onTap: () {}, // future modal or simulation drill-down
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            decoration: BoxDecoration(
-              color: theme.cardColor,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.shadowColor.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-              border: Border.all(
-                color: sim.status == 'Active'
-                    ? theme.colorScheme.primary
-                    : theme.dividerColor,
-                width: 1.2,
-              ),
-            ),
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: theme.colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      sim.title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: sim.status == 'Active'
-                            ? theme.colorScheme.primary.withOpacity(0.1)
-                            : theme.dividerColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        sim.status,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: sim.status == 'Active'
-                              ? theme.colorScheme.primary
-                              : theme.hintColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text(
-                      '${sim.performance >= 0 ? '+' : ''}${sim.performance.toStringAsFixed(1)}%',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: perfColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      sim.startDate,
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Confidence: ${sim.confidence}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.secondary,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 6,
-                  children: sim.tokens
-                      .map((token) => CircleAvatar(
-                            radius: 14,
-                            backgroundImage: NetworkImage(token.iconUrl),
-                            backgroundColor: Colors.transparent,
-                          ))
-                      .toList(),
-                ),
-                const Spacer(),
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                    sim.tag,
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                ),
+                Text("📊 Simulations", style: theme.textTheme.titleMedium),
+                const Icon(Icons.auto_graph, color: Colors.indigoAccent),
               ],
             ),
-          ),
-        );
-      },
+            const SizedBox(height: 16),
+            GridView.builder(
+              padding: EdgeInsets.zero,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: isMobile ? 1 : 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1.1,
+              ),
+              itemCount: strategies.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                final sim = strategies[index];
+                final perfColor = sim.performance >= 0
+                    ? Colors.greenAccent
+                    : Colors.redAccent;
+
+                return GestureDetector(
+                  onTap: () {},
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: theme.cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.shadowColor.withOpacity(0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: sim.status == 'Active'
+                            ? theme.colorScheme.primary
+                            : theme.dividerColor,
+                        width: 1.2,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                sim.title,
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: sim.status == 'Active'
+                                    ? theme.colorScheme.primary.withOpacity(0.1)
+                                    : theme.dividerColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                sim.status,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: sim.status == 'Active'
+                                      ? theme.colorScheme.primary
+                                      : theme.hintColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Text(
+                              '${sim.performance >= 0 ? '+' : ''}${sim.performance.toStringAsFixed(1)}%',
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: perfColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              sim.startDate,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.hintColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Confidence: ${sim.confidence}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.secondary,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 6,
+                          children: sim.tokens
+                              .map((token) => CircleAvatar(
+                                    radius: 14,
+                                    backgroundImage:
+                                        NetworkImage(token.iconUrl),
+                                    backgroundColor: Colors.transparent,
+                                  ))
+                              .toList(),
+                        ),
+                        const Spacer(),
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Text(
+                            sim.tag,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -166,7 +195,6 @@ class SimToken {
   const SimToken({required this.symbol, required this.iconUrl});
 }
 
-// Dummy Data
 final List<SimulationStrategy> dummySimulations = [
   SimulationStrategy(
     title: 'Strategy A',

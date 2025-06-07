@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'dart:math';
 
 class CommunityChallengesWidget extends StatefulWidget {
   const CommunityChallengesWidget({super.key});
@@ -18,7 +17,7 @@ class Challenge {
   final String reward;
   final int current;
   final int total;
-  final String status; // 'available', 'in_progress', 'completed'
+  final String status;
   final String rank;
 
   Challenge({
@@ -85,10 +84,11 @@ class _CommunityChallengesWidgetState extends State<CommunityChallengesWidget> {
   }
 
   Widget buildChallengeCard(Challenge c) {
+    final scheme = Theme.of(context).colorScheme;
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
       margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -97,14 +97,16 @@ class _CommunityChallengesWidgetState extends State<CommunityChallengesWidget> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('🏆 ${c.title}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text('🏆 ${c.title}',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
                 Text(formatRemainingTime(c.endTime), style: const TextStyle(color: Colors.orangeAccent))
               ],
             ),
-            const SizedBox(height: 8),
-            Text(c.description, style: const TextStyle(fontSize: 14)),
-            const SizedBox(height: 8),
-            Text('🎁 ${c.reward}', style: const TextStyle(fontSize: 14, color: Colors.green)),
+            const SizedBox(height: 6),
+            Text(c.description, style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 6),
+            Text('🎁 ${c.reward}',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.greenAccent)),
             const SizedBox(height: 12),
             if (c.status == 'in_progress')
               Column(
@@ -116,14 +118,15 @@ class _CommunityChallengesWidgetState extends State<CommunityChallengesWidget> {
                     backgroundColor: Colors.grey.shade300,
                   ),
                   const SizedBox(height: 4),
-                  Text('📊 Progress: ${c.current} / ${c.total}')
+                  Text('📊 Progress: ${c.current} / ${c.total}',
+                      style: Theme.of(context).textTheme.bodySmall)
                 ],
               ),
             if (c.status == 'completed')
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('📉 Rank: ${c.rank}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text('📉 Rank: ${c.rank}', style: Theme.of(context).textTheme.bodyMedium),
                   ElevatedButton.icon(
                     onPressed: () {},
                     icon: const Icon(Icons.emoji_events),
@@ -149,18 +152,23 @@ class _CommunityChallengesWidgetState extends State<CommunityChallengesWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Community Challenges',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: Theme.of(context).colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Community Challenges', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 4),
+            Text('Time-limited missions for glory & XP',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
+            const SizedBox(height: 16),
+            ...challenges.map(buildChallengeCard)
+          ],
         ),
-        const SizedBox(height: 4),
-        const Text('Time-limited missions for glory & XP'),
-        const SizedBox(height: 16),
-        ...challenges.map(buildChallengeCard)
-      ],
+      ),
     );
   }
 }

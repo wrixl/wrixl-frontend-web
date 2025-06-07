@@ -13,15 +13,11 @@ class PortfolioPulse extends StatefulWidget {
 }
 
 class _PortfolioPulseState extends State<PortfolioPulse> {
-  /// Time frame states:
-  /// 0 = This week, 1 = 1 month, 2 = 3 months.
   int selectedTimeFrame = 0;
 
-  /// Hardcoded performer names (for demo purposes)
   final Map<int, String> topPerformers = {0: "ETH", 1: "LTC", 2: "BTC"};
   final Map<int, String> worstPerformers = {0: "XRP", 1: "ADA", 2: "DOGE"};
 
-  /// Hardcoded percentage change for best/worst performers.
   final Map<int, String> topPerformerChange = {
     0: "+5.0%",
     1: "+7.2%",
@@ -33,71 +29,28 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
     2: "-3.2%"
   };
 
-  /// 14-point data arrays for each time frame (values are assumed to be % profit/loss)
   final List<double> weeklyPnL = [
-    20,
-    -22,
-    14,
-    -12,
-    -19,
-    28,
-    1,
-    11,
-    5,
-    -10,
-    15,
-    -4,
-    8,
-    0
+    20, -22, 14, -12, -19, 28, 1, 11, 5, -10, 15, -4, 8, 0
   ];
   final List<double> monthlyPnL = [
-    10,
-    12,
-    15,
-    -18,
-    -20,
-    19,
-    -22,
-    -24,
-    -23,
-    25,
-    27,
-    30,
-    14,
-    -5
+    10, 12, 15, -18, -20, 19, -22, -24, -23, 25, 27, 30, 14, -5
   ];
   final List<double> threeMonthPnL = [
-    5,
-    -3,
-    10,
-    -7,
-    2,
-    0,
-    -1,
-    8,
-    -4,
-    6,
-    11,
-    -2,
-    3,
-    -9
+    5, -3, 10, -7, 2, 0, -1, 8, -4, 6, 11, -2, 3, -9
   ];
 
-  /// Selects the appropriate data based on the time frame.
   List<double> get currentData {
     if (selectedTimeFrame == 0) return weeklyPnL;
     if (selectedTimeFrame == 1) return monthlyPnL;
     return threeMonthPnL;
   }
 
-  /// Returns the label for the toggle button.
   String get timeFrameLabel {
     if (selectedTimeFrame == 0) return "This week";
     if (selectedTimeFrame == 1) return "1 month";
     return "3 months";
   }
 
-  /// Computes the overall percentage change for the current period.
   String get percentageChange {
     final data = currentData;
     final first = data.first;
@@ -108,33 +61,29 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
     return "$sign${change.toStringAsFixed(1)}%";
   }
 
-  /// When tapped, cycle the time frame among the three states.
   void _toggleTimeFrame() {
     setState(() {
       selectedTimeFrame = (selectedTimeFrame + 1) % 3;
     });
   }
 
-  /// Opens a modal displaying detailed returns and asset contributions.
   void _showDetailsModal() {
     showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (BuildContext context) {
-        return Container(
+        return Padding(
           padding: const EdgeInsets.all(16),
-          height: 300,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Detailed Portfolio Pulse",
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+              Text("📊 Detailed Portfolio Pulse",
+                  style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 12),
               const Text(
-                "This view displays returns and asset-level contributions. (Placeholder content)",
-              ),
-              // Additional charts, lists, or asset breakdowns go here.
+                  "This view displays returns and asset-level contributions. (Placeholder content)"),
             ],
           ),
         );
@@ -142,7 +91,6 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
     );
   }
 
-  /// Builds bar groups for the chart.
   List<BarChartGroupData> _buildBarGroups() {
     return List.generate(currentData.length, (index) {
       final double yValue = currentData[index];
@@ -153,34 +101,30 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
           BarChartRodData(
             toY: yValue,
             color: isPositive ? Colors.green : Colors.red,
-            width: 6, // narrower bar width for closer spacing
+            width: 6,
           ),
         ],
       );
     });
   }
 
-  /// Custom bottom axis labels based on the time frame.
   Widget _bottomTitleWidgets(double value, TitleMeta meta) {
     String text = "";
     int index = value.toInt();
-    if (index < 0 || index >= 14) return Container(); // out-of-range guard
+    if (index < 0 || index >= 14) return Container();
 
     if (selectedTimeFrame == 0) {
-      // This week: total of 12 hours over 13 intervals.
       double increment = 12 / 13;
       double hour = index * increment;
       if (index == 0 || index == 7 || index == 13) {
         text = "${hour.toStringAsFixed(0)}h";
       }
     } else if (selectedTimeFrame == 1) {
-      // 1 month: each bar represents 2 days.
       int day = index * 2;
       if (index == 0 || index == 7 || index == 13) {
         text = "${day}d";
       }
     } else {
-      // 3 months: each bar represents 1 week.
       int week = index;
       if (index == 0 || index == 7 || index == 13) {
         text = "${week}w";
@@ -193,7 +137,6 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
     );
   }
 
-  /// Custom left axis labels – display only the highest and lowest marks with a "%" suffix.
   Widget _leftTitleWidgets(double value, TitleMeta meta) {
     final data = currentData;
     final double yMin = data.reduce(min);
@@ -212,53 +155,41 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
     final data = currentData;
     final double yMin = data.reduce(min);
     final double yMax = data.reduce(max);
+    final theme = Theme.of(context);
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: theme.colorScheme.surface,
       child: Padding(
-        padding: const EdgeInsets.all(12.0), // compact padding
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            /// Header: Widget Title and Options Menu
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "Portfolio Pulse",
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppConstants.accentColor,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
-                ),
+                Text("Portfolio Pulse",
+                    style: theme.textTheme.titleMedium),
                 IconButton(
-                  icon: const Icon(Icons.more_vert),
+                  icon: const Icon(Icons.insights_outlined),
                   onPressed: _showDetailsModal,
-                  tooltip: "Options",
+                  tooltip: "Show details",
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-
-            /// Row for Time Frame Toggle and Overall Percentage Change Display.
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
                   onPressed: _toggleTimeFrame,
-                  child: Text(
-                    timeFrameLabel,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
+                  child: Text(timeFrameLabel),
                 ),
                 Text(
                   percentageChange,
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: percentageChange.startsWith("+")
                         ? Colors.green
@@ -268,40 +199,33 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
               ],
             ),
             const SizedBox(height: 12),
-
-            /// The Bar Chart (tap to open modal)
-            Flexible(
-              child: GestureDetector(
-                onTap: _showDetailsModal,
-                child: AspectRatio(
-                  aspectRatio: 2,
-                  child: BarChart(
-                    BarChartData(
-                      groupsSpace: 4,
-                      minY: yMin,
-                      maxY: yMax,
-                      barGroups: _buildBarGroups(),
-                      borderData: FlBorderData(show: false),
-                      gridData: FlGridData(show: false),
-                      titlesData: FlTitlesData(
-                        topTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false)),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 30,
-                            getTitlesWidget: _leftTitleWidgets,
-                          ),
-                        ),
-                        rightTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false)),
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 30,
-                            getTitlesWidget: _bottomTitleWidgets,
-                          ),
-                        ),
+            AspectRatio(
+              aspectRatio: 2,
+              child: BarChart(
+                BarChartData(
+                  groupsSpace: 4,
+                  minY: yMin,
+                  maxY: yMax,
+                  barGroups: _buildBarGroups(),
+                  borderData: FlBorderData(show: false),
+                  gridData: FlGridData(show: false),
+                  titlesData: FlTitlesData(
+                    topTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        getTitlesWidget: _leftTitleWidgets,
+                      ),
+                    ),
+                    rightTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        getTitlesWidget: _bottomTitleWidgets,
                       ),
                     ),
                   ),
@@ -309,23 +233,17 @@ class _PortfolioPulseState extends State<PortfolioPulse> {
               ),
             ),
             const SizedBox(height: 12),
-
-            /// Bottom Row to highlight Top and Worst Performers, including their percentage change.
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
                   "Top: ${topPerformers[selectedTimeFrame]} (${topPerformerChange[selectedTimeFrame]})",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
+                  style: theme.textTheme.bodyLarge
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 Text(
                   "Worst: ${worstPerformers[selectedTimeFrame]} (${worstPerformerChange[selectedTimeFrame]})",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
+                  style: theme.textTheme.bodyLarge
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],

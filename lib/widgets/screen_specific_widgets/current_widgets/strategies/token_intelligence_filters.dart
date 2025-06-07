@@ -1,5 +1,6 @@
 // lib\widgets\screen_specific_widgets\current_widgets\strategies\token_intelligence_filters.dart
 
+// Fully modernized TokenIntelligenceFilters widget with consistent styling, padding, and card layout
 
 import 'package:flutter/material.dart';
 
@@ -41,45 +42,65 @@ class _TokenIntelligenceFiltersState extends State<TokenIntelligenceFilters> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(bottom: 8.0),
-          child: Text("Token Intelligence Filters",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        ),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: selectedFilters.entries.map((entry) {
-            final filter = entry.key;
-            final selected = entry.value;
-            final exampleTokens = tokenExamples[filter] ?? [];
+    final theme = Theme.of(context);
 
-            return Tooltip(
-              message:
-                  "$filter\nTokens: ${exampleTokens.join(', ')}",
-              child: FilterChip(
-                label: Text(filter),
-                selected: selected,
-                onSelected: (_) => _toggleFilter(filter),
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      margin: const EdgeInsets.all(16),
+      elevation: 3,
+      color: theme.colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Token Intelligence Filters",
+                    style: theme.textTheme.titleMedium),
+                const Icon(Icons.filter_alt_outlined, color: Colors.teal),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: selectedFilters.entries.map((entry) {
+                final filter = entry.key;
+                final selected = entry.value;
+                final exampleTokens = tokenExamples[filter] ?? [];
+
+                return Tooltip(
+                  message: "$filter\nTokens: ${exampleTokens.join(', ')}",
+                  child: FilterChip(
+                    label: Text(filter),
+                    selected: selected,
+                    onSelected: (_) => _toggleFilter(filter),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 20),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.refresh),
+                label: const Text("Apply Filters to Build Engine"),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Filters applied to strategy engine"),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
               ),
-            );
-          }).toList(),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
-        ElevatedButton.icon(
-          icon: const Icon(Icons.refresh),
-          label: const Text("Apply Filters to Build Engine"),
-          onPressed: () {
-            // Placeholder: Trigger update to AI strategy builder
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Filters applied to strategy engine")),
-            );
-          },
-        )
-      ],
+      ),
     );
   }
 }

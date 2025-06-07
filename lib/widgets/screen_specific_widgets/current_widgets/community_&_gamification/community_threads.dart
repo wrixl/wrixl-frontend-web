@@ -46,14 +46,12 @@ class _CommunityThreadsWidgetState extends State<CommunityThreadsWidget> {
       context: context,
       builder: (_) => NewWidgetModal(
         title: thread['context'],
+        size: WidgetModalSize.medium,
         onClose: () => Navigator.of(context).pop(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              thread['comment'],
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
+            Text(thread['comment'], style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 12),
@@ -67,6 +65,7 @@ class _CommunityThreadsWidgetState extends State<CommunityThreadsWidget> {
   Widget _buildThreadCard(Map<String, dynamic> thread) {
     final highlight = thread['highlight'];
     final isPinned = thread['pinned'];
+    final scheme = Theme.of(context).colorScheme;
 
     return GestureDetector(
       onTap: () => _openThreadModal(thread),
@@ -76,20 +75,16 @@ class _CommunityThreadsWidgetState extends State<CommunityThreadsWidget> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade700),
-          color: isPinned ? Colors.amber.withOpacity(0.1) : Theme.of(context).cardColor,
+          color: isPinned ? Colors.amber.withOpacity(0.1) : scheme.surface,
+          border: Border.all(color: scheme.outline.withOpacity(0.4)),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
+            BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3))
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(thread['context'], style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(thread['context'], style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(
               thread['comment'],
@@ -113,7 +108,7 @@ class _CommunityThreadsWidgetState extends State<CommunityThreadsWidget> {
                 Row(children: [
                   Icon(Icons.circle, size: 10, color: Colors.green.shade400),
                   const SizedBox(width: 4),
-                  Text('Active ${thread['activeAgo']}')
+                  Text('Active ${thread['activeAgo']}', style: Theme.of(context).textTheme.bodySmall)
                 ])
               ],
             ),
@@ -137,31 +132,44 @@ class _CommunityThreadsWidgetState extends State<CommunityThreadsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: scheme.surface,
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('🗣️ Community Threads', style: Theme.of(context).textTheme.titleLarge),
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {},
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Community Threads', style: theme.textTheme.titleMedium),
+                IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {},
+                ),
+              ],
             ),
+            const SizedBox(height: 4),
+            Text(
+              'Join the top takes on this week’s signals, votes & missions.',
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 250,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: threads.map(_buildThreadCard).toList(),
+              ),
+            )
           ],
         ),
-        const SizedBox(height: 4),
-        Text('Join the top takes on this week’s signals, votes & missions.',
-            style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 250,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: threads.map(_buildThreadCard).toList(),
-          ),
-        )
-      ],
+      ),
     );
   }
 }

@@ -20,51 +20,63 @@ class _MyActivityLogWidgetState extends State<MyActivityLogWidget> {
     final theme = Theme.of(context);
     final groupedActivities = _groupActivities(_dummyActivityData);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'My Activity Log',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Expanded(
+                  child: Text('My Activity Log',
+                      style: theme.textTheme.titleMedium),
+                ),
+                DropdownButton<String>(
+                  value: _selectedFilter,
+                  style: theme.textTheme.bodyMedium,
+                  dropdownColor: theme.cardColor,
+                  borderRadius: BorderRadius.circular(8),
+                  underline: const SizedBox(),
+                  items: ['All', 'Trades', 'Simulations', 'Signals', 'Votes']
+                      .map((f) =>
+                          DropdownMenuItem(value: f, child: Text(f)))
+                      .toList(),
+                  onChanged: (val) =>
+                      setState(() => _selectedFilter = val!),
+                )
+              ],
             ),
-            DropdownButton<String>(
-              value: _selectedFilter,
-              items: ['All', 'Trades', 'Simulations', 'Signals', 'Votes']
-                  .map((f) => DropdownMenuItem(value: f, child: Text(f)))
-                  .toList(),
-              onChanged: (val) => setState(() => _selectedFilter = val!),
-            )
+            const SizedBox(height: 12),
+            Expanded(
+              child: ListView(
+                children: groupedActivities.entries.map((entry) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(entry.key,
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: theme.colorScheme.secondary)),
+                      ),
+                      ...entry.value
+                          .where((a) =>
+                              _selectedFilter == 'All' ||
+                              a['typeLabel'] == _selectedFilter)
+                          .map((activity) => _buildActivityCard(activity))
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
           ],
         ),
-        const SizedBox(height: 12),
-        Expanded(
-          child: ListView(
-            children: groupedActivities.entries.map((entry) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text(entry.key,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.secondary)),
-                  ),
-                  ...entry.value
-                      .where((a) =>
-                          _selectedFilter == 'All' ||
-                          a['typeLabel'] == _selectedFilter)
-                      .map((activity) => _buildActivityCard(activity))
-                ],
-              );
-            }).toList(),
-          ),
-        )
-      ],
+      ),
     );
   }
 
@@ -77,6 +89,7 @@ class _MyActivityLogWidgetState extends State<MyActivityLogWidget> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 6),
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
           backgroundColor: color.withOpacity(0.1),
           child: Icon(iconData, color: color),

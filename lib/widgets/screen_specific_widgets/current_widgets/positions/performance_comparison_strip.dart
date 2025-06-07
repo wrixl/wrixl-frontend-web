@@ -16,67 +16,73 @@ class PerformanceComparisonStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final sortedBenchmarks = [...benchmarks]..sort((a, b) => b
-        .relativePerformance(userPerformance)
-        .compareTo(a.relativePerformance(userPerformance)));
+    final sortedBenchmarks = [...benchmarks]
+      ..sort((a, b) => b
+          .relativePerformance(userPerformance)
+          .compareTo(a.relativePerformance(userPerformance)));
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Text(
-                'Relative Performance',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                'Compared to Benchmarks',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 260,
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.center,
-                maxY: sortedBenchmarks
-                        .map((b) => b.relativePerformance(userPerformance))
-                        .reduce((a, b) => a > b ? a : b) +
-                    10,
-                minY: sortedBenchmarks
-                        .map((b) => b.relativePerformance(userPerformance))
-                        .reduce((a, b) => a < b ? a : b) -
-                    10,
-                barGroups:
-                    _buildBarGroups(sortedBenchmarks, userPerformance, theme),
-                titlesData: FlTitlesData(
-                  leftTitles: const AxisTitles(),
-                  rightTitles: const AxisTitles(),
-                  topTitles: const AxisTitles(),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) => Transform.rotate(
-                        angle: -0.8,
-                        child: Text(
-                          sortedBenchmarks[value.toInt()].label,
-                          style: const TextStyle(fontSize: 10),
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: theme.colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('📈 Performance Strip', style: theme.textTheme.titleMedium),
+                const Icon(Icons.bar_chart, color: Colors.blueAccent),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 260,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.center,
+                  maxY: sortedBenchmarks
+                          .map((b) => b.relativePerformance(userPerformance))
+                          .reduce((a, b) => a > b ? a : b) +
+                      10,
+                  minY: sortedBenchmarks
+                          .map((b) => b.relativePerformance(userPerformance))
+                          .reduce((a, b) => a < b ? a : b) -
+                      10,
+                  barGroups: _buildBarGroups(sortedBenchmarks, userPerformance, theme),
+                  titlesData: FlTitlesData(
+                    leftTitles: const AxisTitles(),
+                    rightTitles: const AxisTitles(),
+                    topTitles: const AxisTitles(),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) => Transform.rotate(
+                          angle: -0.8,
+                          child: Text(
+                            sortedBenchmarks[value.toInt()].label,
+                            style: const TextStyle(fontSize: 10),
+                          ),
                         ),
                       ),
                     ),
                   ),
+                  borderData: FlBorderData(show: false),
+                  gridData: FlGridData(show: false),
                 ),
-                borderData: FlBorderData(show: false),
-                gridData: FlGridData(show: false),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              'Your performance vs benchmarks. Bars above 0 indicate outperformance.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontStyle: FontStyle.italic,
+                color: theme.colorScheme.onSurface.withOpacity(0.7),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

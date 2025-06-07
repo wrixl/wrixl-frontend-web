@@ -16,49 +16,54 @@ class _WrixlPulseFeedWidgetState extends State<WrixlPulseFeedWidget> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
                 const Icon(Icons.bubble_chart, color: Colors.indigo),
                 const SizedBox(width: 8),
-                const Text(
-                  'Wrixl Pulse Feed',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Text(
+                    'Wrixl Pulse Feed',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Future toggle (Trending / Real-Time / 24h)
+                  },
+                  child: const Text('Real-Time'),
                 ),
               ],
             ),
-            TextButton(
-              onPressed: () {
-                // Optional toggle future: Trending / Real-Time / 24h
-              },
-              child: const Text('Real-Time'),
-            )
+            const SizedBox(height: 12),
+            Expanded(
+              child: ListView.separated(
+                itemCount: _feedItems.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final item = _feedItems[index];
+                  return _buildFeedCard(item);
+                },
+              ),
+            ),
           ],
         ),
-        const SizedBox(height: 12),
-        Expanded(
-          child: ListView.separated(
-            itemCount: _feedItems.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final item = _feedItems[index];
-              return _buildFeedCard(item);
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildFeedCard(Map<String, dynamic> item) {
     final theme = Theme.of(context);
+
     return Card(
-      elevation: 3,
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -85,7 +90,8 @@ class _WrixlPulseFeedWidgetState extends State<WrixlPulseFeedWidget> {
             Text(
               item['subtext'],
               style: TextStyle(
-                  color: theme.colorScheme.onSurface.withOpacity(0.75)),
+                color: theme.colorScheme.onSurface.withOpacity(0.75),
+              ),
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -97,8 +103,8 @@ class _WrixlPulseFeedWidgetState extends State<WrixlPulseFeedWidget> {
                     // Handle action callback
                   },
                   style: ElevatedButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
                     backgroundColor: theme.colorScheme.primaryContainer,
                     foregroundColor: theme.colorScheme.onPrimaryContainer,
                     textStyle: const TextStyle(fontSize: 13),
@@ -106,7 +112,7 @@ class _WrixlPulseFeedWidgetState extends State<WrixlPulseFeedWidget> {
                   child: Text(action),
                 );
               }),
-            )
+            ),
           ],
         ),
       ),

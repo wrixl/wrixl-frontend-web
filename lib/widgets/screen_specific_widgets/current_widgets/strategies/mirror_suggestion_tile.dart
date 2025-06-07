@@ -50,19 +50,51 @@ class MirrorSuggestionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<MirrorSuggestionData> suggestions = _demoSuggestions;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
-    return SizedBox(
-      height: 500,
-      child: ListView.separated(
+    return Card(
+      color: scheme.surface,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: Padding(
         padding: const EdgeInsets.all(16),
-        scrollDirection: Axis.horizontal,
-        itemCount: suggestions.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 16),
-        itemBuilder: (_, i) => _MirrorSuggestionTileCard(data: suggestions[i]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            /// App bar-style section title
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Suggested Strategies",
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Icon(Icons.auto_graph_rounded, size: 20),
+              ],
+            ),
+            const SizedBox(height: 12),
+            /// Horizontal scrollable cards
+            SizedBox(
+              height: 500,
+              child: ListView.separated(
+                padding: const EdgeInsets.only(bottom: 4),
+                scrollDirection: Axis.horizontal,
+                itemCount: suggestions.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 16),
+                itemBuilder: (_, i) =>
+                    _MirrorSuggestionTileCard(data: suggestions[i]),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
 
 class _MirrorSuggestionTileCard extends StatelessWidget {
   final MirrorSuggestionData data;

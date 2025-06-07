@@ -128,72 +128,80 @@ class _MarketSignalsMacroIntelligenceCardsWidgetState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = theme.colorScheme.primary;
-    final onSurface = theme.colorScheme.onSurface;
+    final scheme = theme.colorScheme;
 
-    final visible = _selectedFilter == 'All'
+    final visibleCards = _selectedFilter == 'All'
         ? _dummyCards
         : _dummyCards.where((c) => c.tag.toLowerCase().contains('ai')).toList();
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Macro Intelligence',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: primaryColor,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: scheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // App bar row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Macro Intelligence',
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
-              ),
-              IconButton(
-                icon: Icon(Icons.more_vert, color: onSurface),
-                onPressed: _showOptionsModal,
-                tooltip: 'Options',
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              ToggleFilterIconRowWidget(
-                options: filters,
-                optionIcons: filterIcons,
-                activeOption: _selectedFilter,
-                onSelected: (opt) => setState(() => _selectedFilter = opt),
-              ),
-              const Spacer(),
-              Flexible(
-                child: Text(
-                  'AI-generated snapshot of global macro trends.',
-                  style: theme.textTheme.bodyLarge,
-                  textAlign: TextAlign.right,
+                IconButton(
+                  icon: const Icon(Icons.more_vert),
+                  onPressed: _showOptionsModal,
+                  tooltip: 'Options',
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (ctx, cons) => Wrap(
-              spacing: 30,
-              runSpacing: 16,
-              children: visible.map((data) {
-                return SizedBox(
-                  width: min(300, cons.maxWidth / 2 - 20),
-                  child: MacroCard(cardData: data),
-                );
-              }).toList(),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+
+            // Filter + description
+            Row(
+              children: [
+                ToggleFilterIconRowWidget(
+                  options: filters,
+                  optionIcons: filterIcons,
+                  activeOption: _selectedFilter,
+                  onSelected: (opt) => setState(() => _selectedFilter = opt),
+                ),
+                const Spacer(),
+                Flexible(
+                  child: Text(
+                    'AI-generated snapshot of global macro trends.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontStyle: FontStyle.italic,
+                      color: scheme.onSurface.withOpacity(0.7),
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Macro Cards Grid
+            LayoutBuilder(
+              builder: (ctx, cons) => Wrap(
+                spacing: 24,
+                runSpacing: 16,
+                children: visibleCards.map((data) {
+                  return SizedBox(
+                    width: min(300, cons.maxWidth / 2 - 20),
+                    child: MacroCard(cardData: data),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
 }
 
 class MacroCard extends StatelessWidget {
@@ -295,12 +303,13 @@ class MacroCard extends StatelessWidget {
     return InkWell(
       onTap: cardData.onTap,
       child: Card(
-        color: surface,
+
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: primary.withOpacity(0.4)),
+          side: BorderSide(color: cardData.tagColor.withOpacity(0.4)),
         ),
+        color: Theme.of(context).colorScheme.surface,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -308,13 +317,14 @@ class MacroCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(cardData.icon, color: primary),
+                  Icon(cardData.icon, color: cardData.tagColor),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       cardData.title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: primary,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
@@ -323,9 +333,9 @@ class MacroCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 cardData.snapshotMetric,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  color: onSurface,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
@@ -334,8 +344,8 @@ class MacroCard extends StatelessWidget {
               Chip(
                 label: Text(
                   cardData.tag,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: theme.colorScheme.onPrimary,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
                 backgroundColor: cardData.tagColor,
@@ -344,7 +354,7 @@ class MacroCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      )
     );
   }
 }
