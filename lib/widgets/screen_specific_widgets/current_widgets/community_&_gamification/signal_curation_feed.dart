@@ -1,4 +1,3 @@
-
 // lib/widgets/screen_specific_widgets/current_widgets/community_&_gamification/signal_curation_feed.dart
 
 import 'package:flutter/material.dart';
@@ -15,7 +14,7 @@ class _SignalProposal {
   final String title;
   final String category;
   final String proposer;
-  final int upvotes;
+  int upvotes;
   final DateTime submittedAt;
   final String description;
 
@@ -37,7 +36,8 @@ class _SignalCurationFeedWidgetState extends State<SignalCurationFeedWidget> {
       proposer: "@evie.eth",
       upvotes: 83,
       submittedAt: DateTime.now().subtract(const Duration(hours: 3)),
-      description: "Multiple L2s show renewed velocity on-chain. Might front-run L1 weakness."
+      description:
+          "Multiple L2s show renewed velocity on-chain. Might front-run L1 weakness.",
     ),
     _SignalProposal(
       title: "DeFi Reawakening",
@@ -45,7 +45,7 @@ class _SignalCurationFeedWidgetState extends State<SignalCurationFeedWidget> {
       proposer: "@vaultboi",
       upvotes: 41,
       submittedAt: DateTime.now().subtract(const Duration(hours: 6)),
-      description: "Stables inflow rising in Curve, Aave. Potential rebound setup."
+      description: "Stables inflow rising in Curve, Aave. Potential rebound setup.",
     ),
     _SignalProposal(
       title: "SocialFi Spike",
@@ -53,33 +53,67 @@ class _SignalCurationFeedWidgetState extends State<SignalCurationFeedWidget> {
       proposer: "@kairo",
       upvotes: 37,
       submittedAt: DateTime.now().subtract(const Duration(days: 1)),
-      description: "Farcaster and friend.tech metrics suggest a new round of hype."
+      description:
+          "Farcaster and friend.tech metrics suggest a new round of hype.",
     ),
   ];
 
   void _upvote(int index) {
     setState(() {
-      _proposals[index] = _SignalProposal(
-        title: _proposals[index].title,
-        category: _proposals[index].category,
-        proposer: _proposals[index].proposer,
-        upvotes: _proposals[index].upvotes + 1,
-        submittedAt: _proposals[index].submittedAt,
-        description: _proposals[index].description,
-      );
+      _proposals[index].upvotes += 1;
     });
   }
 
-  String _timeAgo(DateTime dateTime) {
-    final diff = DateTime.now().difference(dateTime);
+  String _timeAgo(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
     if (diff.inMinutes < 60) return "${diff.inMinutes}m ago";
     if (diff.inHours < 24) return "${diff.inHours}h ago";
     return "${diff.inDays}d ago";
   }
 
+  void _showProposalModal(_SignalProposal p) {
+    showNewReusableModal(
+      context,
+      title: p.title,
+      size: WidgetModalSize.medium,
+      child: Builder(builder: (ctx) {
+        final theme = Theme.of(ctx);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(p.title, style: theme.textTheme.titleLarge),
+            const SizedBox(height: 12),
+            Text(p.description, style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 16),
+            Text("Category: ${p.category}", style: theme.textTheme.bodySmall),
+            const SizedBox(height: 4),
+            Text("Proposed by ${p.proposer}", style: theme.textTheme.bodySmall),
+            const SizedBox(height: 4),
+            Text("Submitted ${_timeAgo(p.submittedAt)}",
+                style: theme.textTheme.bodySmall),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.thumb_up),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    _upvote(_proposals.indexOf(p));
+                  },
+                ),
+                Text("${p.upvotes}", style: theme.textTheme.bodyMedium),
+              ],
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       color: theme.colorScheme.surface,
@@ -99,32 +133,11 @@ class _SignalCurationFeedWidgetState extends State<SignalCurationFeedWidget> {
             Expanded(
               child: ListView.separated(
                 itemCount: _proposals.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (_, __) => const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final p = _proposals[index];
                   return GestureDetector(
-                    onTap: () => showDialog(
-                      context: context,
-                      builder: (_) => NewWidgetModal(
-                        title: p.title,
-                        size: WidgetModalSize.medium,
-                        onClose: () => Navigator.of(context).pop(),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(p.title, style: theme.textTheme.headlineSmall),
-                              const SizedBox(height: 12),
-                              Text(p.description, style: theme.textTheme.bodyMedium),
-                              const SizedBox(height: 16),
-                              Text("Submitted by ${p.proposer} in ${p.category}",
-                                style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    onTap: () => _showProposalModal(p),
                     child: Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
@@ -145,26 +158,41 @@ class _SignalCurationFeedWidgetState extends State<SignalCurationFeedWidget> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(p.title,
-                                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                                Text(
+                                  p.title,
+                                  style: theme.textTheme.titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                ),
                                 const SizedBox(height: 4),
-                                Text(p.description,
+                                Text(
+                                  p.description,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 13)),
+                                  style: theme.textTheme.bodySmall
+                                      ?.copyWith(fontSize: 13),
+                                ),
                                 const SizedBox(height: 6),
                                 Row(
                                   children: [
-                                    Text(p.category.toUpperCase(),
-                                      style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary)),
+                                    Text(
+                                      p.category.toUpperCase(),
+                                      style: theme.textTheme.labelSmall
+                                          ?.copyWith(color: theme.colorScheme.primary),
+                                    ),
                                     const SizedBox(width: 12),
-                                    Text(_timeAgo(p.submittedAt),
-                                      style: theme.textTheme.labelSmall?.copyWith(color: theme.hintColor)),
+                                    Text(
+                                      _timeAgo(p.submittedAt),
+                                      style: theme.textTheme.labelSmall
+                                          ?.copyWith(color: theme.hintColor),
+                                    ),
                                     const SizedBox(width: 12),
-                                    Text("by ${p.proposer}",
-                                      style: theme.textTheme.labelSmall?.copyWith(color: theme.hintColor)),
+                                    Text(
+                                      "by ${p.proposer}",
+                                      style: theme.textTheme.labelSmall
+                                          ?.copyWith(color: theme.hintColor),
+                                    ),
                                   ],
-                                )
+                                ),
                               ],
                             ),
                           ),
@@ -178,7 +206,7 @@ class _SignalCurationFeedWidgetState extends State<SignalCurationFeedWidget> {
                               ),
                               Text("${p.upvotes}", style: theme.textTheme.labelMedium),
                             ],
-                          )
+                          ),
                         ],
                       ),
                     ),

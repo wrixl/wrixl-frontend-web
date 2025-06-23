@@ -81,53 +81,80 @@ class PortfolioSidebarFilters extends StatelessWidget {
     return Card(
       color: scheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("Portfolio Filters", style: Theme.of(context).textTheme.titleMedium),
-                IconButton(icon: const Icon(Icons.refresh), onPressed: () => _showResetModal(context)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ToggleButtons(
-                constraints: const BoxConstraints.tightFor(width: 60, height: 30),
-                isSelected: [showModelPortfolios, !showModelPortfolios],
-                onPressed: onToggle,
-                borderRadius: BorderRadius.circular(8),
-                children: const [
-                  Text("Model", style: TextStyle(fontSize: 12)),
-                  Text("Personal", style: TextStyle(fontSize: 12)),
-                ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Portfolio Filters", style: Theme.of(context).textTheme.titleMedium),
+                          IconButton(
+                            icon: const Icon(Icons.refresh),
+                            onPressed: () => _showResetModal(context),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: ToggleButtons(
+                          constraints: const BoxConstraints.tightFor(width: 60, height: 30),
+                          isSelected: [showModelPortfolios, !showModelPortfolios],
+                          onPressed: onToggle,
+                          borderRadius: BorderRadius.circular(8),
+                          children: const [
+                            Text("Model", style: TextStyle(fontSize: 12)),
+                            Text("Personal", style: TextStyle(fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildFilterColumn(context,
+                                label: "Risk",
+                                values: riskTolerances,
+                                selectedValues: selectedRisks,
+                                onSelected: onRiskSelected),
+                            const SizedBox(width: 32),
+                            _buildFilterColumn(context,
+                                label: "Timeframe",
+                                values: timeframes,
+                                selectedValues: selectedTimeframes,
+                                onSelected: onTimeframeSelected),
+                            const SizedBox(width: 32),
+                            _buildFilterColumn(context,
+                                label: "Themes",
+                                values: themes,
+                                selectedValues: selectedThemes,
+                                onSelected: onThemeSelected),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      const Divider(thickness: 1),
+                      _buildAdvancedFilters(context),
+                    ],
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildFilterColumn(context, label: "Risk", values: riskTolerances, selectedValues: selectedRisks, onSelected: onRiskSelected),
-                  const SizedBox(width: 32),
-                  _buildFilterColumn(context, label: "Timeframe", values: timeframes, selectedValues: selectedTimeframes, onSelected: onTimeframeSelected),
-                  const SizedBox(width: 32),
-                  _buildFilterColumn(context, label: "Themes", values: themes, selectedValues: selectedThemes, onSelected: onThemeSelected),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Divider(thickness: 1),
-            _buildAdvancedFilters(context),
-          ],
-        ),
+          );
+        },
       ),
     );
+
   }
 
   Widget _buildFilterColumn(BuildContext context, {

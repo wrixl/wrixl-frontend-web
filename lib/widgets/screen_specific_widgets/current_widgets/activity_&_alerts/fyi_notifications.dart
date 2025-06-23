@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class FyiNotificationsWidget extends StatefulWidget {
   const FyiNotificationsWidget({super.key});
@@ -26,8 +27,7 @@ class _FyiNotificationsWidgetState extends State<FyiNotificationsWidget> {
       'type': 'Social',
       'icon': '🏅',
       'title': 'Badge Earned',
-      'message':
-          'You’ve reached 10 mirrored portfolios. “Strategist I” unlocked.',
+      'message': 'You’ve reached 10 mirrored portfolios. “Strategist I” unlocked.',
       'timestamp': DateTime.now().subtract(const Duration(hours: 5)),
       'cta': 'View Badge'
     },
@@ -35,8 +35,7 @@ class _FyiNotificationsWidgetState extends State<FyiNotificationsWidget> {
       'type': 'System',
       'icon': '🛠️',
       'title': 'System Update',
-      'message':
-          '“Smart Wallet Drift” signal engine improved. Confidence rates up to 7%.',
+      'message': '“Smart Wallet Drift” signal engine improved. Confidence rates up to 7%.',
       'timestamp': DateTime.now().subtract(const Duration(days: 1, hours: 3)),
       'cta': 'Learn More'
     },
@@ -60,6 +59,36 @@ class _FyiNotificationsWidgetState extends State<FyiNotificationsWidget> {
     return DateFormat.yMMMd().format(dt);
   }
 
+  void _openNotificationModal(Map<String, dynamic> n) {
+    showDialog(
+      context: context,
+      builder: (_) => NewWidgetModal(
+        title: n['title'],
+        size: WidgetModalSize.small,
+        onClose: () => Navigator.of(context).pop(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(n['icon'], style: const TextStyle(fontSize: 40)),
+            const SizedBox(height: 12),
+            Text(n['message'], style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 8),
+            Text(formatDate(n['timestamp']),
+                style: TextStyle(color: Colors.grey.shade600)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // TODO: your CTA navigation logic here
+                Navigator.of(context).pop();
+              },
+              child: Text(n['cta'] ?? 'OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -72,13 +101,12 @@ class _FyiNotificationsWidgetState extends State<FyiNotificationsWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // header row: title + category filter
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    'FYI Notifications',
-                    style: theme.textTheme.titleMedium,
-                  ),
+                  child: Text('FYI Notifications',
+                      style: theme.textTheme.titleMedium),
                 ),
                 DropdownButton<String>(
                   value: selectedCategory,
@@ -89,53 +117,52 @@ class _FyiNotificationsWidgetState extends State<FyiNotificationsWidget> {
                   items: categories
                       .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                       .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedCategory = value;
-                      });
-                    }
+                  onChanged: (v) {
+                    if (v != null) setState(() => selectedCategory = v);
                   },
                 ),
               ],
             ),
+
             const SizedBox(height: 12),
+
+            // notification list
             Expanded(
               child: ListView.builder(
                 itemCount: filteredNotifications.length,
-                itemBuilder: (context, index) {
-                  final notif = filteredNotifications[index];
+                itemBuilder: (ctx, i) {
+                  final n = filteredNotifications[i];
                   return Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                     margin: const EdgeInsets.symmetric(vertical: 6),
                     color: theme.colorScheme.surfaceVariant,
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      leading: Text(notif['icon'],
-                          style: const TextStyle(fontSize: 24)),
-                      title: Text(notif['title'],
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 15)),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(notif['message']),
-                          const SizedBox(height: 4),
-                          Text(
-                            formatDate(notif['timestamp']),
-                            style: TextStyle(
-                                color: Colors.grey.shade600, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                      trailing: TextButton(
-                        onPressed: () {
-                          // Add navigation logic
-                        },
-                        child: Text(notif['cta'] ?? 'View'),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => _openNotificationModal(n),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        leading:
+                            Text(n['icon'], style: const TextStyle(fontSize: 24)),
+                        title: Text(n['title'],
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 15)),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(n['message']),
+                            const SizedBox(height: 4),
+                            Text(formatDate(n['timestamp']),
+                                style: TextStyle(
+                                    color: Colors.grey.shade600, fontSize: 12)),
+                          ],
+                        ),
+                        trailing: TextButton(
+                          onPressed: () => _openNotificationModal(n),
+                          child: Text(n['cta'] ?? 'View'),
+                        ),
                       ),
                     ),
                   );

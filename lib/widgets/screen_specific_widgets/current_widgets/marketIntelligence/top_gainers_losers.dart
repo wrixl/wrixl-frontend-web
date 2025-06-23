@@ -1,15 +1,18 @@
-// lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\top_gainers_losers.dart
+// lib/widgets/screen_specific_widgets/current_widgets/marketIntelligence/top_gainers_losers.dart
 
 import 'package:flutter/material.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class TopGainersLosersWidget extends StatefulWidget {
   const TopGainersLosersWidget({super.key});
 
   @override
-  State<TopGainersLosersWidget> createState() => _TopGainersLosersWidgetState();
+  State<TopGainersLosersWidget> createState() =>
+      _TopGainersLosersWidgetState();
 }
 
-class _TopGainersLosersWidgetState extends State<TopGainersLosersWidget> {
+class _TopGainersLosersWidgetState
+    extends State<TopGainersLosersWidget> {
   String selectedTimeframe = '24H';
   String selectedFilter = 'All Tokens';
 
@@ -37,94 +40,149 @@ class _TopGainersLosersWidgetState extends State<TopGainersLosersWidget> {
     {'symbol': 'MEME', 'change': '-10.1%', 'tag': '🔍 Volume Drop'},
   ];
 
+  void _showTokenModal(Map<String, String> token, Color color) {
+    showNewReusableModal(
+      context,
+      title: '${token['symbol']} Details',
+      size: WidgetModalSize.small,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Symbol: ${token['symbol']}',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Change: ${token['change']}',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: color),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Tag: ${token['tag']}',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Here you can add more detailed analytics, sparkline charts, or other token-specific metrics.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      color: scheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // App Bar
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Card(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14)),
+          color: scheme.surface,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text("Top Gainers & Losers",
-                    style: theme.textTheme.titleMedium),
-                const Icon(Icons.trending_up, color: Colors.green),
+                // App Bar
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Top Gainers & Losers",
+                        style: theme.textTheme.titleMedium),
+                    const Icon(Icons.trending_up, color: Colors.green),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Filter Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    DropdownButton<String>(
+                      value: selectedTimeframe,
+                      items: timeframes
+                          .map((tf) =>
+                              DropdownMenuItem(value: tf, child: Text(tf)))
+                          .toList(),
+                      onChanged: (value) =>
+                          setState(() => selectedTimeframe = value!),
+                    ),
+                    DropdownButton<String>(
+                      value: selectedFilter,
+                      items: filters
+                          .map((f) =>
+                              DropdownMenuItem(value: f, child: Text(f)))
+                          .toList(),
+                      onChanged: (value) =>
+                          setState(() => selectedFilter = value!),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Columns in Flexible space
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTokenColumn(
+                            context, '📈 Top Gainers', topGainers, Colors.green),
+                        const SizedBox(width: 16),
+                        _buildTokenColumn(
+                            context, '📉 Top Losers', topLosers, Colors.red),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Action Buttons
+                Wrap(
+                  alignment: WrapAlignment.spaceEvenly,
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.equalizer),
+                      label: const Text("Compare"),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.add),
+                      label: const Text("Add to Tracker"),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.show_chart),
+                      label: const Text("View Chart"),
+                    ),
+                  ],
+                ),
               ],
             ),
-            const SizedBox(height: 16),
-
-            // Filter Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                DropdownButton<String>(
-                  value: selectedTimeframe,
-                  items: timeframes.map((tf) => DropdownMenuItem(
-                        value: tf,
-                        child: Text(tf),
-                      )).toList(),
-                  onChanged: (value) => setState(() => selectedTimeframe = value!),
-                ),
-                DropdownButton<String>(
-                  value: selectedFilter,
-                  items: filters.map((f) => DropdownMenuItem(
-                        value: f,
-                        child: Text(f),
-                      )).toList(),
-                  onChanged: (value) => setState(() => selectedFilter = value!),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Columns
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTokenColumn(context, '📈 Top Gainers', topGainers, Colors.green),
-                const SizedBox(width: 16),
-                _buildTokenColumn(context, '📉 Top Losers', topLosers, Colors.red),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.equalizer),
-                  label: const Text("Compare"),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.add),
-                  label: const Text("Add to Tracker"),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.show_chart),
-                  label: const Text("View Chart"),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildTokenColumn(BuildContext context, String title,
-      List<Map<String, String>> data, Color color) {
+  Widget _buildTokenColumn(
+    BuildContext context,
+    String title,
+    List<Map<String, String>> data,
+    Color color,
+  ) {
     final theme = Theme.of(context);
 
     return Expanded(
@@ -138,44 +196,50 @@ class _TopGainersLosersWidgetState extends State<TopGainersLosersWidget> {
               )),
           const SizedBox(height: 8),
           for (final token in data)
-            Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: color.withOpacity(0.04),
-                border: Border.all(color: color.withOpacity(0.2)),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: color.withOpacity(0.15),
-                    child: Text(token['symbol']![0],
-                        style: TextStyle(color: color)),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('\$${token['symbol']}',
-                            style: theme.textTheme.bodyLarge),
-                        Text(token['tag']!,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(0.6),
-                              fontSize: 12,
-                            )),
-                      ],
+            GestureDetector(
+              onTap: () => _showTokenModal(token, color),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: color.withOpacity(0.04),
+                  border: Border.all(color: color.withOpacity(0.2)),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 16,
+                      backgroundColor: color.withOpacity(0.15),
+                      child: Text(token['symbol']![0],
+                          style: TextStyle(color: color)),
                     ),
-                  ),
-                  Text(token['change']!,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: color,
-                      )),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                        children: [
+                          Text('\$${token['symbol']}',
+                              style: theme.textTheme.bodyLarge),
+                          Text(token['tag']!,
+                              style: theme.textTheme.bodySmall
+                                  ?.copyWith(
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.6),
+                                fontSize: 12,
+                              )),
+                        ],
+                      ),
+                    ),
+                    Text(token['change']!,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: color,
+                        )),
+                  ],
+                ),
               ),
             )
         ],

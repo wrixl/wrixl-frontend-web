@@ -1,7 +1,8 @@
-// lib\widgets\screen_specific_widgets\current_widgets\community_&_gamification\claimable_perks.dart
+// lib/widgets/screen_specific_widgets/current_widgets/community_&_gamification/claimable_perks.dart
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class ClaimablePerksWidget extends StatefulWidget {
   const ClaimablePerksWidget({Key? key}) : super(key: key);
@@ -48,6 +49,53 @@ class _ClaimablePerksWidgetState extends State<ClaimablePerksWidget> {
     });
   }
 
+  void _showPerkModal(Perk perk, int index) {
+    final theme = Theme.of(context);
+    final fmt = DateFormat('MMM d, y');
+    showNewReusableModal(
+      context,
+      title: perk.title,
+      size: WidgetModalSize.small,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(child: Text(perk.icon, style: const TextStyle(fontSize: 48))),
+          const SizedBox(height: 16),
+          Text(perk.title,
+              style: theme.textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text(perk.source, style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          Text(
+            perk.claimed
+                ? 'Claimed on ${fmt.format(perk.dateEarned)}'
+                : 'Unlocked on ${fmt.format(perk.dateEarned)}',
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: 16),
+          if (!perk.claimed)
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _claimPerk(index);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber[600],
+                foregroundColor: Colors.black,
+              ),
+              child: const Text('Claim Now'),
+            )
+          else
+            Center(
+              child: Icon(Icons.check_circle,
+                  color: theme.colorScheme.primary, size: 40),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -71,7 +119,13 @@ class _ClaimablePerksWidgetState extends State<ClaimablePerksWidget> {
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: unclaimed.map((perk) => _buildPerkCard(perk, false)).toList(),
+                children: [
+                  for (var p in unclaimed)
+                    GestureDetector(
+                      onTap: () => _showPerkModal(p, perks.indexOf(p)),
+                      child: _buildPerkCard(p, false),
+                    ),
+                ],
               ),
             const SizedBox(height: 24),
             if (claimed.isNotEmpty) ...[
@@ -80,7 +134,13 @@ class _ClaimablePerksWidgetState extends State<ClaimablePerksWidget> {
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: claimed.map((perk) => _buildPerkCard(perk, true)).toList(),
+                children: [
+                  for (var p in claimed)
+                    GestureDetector(
+                      onTap: () => _showPerkModal(p, perks.indexOf(p)),
+                      child: _buildPerkCard(p, true),
+                    ),
+                ],
               ),
             ],
           ],
@@ -114,19 +174,24 @@ class _ClaimablePerksWidgetState extends State<ClaimablePerksWidget> {
         children: [
           Text(perk.icon, style: const TextStyle(fontSize: 32)),
           const SizedBox(height: 8),
-          Text(perk.title, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
-          Text(perk.source, style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7))),
+          Text(perk.title,
+              style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+          Text(perk.source,
+              style: textTheme.bodySmall
+                  ?.copyWith(color: scheme.onSurface.withOpacity(0.7))),
           const SizedBox(height: 8),
           Text(
             claimed
-              ? "Claimed on ${DateFormat('MMM d').format(perk.dateEarned)}"
-              : "Unlocked ${DateFormat('MMM d').format(perk.dateEarned)}",
+                ? "Claimed on ${DateFormat('MMM d').format(perk.dateEarned)}"
+                : "Unlocked ${DateFormat('MMM d').format(perk.dateEarned)}",
             style: textTheme.bodySmall,
           ),
           const SizedBox(height: 12),
           if (!claimed)
             ElevatedButton(
-              onPressed: () => _claimPerk(perks.indexOf(perk)),
+              onPressed: () {
+                _claimPerk(perks.indexOf(perk));
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.amber[600],
                 foregroundColor: Colors.black,
@@ -156,7 +221,8 @@ class _ClaimablePerksWidgetState extends State<ClaimablePerksWidget> {
           Text("No perks unlocked yet.", style: textTheme.bodyLarge),
           const SizedBox(height: 4),
           Text("Keep predicting, voting, and earning to unlock perks!",
-              style: textTheme.bodySmall?.copyWith(color: Colors.grey)),
+              style:
+                  textTheme.bodySmall?.copyWith(color: Colors.grey)),
         ],
       ),
     );

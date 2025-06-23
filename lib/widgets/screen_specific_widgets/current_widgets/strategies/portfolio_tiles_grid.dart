@@ -1,7 +1,8 @@
-// lib\widgets\screen_specific_widgets\legacy_widgets\portfolio_tiles_grid.dart
+// lib/widgets/screen_specific_widgets/legacy_widgets/portfolio_tiles_grid.dart
 
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/utils/responsive.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class PortfolioTilesGridData {
   final String name;
@@ -46,7 +47,7 @@ class PortfolioTilesGridData {
 }
 
 class PortfolioTilesGrid extends StatelessWidget {
-  const PortfolioTilesGrid({super.key});
+  const PortfolioTilesGrid({Key? key}) : super(key: key);
 
   static List<PortfolioTilesGridData> _dummyData() => [
         PortfolioTilesGridData(
@@ -117,6 +118,7 @@ class PortfolioTilesGrid extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -137,6 +139,7 @@ class PortfolioTilesGrid extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
+            // Grid of cards
             GridView.builder(
               itemCount: data.length,
               shrinkWrap: true,
@@ -151,13 +154,93 @@ class PortfolioTilesGrid extends StatelessWidget {
                 mainAxisSpacing: 12,
                 childAspectRatio: aspectRatio,
               ),
-              itemBuilder: (context, index) => _PortfolioCard(
-                portfolio: data[index],
-              ),
+              itemBuilder: (context, index) {
+                final portfolio = data[index];
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () {
+                      final date = portfolio.initialRecommendationDate;
+                      final formattedDate =
+                          "${date.month}/${date.day}/${date.year}";
+                      showNewReusableModal(
+                        context,
+                        title: portfolio.name,
+                        size: WidgetModalSize.medium,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(portfolio.name,
+                                style: theme.textTheme.titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 4,
+                              children: portfolio.topHoldings
+                                  .map((h) => Chip(label: Text(h)))
+                                  .toList(),
+                            ),
+                            const SizedBox(height: 12),
+                            Text("Strategy: ${portfolio.strategyTag}"),
+                            Text("Similarity: ${portfolio.similarityScore}"),
+                            Text(
+                                "Confidence: ${(portfolio.confidence * 100).toStringAsFixed(0)}%"),
+                            const SizedBox(height: 8),
+                            Text("Projected ROI: ${portfolio.projectedRoi}"),
+                            Text("Volatility: ${portfolio.volatility}"),
+                            Text("Sharpe Ratio: ${portfolio.sharpe}"),
+                            const SizedBox(height: 8),
+                            Text("Chain: ${portfolio.dominantChain}"),
+                            Text("Asset Mix: ${portfolio.assetTypeMix}"),
+                            const SizedBox(height: 8),
+                            Text("Recommended on: $formattedDate"),
+                            const SizedBox(height: 12),
+                            _buildActionButtons(context, portfolio),
+                          ],
+                        ),
+                      );
+                    },
+                    child: _PortfolioCard(portfolio: portfolio),
+                  ),
+                );
+              },
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildActionButtons(
+      BuildContext context, PortfolioTilesGridData p) {
+    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: p.onPreview,
+            child: const Text("Preview", style: TextStyle(fontSize: 12)),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: p.onAdopt,
+            child: const Text("Adopt", style: TextStyle(fontSize: 12)),
+          ),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          icon: Icon(
+            p.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+            color: scheme.primary,
+          ),
+          onPressed: p.onBookmark,
+        ),
+      ],
     );
   }
 }
@@ -165,14 +248,38 @@ class PortfolioTilesGrid extends StatelessWidget {
 class _PortfolioCard extends StatelessWidget {
   final PortfolioTilesGridData portfolio;
 
-  const _PortfolioCard({Key? key, required this.portfolio}) : super(key: key);
+  const _PortfolioCard({Key? key, required this.portfolio})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final dateFormatted =
-        "${portfolio.initialRecommendationDate.month}/${portfolio.initialRecommendationDate.day}/${portfolio.initialRecommendationDate.year}";
+    final date = portfolio.initialRecommendationDate;
+    final dateFormatted = "${date.month}/${date.day}/${date.year}";
+
+    Widget _stat(String label, String value) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(value,
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: scheme.onSurface)),
+            Text(label,
+                style: theme.textTheme.labelSmall
+                    ?.copyWith(color: scheme.onSurface.withOpacity(0.6))),
+          ],
+        );
+
+    Widget _badge(String text) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: scheme.primary.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(text,
+              style: theme.textTheme.labelSmall
+                  ?.copyWith(color: scheme.primary, fontWeight: FontWeight.w600)),
+        );
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -182,75 +289,61 @@ class _PortfolioCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("Based on Your Holdings",
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: scheme.primary,
-                      fontWeight: FontWeight.w600,
-                    )),
-                IconButton(
-                  icon: Icon(
-                    portfolio.isBookmarked
-                        ? Icons.bookmark
-                        : Icons.bookmark_border,
-                    color: scheme.primary,
-                    size: 20,
-                  ),
-                  onPressed: portfolio.onBookmark,
+                    style: theme.textTheme.labelSmall
+                        ?.copyWith(color: scheme.primary, fontWeight: FontWeight.w600)),
+                Icon(
+                  portfolio.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                  color: scheme.primary,
+                  size: 20,
                 ),
               ],
             ),
             const SizedBox(height: 6),
             Text(portfolio.name,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                )),
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             Text(portfolio.strategyTag,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontStyle: FontStyle.italic,
-                  color: scheme.onSurface.withOpacity(0.6),
-                )),
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: scheme.onSurface.withOpacity(0.6))),
             const SizedBox(height: 10),
             Row(
               children: [
-                _badge("Similarity: ${portfolio.similarityScore}", context),
+                _badge("Similarity: ${portfolio.similarityScore}"),
                 const SizedBox(width: 8),
-                Expanded(
-                    child: _confidenceBar(context, portfolio.confidence)),
+                Expanded(child: LinearProgressIndicator(
+                  value: portfolio.confidence,
+                  backgroundColor: scheme.primary.withOpacity(0.25),
+                  valueColor: AlwaysStoppedAnimation(scheme.primary),
+                  minHeight: 6,
+                )),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(
-                    child: _statBlock("ROI", portfolio.projectedRoi, context)),
-                Expanded(
-                    child: _statBlock(
-                        "Volatility", portfolio.volatility, context)),
-                Expanded(
-                    child: _statBlock("Sharpe", portfolio.sharpe, context)),
+                Expanded(child: _stat("ROI", portfolio.projectedRoi)),
+                Expanded(child: _stat("Volatility", portfolio.volatility)),
+                Expanded(child: _stat("Sharpe", portfolio.sharpe)),
               ],
             ),
-            _statBlock("Top Holdings",
-                portfolio.topHoldings.join(", "), context),
-            _statBlock("Chain", portfolio.dominantChain, context),
-            _statBlock("Mix", portfolio.assetTypeMix, context),
-            _statBlock("Goal", portfolio.investmentGoal, context),
+            _stat("Top Holdings", portfolio.topHoldings.join(", ")),
+            _stat("Chain", portfolio.dominantChain),
+            _stat("Mix", portfolio.assetTypeMix),
+            _stat("Goal", portfolio.investmentGoal),
             Row(
               children: [
-                Expanded(
-                    child: _statBlock("Since", dateFormatted, context)),
-                Expanded(
-                    child:
-                        _statBlock("Achieved", portfolio.goalAchieved, context)),
-                Expanded(
-                    child:
-                        _statBlock("Horizon", portfolio.horizon, context)),
+                Expanded(child: _stat("Since", dateFormatted)),
+                Expanded(child: _stat("Achieved", portfolio.goalAchieved)),
+                Expanded(child: _stat("Horizon", portfolio.horizon)),
               ],
             ),
-            const SizedBox(height: 12),
+            const Spacer(),
+            // Footer buttons
             Row(
               children: [
                 Expanded(
@@ -271,58 +364,6 @@ class _PortfolioCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _statBlock(String label, String value, BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(value,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: scheme.onSurface,
-              )),
-          Text(label,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: scheme.onSurface.withOpacity(0.6),
-              )),
-        ],
-      ),
-    );
-  }
-
-  Widget _badge(String text, BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: scheme.primary.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: scheme.primary,
-              fontWeight: FontWeight.w600,
-            ),
-      ),
-    );
-  }
-
-  Widget _confidenceBar(BuildContext context, double score) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return LinearProgressIndicator(
-      value: score,
-      backgroundColor: scheme.primary.withOpacity(0.25),
-      valueColor: AlwaysStoppedAnimation<Color>(scheme.primary),
-      minHeight: 6,
     );
   }
 }

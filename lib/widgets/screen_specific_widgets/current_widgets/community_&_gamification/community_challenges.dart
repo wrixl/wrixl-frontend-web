@@ -1,7 +1,8 @@
-// lib\widgets\screen_specific_widgets\current_widgets\community_&_gamification\community_challenges.dart
+// lib/widgets/screen_specific_widgets/current_widgets/community_&_gamification/community_challenges.dart
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class CommunityChallengesWidget extends StatefulWidget {
   const CommunityChallengesWidget({super.key});
@@ -68,7 +69,7 @@ class _CommunityChallengesWidgetState extends State<CommunityChallengesWidget> {
         total: 2,
         status: 'available',
         rank: '—',
-      )
+      ),
     ];
   }
 
@@ -81,6 +82,42 @@ class _CommunityChallengesWidgetState extends State<CommunityChallengesWidget> {
     } else {
       return '${duration.inMinutes}m left';
     }
+  }
+
+  void _showChallengeModal(Challenge c) {
+    final theme = Theme.of(context);
+    final fmt = DateFormat('MMM d, y – h:mm a');
+    showNewReusableModal(
+      context,
+      title: c.title,
+      size: WidgetModalSize.medium,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(c.title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text(c.description, style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          Text('Ends: ${fmt.format(c.endTime)}', style: theme.textTheme.bodySmall),
+          const SizedBox(height: 8),
+          Text('Reward: ${c.reward}', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.green)),
+          const SizedBox(height: 12),
+          if (c.status == 'in_progress') ...[
+            LinearProgressIndicator(
+              value: c.current / c.total,
+              color: Colors.amber,
+              backgroundColor: Colors.grey.shade300,
+            ),
+            const SizedBox(height: 4),
+            Text('Progress: ${c.current} / ${c.total}', style: theme.textTheme.bodySmall),
+          ] else if (c.status == 'completed') ...[
+            Text('Your Rank: ${c.rank}', style: theme.textTheme.bodyMedium),
+          ] else if (c.status == 'available') ...[
+            Text('Not started yet', style: theme.textTheme.bodySmall),
+          ],
+        ],
+      ),
+    );
   }
 
   Widget buildChallengeCard(Challenge c) {
@@ -98,15 +135,22 @@ class _CommunityChallengesWidgetState extends State<CommunityChallengesWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('🏆 ${c.title}',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
-                Text(formatRemainingTime(c.endTime), style: const TextStyle(color: Colors.orangeAccent))
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
+                Text(formatRemainingTime(c.endTime),
+                    style: const TextStyle(color: Colors.orangeAccent)),
               ],
             ),
             const SizedBox(height: 6),
             Text(c.description, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 6),
             Text('🎁 ${c.reward}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.greenAccent)),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Colors.greenAccent)),
             const SizedBox(height: 12),
             if (c.status == 'in_progress')
               Column(
@@ -126,12 +170,14 @@ class _CommunityChallengesWidgetState extends State<CommunityChallengesWidget> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('📉 Rank: ${c.rank}', style: Theme.of(context).textTheme.bodyMedium),
+                  Text('📉 Rank: ${c.rank}',
+                      style: Theme.of(context).textTheme.bodyMedium),
                   ElevatedButton.icon(
                     onPressed: () {},
                     icon: const Icon(Icons.emoji_events),
                     label: const Text('Claim Reward'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   )
                 ],
               ),
@@ -160,12 +206,20 @@ class _CommunityChallengesWidgetState extends State<CommunityChallengesWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Community Challenges', style: Theme.of(context).textTheme.titleMedium),
+            Text('Community Challenges',
+                style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
             Text('Time-limited missions for glory & XP',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Colors.grey)),
             const SizedBox(height: 16),
-            ...challenges.map(buildChallengeCard)
+            // wrap each challenge card in a GestureDetector:
+            ...challenges.map((c) => GestureDetector(
+                  onTap: () => _showChallengeModal(c),
+                  child: buildChallengeCard(c),
+                )),
           ],
         ),
       ),

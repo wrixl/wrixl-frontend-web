@@ -1,8 +1,7 @@
-// lib\widgets\screen_specific_widgets\dashboard_overview_widgets\market_weather.dart
+// lib/widgets/screen_specific_widgets/dashboard_overview_widgets/market_weather.dart
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../../../../utils/constants.dart'; // Provides AppConstants.
 
 class MarketWeather extends StatefulWidget {
   const MarketWeather({Key? key}) : super(key: key);
@@ -12,39 +11,58 @@ class MarketWeather extends StatefulWidget {
 }
 
 class _MarketWeatherState extends State<MarketWeather> {
-  // Time frame: 0 = Today, 1 = This week, 2 = This month.
   int selectedTimeFrame = 0;
-  // For donut interactive animation.
   int touchedIndex = -1;
 
-  // Define colors for the donut sections.
-  final Color brightRed = Colors.red.shade700;
-  final Color brightGreen = Colors.green.shade700;
-  final Color brightYellow = Colors.amber;
-  final Color liteGreen = Colors.lightGreen;
+  // slice colors
+  final brightRed = Colors.red.shade700;
+  final brightYellow = Colors.amber;
+  final brightGreen = Colors.green.shade700;
+  final liteGreen = Colors.lightGreen;
+  final deepPurple = Colors.purple.shade400;
 
-  /// Toggle label based on selected time frame.
+  // the five segments
+  final List<String> _labels = [
+    "🌡️ Volatility Index",
+    "💬 Sentiment Index",
+    "💵 Stablecoin Flow",
+    "🌍 Macro Stress",
+    "🔀 Narrative Rotation",
+  ];
+  final List<String> _descriptions = [
+    "Aggregated VIX proxies & DeFi spreads",
+    "From Twitter, Telegram & Reddit comments",
+    "Risk-off inflows vs risk-on outflows",
+    "Economic calendar & yield-curve signals",
+    "Capital & attention moving across sectors",
+  ];
+
   String get timeFrameLabel {
-    if (selectedTimeFrame == 0) return "Today";
-    if (selectedTimeFrame == 1) return "This week";
-    return "This month";
+    switch (selectedTimeFrame) {
+      case 0:
+        return "Today";
+      case 1:
+        return "This week";
+      default:
+        return "This month";
+    }
   }
 
-  /// Forecast statement based on the selected time frame.
   String get forecastText {
-    if (selectedTimeFrame == 0) return "Expect calm conditions today.";
-    if (selectedTimeFrame == 1) return "Mixed weather ahead this week.";
-    return "Stormy conditions likely this month.";
+    switch (selectedTimeFrame) {
+      case 0:
+        return "Expect calm conditions today.";
+      case 1:
+        return "Mixed weather ahead this week.";
+      default:
+        return "Stormy conditions likely this month.";
+    }
   }
 
-  /// Cycle through the three time frames.
   void _toggleTimeFrame() {
-    setState(() {
-      selectedTimeFrame = (selectedTimeFrame + 1) % 3;
-    });
+    setState(() => selectedTimeFrame = (selectedTimeFrame + 1) % 3);
   }
 
-  /// Show a modal with additional details (the options button).
   void _showDetailsModal() {
     showModalBottomSheet(
       context: context,
@@ -54,10 +72,8 @@ class _MarketWeatherState extends State<MarketWeather> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Detailed Market Weather",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text("Detailed Market Weather",
+                style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             const Text("Detailed forecast and market insights go here."),
           ],
@@ -66,69 +82,22 @@ class _MarketWeatherState extends State<MarketWeather> {
     );
   }
 
-  /// Show a modal when a donut section is tapped to allow text entry.
-  void _showDonutDetailsModal() {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text("Donut Details",
-                style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
-            const Text("Enter your note regarding market weather:"),
-            const SizedBox(height: 8),
-            TextField(
-              decoration: const InputDecoration(
-                hintText: "Type here...",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Submit"),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Build the 4 donut sections.
-  /// Use a very thin ring by making the outer radius only a little bigger than the center space.
   List<PieChartSectionData> _buildSections() {
-    // Define the center hole radius and the ring thickness.
-    const double ringThickness = 15; // Thin ring.
-    double outerRadiusNormal = ringThickness;
-    // When a section is touched, enlarge that section slightly.
-    return List.generate(4, (i) {
+    const ringThickness = 15.0;
+    final colors = [
+      brightRed,
+      brightYellow,
+      brightGreen,
+      liteGreen,
+      deepPurple,
+    ];
+    return List.generate(5, (i) {
       final isTouched = i == touchedIndex;
-      final double outerRadius =
-          isTouched ? outerRadiusNormal + 10 : outerRadiusNormal;
-      Color sectionColor;
-      switch (i) {
-        case 0:
-          sectionColor = brightRed;
-          break;
-        case 1:
-          sectionColor = brightYellow;
-          break;
-        case 2:
-          sectionColor = brightGreen;
-          break;
-        case 3:
-        default:
-          sectionColor = liteGreen;
-          break;
-      }
       return PieChartSectionData(
-        value: 25,
-        color: sectionColor,
-        title: '', // No text in the ring.
-        radius: outerRadius,
+        color: colors[i],
+        value: 20, // equal slices
+        radius: isTouched ? ringThickness + 8 : ringThickness,
+        title: '',
       );
     });
   }
@@ -136,12 +105,11 @@ class _MarketWeatherState extends State<MarketWeather> {
   IconData _getWeatherIcon() {
     switch (selectedTimeFrame) {
       case 0:
-        return Icons.wb_sunny_rounded; // Today → Sunny
+        return Icons.wb_sunny_rounded;
       case 1:
-        return Icons.cloud_queue_rounded; // This Week → Cloudy
-      case 2:
+        return Icons.cloud_queue_rounded;
       default:
-        return Icons.bolt_rounded; // This Month → Stormy
+        return Icons.bolt_rounded;
     }
   }
 
@@ -156,6 +124,7 @@ class _MarketWeatherState extends State<MarketWeather> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Header
             Row(
@@ -171,94 +140,82 @@ class _MarketWeatherState extends State<MarketWeather> {
             ),
             const SizedBox(height: 12),
 
-            // Time Toggle and Market Label
+            // Time toggle
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
                   onPressed: _toggleTimeFrame,
-                  child: Text(
-                    timeFrameLabel,
+                  child: Text(timeFrameLabel,
+                      style: theme.textTheme.bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w500)),
+                ),
+                Text("Stable",
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                Text(
-                  "Stable",
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blueAccent,
-                  ),
-                ),
+                        fontWeight: FontWeight.w600,
+                        color: Colors.blueAccent)),
               ],
             ),
             const SizedBox(height: 16),
 
-            /// Expanded donut chart area that scales between the toggle and the forecast text.
-            Expanded(
-              child: Center(
-                child: GestureDetector(
-                  onTapUp: (details) {
-                    _showDonutDetailsModal();
-                  },
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      AspectRatio(
-                        aspectRatio: 1,
-                        child: PieChart(
-                          PieChartData(
-                            pieTouchData: PieTouchData(
-                              enabled: true,
-                              touchCallback:
-                                  (FlTouchEvent event, pieTouchResponse) {
-                                setState(() {
-                                  if (!event.isInterestedForInteractions ||
-                                      pieTouchResponse == null ||
-                                      pieTouchResponse.touchedSection == null) {
-                                    touchedIndex = -1;
-                                    return;
-                                  }
-                                  touchedIndex = pieTouchResponse
-                                      .touchedSection!.touchedSectionIndex;
-                                });
-                              },
-                            ),
-                            sectionsSpace: 12,
-                            centerSpaceRadius: 75,
-                            sections: _buildSections(),
-                          ),
-                        ),
+            // Donut + overlay
+            SizedBox(
+              height: 200,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  PieChart(
+                    PieChartData(
+                      centerSpaceRadius: 75,
+                      sectionsSpace: 12,
+                      pieTouchData: PieTouchData(
+                        enabled: true,
+                        touchCallback: (event, resp) {
+                          setState(() {
+                            if (resp == null ||
+                                resp.touchedSection == null ||
+                                !event.isInterestedForInteractions) {
+                              touchedIndex = -1;
+                            } else {
+                              touchedIndex = resp
+                                  .touchedSection!.touchedSectionIndex;
+                            }
+                          });
+                        },
                       ),
-
-                      /// Centered weather icon (large)
-                      Icon(
-                        _getWeatherIcon(),
-                        size: 72,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .secondary, // Uses AppConstants.neonGreen
-                      ),
-                    ],
+                      sections: _buildSections(),
+                    ),
                   ),
-                ),
+
+                  // if no slice hovered, show weather icon; else show label+desc
+                  if (touchedIndex < 0)
+                    Icon(_getWeatherIcon(),
+                        size: 72, color: scheme.secondary)
+                  else
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(_labels[touchedIndex],
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        Text(_descriptions[touchedIndex],
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(color: scheme.onSurface)),
+                      ],
+                    ),
+                ],
               ),
             ),
 
-            /// Forecast text along the bottom.
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  forecastText,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
+            // Forecast text (always stays put)
+            const SizedBox(height: 16),
+            Text(forecastText,
+                style: theme.textTheme.bodyLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center),
           ],
         ),
       ),

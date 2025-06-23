@@ -1,6 +1,8 @@
-// lib\widgets\screen_specific_widgets\current_widgets\community_&_gamification\rewards_inventory.dart
+// lib/widgets/screen_specific_widgets/current_widgets/community_&_gamification/rewards_inventory.dart
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class RewardsInventoryWidget extends StatefulWidget {
   const RewardsInventoryWidget({super.key});
@@ -82,6 +84,54 @@ class _RewardsInventoryWidgetState extends State<RewardsInventoryWidget> {
     });
   }
 
+  void _showRewardModal(int index) {
+    final reward = _rewards[index];
+    final theme = Theme.of(context);
+    final fmt = DateFormat('MMM d, y');
+
+    showNewReusableModal(
+      context,
+      title: reward.title,
+      size: WidgetModalSize.small,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(child: Text(reward.icon, style: const TextStyle(fontSize: 48))),
+          const SizedBox(height: 16),
+          Text(reward.title,
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text(reward.source, style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          Text(
+            reward.claimed
+                ? 'Claimed on ${fmt.format(reward.dateEarned)}'
+                : 'Earned on ${fmt.format(reward.dateEarned)}',
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: 16),
+          if (!reward.claimed)
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _claimReward(index);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber,
+                foregroundColor: Colors.black,
+              ),
+              child: const Text('Claim Now'),
+            )
+          else
+            Center(
+              child: Icon(Icons.check_circle,
+                  color: theme.colorScheme.primary, size: 40),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -103,14 +153,16 @@ class _RewardsInventoryWidgetState extends State<RewardsInventoryWidget> {
                   isSelected: [_showClaimed == false, _showClaimed == true],
                   onPressed: (i) => setState(() => _showClaimed = (i == 1)),
                   children: const [Text("Unclaimed"), Text("Claimed")],
-                )
+                ),
               ],
             ),
             const SizedBox(height: 16),
             if (filtered.isEmpty)
               Center(
                 child: Text(
-                  _showClaimed ? "You’ve claimed everything—well done!" : "No rewards yet. Start predicting!",
+                  _showClaimed
+                      ? "You’ve claimed everything—well done!"
+                      : "No rewards yet. Start predicting!",
                   style: theme.textTheme.bodyMedium,
                 ),
               )
@@ -118,47 +170,68 @@ class _RewardsInventoryWidgetState extends State<RewardsInventoryWidget> {
               Expanded(
                 child: ListView.builder(
                   itemCount: filtered.length,
-                  itemBuilder: (context, index) {
-                    final reward = filtered[index];
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceVariant,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          if (!reward.claimed)
-                            BoxShadow(
-                              color: theme.colorScheme.primary.withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemBuilder: (context, idx) {
+                    final reward = filtered[idx];
+                    final originalIndex = _rewards.indexOf(reward);
+                    return GestureDetector(
+                      onTap: () => _showRewardModal(originalIndex),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceVariant,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            if (!reward.claimed)
+                              BoxShadow(
+                                color: theme.colorScheme.primary.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                          ],
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(reward.icon, style: const TextStyle(fontSize: 32)),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    reward.title,
+                                    style: theme.textTheme.titleSmall
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    reward.source,
+                                    style: theme.textTheme.bodySmall
+                                        ?.copyWith(color: theme.hintColor),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "+${reward.amount} ${reward.type}",
+                                    style: theme.textTheme.bodyMedium
+                                        ?.copyWith(color: theme.colorScheme.primary),
+                                  ),
+                                ],
+                              ),
                             ),
-                        ],
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(reward.icon, style: const TextStyle(fontSize: 32)),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(reward.title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
-                                Text(reward.source, style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
-                                Text("+${reward.amount} ${reward.type}", style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary)),
-                              ],
-                            ),
-                          ),
-                          if (!reward.claimed)
-                            ElevatedButton(
-                              onPressed: () => _claimReward(index),
-                              child: const Text("Claim"),
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
-                            )
-                          else
-                            const Icon(Icons.check_circle, color: Colors.grey),
-                        ],
+                            if (!reward.claimed)
+                              ElevatedButton(
+                                onPressed: () => _claimReward(originalIndex),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.amber,
+                                ),
+                                child: const Text("Claim"),
+                              )
+                            else
+                              const Icon(Icons.check_circle, color: Colors.grey),
+                          ],
+                        ),
                       ),
                     );
                   },

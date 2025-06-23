@@ -1,4 +1,4 @@
-// lib\widgets\screen_specific_widgets\current_widgets\community_&_gamification\top_sector_rankings.dart
+// lib/widgets/screen_specific_widgets/current_widgets/community_&_gamification/top_sector_rankings.dart
 
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
@@ -23,16 +23,53 @@ class _TopSectorRankingsWidgetState extends State<TopSectorRankingsWidget> {
   ];
 
   void _openFullLeaderboardModal() {
-    showDialog(
-      context: context,
-      builder: (_) => NewWidgetModal(
-        title: 'Full Sector Leaderboard',
-        size: WidgetModalSize.medium,
-        onClose: () => Navigator.of(context).pop(),
-        child: const Padding(
-          padding: EdgeInsets.all(16),
-          child: Text('Expanded leaderboard and sector filter UI goes here.'),
-        ),
+    showNewReusableModal(
+      context,
+      title: 'Full Sector Leaderboard',
+      size: WidgetModalSize.medium,
+      child: const Padding(
+        padding: EdgeInsets.all(16),
+        child: Text('Expanded leaderboard and sector filter UI goes here.'),
+      ),
+    );
+  }
+
+  void _openEntryModal(Map<String, dynamic> entry) {
+    final isUser = entry['name'] == 'You';
+    showNewReusableModal(
+      context,
+      title: 'Rank #${entry['rank']} Details',
+      size: WidgetModalSize.small,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            entry['rank'] <= 3
+                ? ['🥇', '🥈', '🥉'][entry['rank'] - 1]
+                : '${entry['rank']}.',
+            style: const TextStyle(fontSize: 48),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            entry['name'],
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '+${(entry['gain'] as double).toStringAsFixed(1)}% WRX gain',
+            style: TextStyle(
+              fontSize: 16,
+              color: isUser ? Theme.of(context).colorScheme.primary : null,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            isUser
+                ? 'Keep it up! You’re climbing the ranks in $activeSector.'
+                : 'View ${entry['name']}’s full performance in $activeSector.',
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
@@ -40,6 +77,7 @@ class _TopSectorRankingsWidgetState extends State<TopSectorRankingsWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final highlightColor = theme.colorScheme.primary.withOpacity(0.2);
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -49,16 +87,16 @@ class _TopSectorRankingsWidgetState extends State<TopSectorRankingsWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("📊 Top Sector Rankings",
-                    style: theme.textTheme.titleMedium),
+                Text("📊 Top Sector Rankings", style: theme.textTheme.titleMedium),
                 IconButton(
                   icon: const Icon(Icons.bar_chart),
                   tooltip: "View Full Leaderboard",
                   onPressed: _openFullLeaderboardModal,
-                )
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -71,8 +109,10 @@ class _TopSectorRankingsWidgetState extends State<TopSectorRankingsWidget> {
                 borderRadius: BorderRadius.circular(12),
                 color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
               ),
-              child: Text("You’re #4 in AI Sector • +15.2% WRX gain",
-                  style: theme.textTheme.bodyMedium),
+              child: Text(
+                "You’re #4 in $activeSector Sector • +15.2% WRX gain",
+                style: theme.textTheme.bodyMedium,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -91,14 +131,20 @@ class _TopSectorRankingsWidgetState extends State<TopSectorRankingsWidget> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: isActive ? theme.colorScheme.primary : theme.colorScheme.surface,
+                        color: isActive
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: theme.colorScheme.primary.withOpacity(0.4)),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withOpacity(0.4),
+                        ),
                       ),
                       child: Text(
                         sector,
                         style: theme.textTheme.labelLarge!.copyWith(
-                          color: isActive ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface,
+                          color: isActive
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -108,44 +154,52 @@ class _TopSectorRankingsWidgetState extends State<TopSectorRankingsWidget> {
             ),
             const SizedBox(height: 16),
 
-            // Leaderboard Table
+            // Leaderboard List
             Column(
               children: dummyLeaderboard.map((entry) {
                 final isUser = entry['name'] == 'You';
-                return Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  decoration: BoxDecoration(
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
                     borderRadius: BorderRadius.circular(8),
-                    color: isUser
-                        ? theme.colorScheme.primary.withOpacity(0.2)
-                        : theme.cardColor,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${entry['rank'] <= 3 ? ['🥇','🥈','🥉'][entry['rank']-1] : entry['rank']}.',
-                        style: theme.textTheme.bodyLarge,
+                    onTap: () => _openEntryModal(entry),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: isUser ? highlightColor : theme.cardColor,
                       ),
-                      Expanded(
-                        child: Text(
-                          entry['name'],
-                          style: theme.textTheme.bodyLarge,
-                          textAlign: TextAlign.center,
-                        ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            entry['rank'] <= 3
+                                ? ['🥇', '🥈', '🥉'][entry['rank'] - 1]
+                                : '${entry['rank']}.',
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                          Expanded(
+                            child: Text(
+                              entry['name'],
+                              style: theme.textTheme.bodyLarge,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Text(
+                            '+${(entry['gain'] as double).toStringAsFixed(1)}%',
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                        ],
                       ),
-                      Text(
-                        '+${entry['gain'].toStringAsFixed(1)}%',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                    ],
+                    ),
                   ),
                 );
               }).toList(),
             ),
-
             const SizedBox(height: 16),
+
+            // Actions
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -158,8 +212,10 @@ class _TopSectorRankingsWidgetState extends State<TopSectorRankingsWidget> {
                   child: const Text("View Full Leaderboard"),
                 ),
                 TextButton(
-                  onPressed: () {},
-                  child: const Text("Earn your AI badge"),
+                  onPressed: () {
+                    // TODO: navigate to badge-earning flow
+                  },
+                  child: Text("Earn your $activeSector badge"),
                 ),
               ],
             ),
@@ -169,3 +225,4 @@ class _TopSectorRankingsWidgetState extends State<TopSectorRankingsWidget> {
     );
   }
 }
+

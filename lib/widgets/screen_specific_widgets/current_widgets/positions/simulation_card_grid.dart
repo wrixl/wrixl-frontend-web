@@ -1,12 +1,107 @@
-// lib\widgets\screen_specific_widgets\current_widgets\positions\simulation_card_grid.dart
+// lib/widgets/screen_specific_widgets/current_widgets/positions/simulation_card_grid.dart
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class SimulationCardGrid extends StatelessWidget {
   final List<SimulationStrategy> strategies;
 
   const SimulationCardGrid({super.key, required this.strategies});
+
+  void _showSimulationModal(BuildContext context, SimulationStrategy sim) {
+    final perfColor = sim.performance >= 0 ? Colors.greenAccent : Colors.redAccent;
+    showNewReusableModal(
+      context,
+      title: sim.title,
+      size: WidgetModalSize.medium,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            sim.title,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Text('Status: ', style: Theme.of(context).textTheme.bodyMedium),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: sim.status == 'Active'
+                      ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                      : Theme.of(context).dividerColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  sim.status,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: sim.status == 'Active'
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).hintColor,
+                      ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Start Date: ${sim.startDate}',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Performance: ${sim.performance >= 0 ? '+' : ''}${sim.performance.toStringAsFixed(1)}%',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: perfColor, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Confidence: ${sim.confidence}',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Tokens:',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: sim.tokens.map((tok) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundImage: NetworkImage(tok.iconUrl),
+                    backgroundColor: Colors.transparent,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(tok.symbol, style: Theme.of(context).textTheme.bodySmall),
+                ],
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Tag: ${sim.tag}',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +141,12 @@ class SimulationCardGrid extends StatelessWidget {
                 final perfColor = sim.performance >= 0
                     ? Colors.greenAccent
                     : Colors.redAccent;
+                final borderColor = sim.status == 'Active'
+                    ? theme.colorScheme.primary
+                    : theme.dividerColor;
 
                 return GestureDetector(
-                  onTap: () {},
+                  onTap: () => _showSimulationModal(context, sim),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     padding: const EdgeInsets.all(14),
@@ -62,12 +160,7 @@ class SimulationCardGrid extends StatelessWidget {
                           offset: const Offset(0, 4),
                         ),
                       ],
-                      border: Border.all(
-                        color: sim.status == 'Active'
-                            ? theme.colorScheme.primary
-                            : theme.dividerColor,
-                        width: 1.2,
-                      ),
+                      border: Border.all(color: borderColor, width: 1.2),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,16 +170,13 @@ class SimulationCardGrid extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 sim.title,
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 color: sim.status == 'Active'
                                     ? theme.colorScheme.primary.withOpacity(0.1)
@@ -119,30 +209,23 @@ class SimulationCardGrid extends StatelessWidget {
                             const Spacer(),
                             Text(
                               sim.startDate,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.hintColor,
-                              ),
+                              style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
                             ),
                           ],
                         ),
                         const SizedBox(height: 6),
                         Text(
                           'Confidence: ${sim.confidence}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.secondary,
-                          ),
+                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.secondary),
                         ),
                         const SizedBox(height: 10),
                         Wrap(
                           spacing: 6,
-                          children: sim.tokens
-                              .map((token) => CircleAvatar(
-                                    radius: 14,
-                                    backgroundImage:
-                                        NetworkImage(token.iconUrl),
-                                    backgroundColor: Colors.transparent,
-                                  ))
-                              .toList(),
+                          children: sim.tokens.map((token) => CircleAvatar(
+                                radius: 14,
+                                backgroundImage: NetworkImage(token.iconUrl),
+                                backgroundColor: Colors.transparent,
+                              )).toList(),
                         ),
                         const Spacer(),
                         Align(
@@ -203,16 +286,9 @@ final List<SimulationStrategy> dummySimulations = [
     performance: 29.8,
     confidence: 'Medium',
     tokens: [
-      SimToken(
-          symbol: 'SOL',
-          iconUrl: 'https://cryptologos.cc/logos/solana-sol-logo.png'),
-      SimToken(
-          symbol: 'LINK',
-          iconUrl: 'https://cryptologos.cc/logos/chainlink-link-logo.png'),
-      SimToken(
-          symbol: 'INJ',
-          iconUrl:
-              'https://cryptologos.cc/logos/injective-protocol-inj-logo.png'),
+      SimToken(symbol: 'SOL', iconUrl: 'https://cryptologos.cc/logos/solana-sol-logo.png'),
+      SimToken(symbol: 'LINK', iconUrl: 'https://cryptologos.cc/logos/chainlink-link-logo.png'),
+      SimToken(symbol: 'INJ', iconUrl: 'https://cryptologos.cc/logos/injective-protocol-inj-logo.png'),
     ],
     tag: 'Outperforming',
   ),
@@ -223,12 +299,8 @@ final List<SimulationStrategy> dummySimulations = [
     performance: -6.5,
     confidence: 'Low',
     tokens: [
-      SimToken(
-          symbol: 'UNI',
-          iconUrl: 'https://cryptologos.cc/logos/uniswap-uni-logo.png'),
-      SimToken(
-          symbol: 'LINK',
-          iconUrl: 'https://cryptologos.cc/logos/chainlink-link-logo.png'),
+      SimToken(symbol: 'UNI', iconUrl: 'https://cryptologos.cc/logos/uniswap-uni-logo.png'),
+      SimToken(symbol: 'LINK', iconUrl: 'https://cryptologos.cc/logos/chainlink-link-logo.png'),
     ],
     tag: 'Underperforming',
   ),
@@ -239,15 +311,9 @@ final List<SimulationStrategy> dummySimulations = [
     performance: 27.7,
     confidence: 'High',
     tokens: [
-      SimToken(
-          symbol: 'UNI',
-          iconUrl: 'https://cryptologos.cc/logos/uniswap-uni-logo.png'),
-      SimToken(
-          symbol: 'ETH',
-          iconUrl: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'),
-      SimToken(
-          symbol: 'SOL',
-          iconUrl: 'https://cryptologos.cc/logos/solana-sol-logo.png'),
+      SimToken(symbol: 'UNI', iconUrl: 'https://cryptologos.cc/logos/uniswap-uni-logo.png'),
+      SimToken(symbol: 'ETH', iconUrl: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'),
+      SimToken(symbol: 'SOL', iconUrl: 'https://cryptologos.cc/logos/solana-sol-logo.png'),
     ],
     tag: 'Outperforming',
   ),

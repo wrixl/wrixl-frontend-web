@@ -1,7 +1,8 @@
-// lib\widgets\screen_specific_widgets\current_widgets\community_&_gamification\user_leaderboard.dart
+// lib/widgets/screen_specific_widgets/current_widgets/community_&_gamification/user_leaderboard.dart
 
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class UserLeaderboardWidget extends StatefulWidget {
   const UserLeaderboardWidget({Key? key}) : super(key: key);
@@ -23,6 +24,33 @@ class _UserLeaderboardWidgetState extends State<UserLeaderboardWidget> {
       'trend': ['up', 'down', 'stable'][Random().nextInt(3)],
     };
   });
+
+  void _showUserModal(Map<String, dynamic> user) {
+    final theme = Theme.of(context);
+    showNewReusableModal(
+      context,
+      title: user['username'],
+      size: WidgetModalSize.small,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Rank #${user['rank']}', style: theme.textTheme.titleLarge),
+          const SizedBox(height: 8),
+          Text('XP: ${user['xp']}', style: theme.textTheme.bodyMedium),
+          Text('WRX Earned: ${user['wrx'].toStringAsFixed(2)}',
+               style: theme.textTheme.bodyMedium),
+          Text('Tier: ${user['tier']}', style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text('Trend: ', style: theme.textTheme.bodyMedium),
+              _buildTrendIcon(user['trend']),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,9 +94,10 @@ class _UserLeaderboardWidgetState extends State<UserLeaderboardWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('You are #$userRank of $userCount',
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.bold)),
-                          Text('$userXP XP • $userTier Tier'),
+                              style: theme.textTheme.bodyLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                          Text('$userXP XP • $userTier Tier',
+                              style: theme.textTheme.bodyMedium),
                         ],
                       ),
                     ],
@@ -100,46 +129,50 @@ class _UserLeaderboardWidgetState extends State<UserLeaderboardWidget> {
                 itemBuilder: (context, index) {
                   final user = _dummyUsers[index];
                   final isTop3 = user['rank'] <= 3;
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: user['username'] == 'User12'
-                          ? theme.colorScheme.primary.withOpacity(0.05)
-                          : null,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Text('#${user['rank']}',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: isTop3
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  fontSize: isTop3 ? 18 : 14,
-                                )),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(user['username'],
-                                    style: theme.textTheme.bodyLarge),
-                                Text('${user['xp']} XP',
-                                    style: theme.textTheme.bodySmall),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            _buildTierBadge(user['tier']),
-                            const SizedBox(width: 8),
-                            _buildTrendIcon(user['trend']),
-                          ],
-                        ),
-                      ],
+                  return GestureDetector(
+                    onTap: () => _showUserModal(user),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: user['username'] == 'User12'
+                            ? theme.colorScheme.primary.withOpacity(0.05)
+                            : null,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Text('#${user['rank']}',
+                                  style: theme.textTheme.titleMedium
+                                      ?.copyWith(
+                                        fontWeight: isTop3
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                        fontSize: isTop3 ? 18 : 14,
+                                      )),
+                              const SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(user['username'],
+                                      style: theme.textTheme.bodyLarge),
+                                  Text('${user['xp']} XP',
+                                      style: theme.textTheme.bodySmall),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              _buildTierBadge(user['tier']),
+                              const SizedBox(width: 8),
+                              _buildTrendIcon(user['trend']),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },

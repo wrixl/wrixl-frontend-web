@@ -130,46 +130,73 @@ class _MarketIntelligenceScreenState extends State<MarketIntelligenceScreen>
     switch (tab) {
       case 'Trends':
         return createItems([
-          {'id': 'Narrative Filter', 'x': 0, 'y': 0, 'w': 12, 'h': 2, 'minW': 12},
-          {'id': 'Narrative Intelligence Feed', 'x': 0, 'y': 2, 'w': 8, 'h': 5,'minW': 8},
-          {'id': 'Narrative Momentum Heatmap', 'x': 8, 'y': 2, 'w': 4, 'h': 5, 'minW': 4},
-          {'id': 'Capital Movement Map', 'x': 0, 'y': 7, 'w': 12, 'h': 4, 'minW': 12},
-          {'id': 'Today\'s Intelligence Summary', 'x': 0, 'y': 11, 'w': 4, 'h': 4, 'minW': 4},
-          {'id': 'Market Weather', 'x': 4, 'y': 11, 'w': 4, 'h': 4, 'minW': 4},
-          {'id': 'Compare Intelligence', 'x': 0, 'y': 15, 'w': 4, 'h': 4, 'minW': 4},          
-          {'id': 'Macro Insights', 'x': 0, 'y': 19, 'w': 4, 'h': 4, 'minW': 4},
-          {'id': 'Correlation Matrix', 'x': 0, 'y': 23, 'w': 12, 'h': 5, 'minW': 4},
-          {'id': 'Narrative Velocity Tracker', 'x': 0, 'y': 28, 'w': 6, 'h': 4, 'minW': 4},
-          {'id': 'Stablecoin Flow', 'x': 6, 'y': 32, 'w': 6, 'h': 4, 'minW': 4},
-          {'id': 'ETH vs BTC Dominance', 'x': 0, 'y': 36, 'w': 12, 'h': 4, 'minW': 4},
+          {'id': 'Narrative Filter',             'x': 0, 'y':  0, 'w': 12, 'h': 2, 'minW': 12},
+          {'id': 'Capital Movement Map',         'x': 0, 'y':  2, 'w': 12, 'h': 4, 'minW': 12},
+          {'id': 'Narrative Momentum Heatmap',   'x': 0, 'y':  6, 'w':  4, 'h': 4, 'minW':  4},
+          {'id': 'Narrative Intelligence Feed',  'x': 4, 'y':  6, 'w':  5, 'h': 4, 'minW':  4},
+          {'id': 'Market Weather',               'x': 9, 'y':  6, 'w':  3, 'h': 4, 'minW':  3},
+          {'id': 'Macro Insights',               'x': 0, 'y': 10, 'w': 12, 'h': 4, 'minW':  4},
+          {'id': 'Compare Intelligence',         'x': 0, 'y': 14, 'w': 12, 'h': 4, 'minW':  4},
+          {'id': 'Narrative Velocity Tracker',   'x': 0, 'y': 18, 'w':  6, 'h': 4, 'minW':  4},
+          {'id': 'Today\'s Intelligence Summary', 'x': 6, 'y': 18, 'w':  6, 'h': 4, 'minW':  4},
+          {'id': 'Correlation Matrix',           'x': 0, 'y': 22, 'w': 12, 'h': 5, 'minW':  4},
+          {'id': 'ETH vs BTC Dominance',         'x': 0, 'y': 27, 'w':  6, 'h': 4, 'minW':  4},
+          {'id': 'Stablecoin Flow',              'x': 6, 'y': 27, 'w':  6, 'h': 4, 'minW':  4},
         ]);
+
       case 'Smart Money':
         return createItems([
-          {'id': 'Wallet Leaderboard', 'x': 0, 'y': 0, 'w': 12, 'h': 4, 'minW': 12},
-          {'id': 'Mirror Strategy', 'x': 0, 'y': 4, 'w': 4, 'h': 3, 'minW': 4},
-          {'id': 'Wallet Strategy Card', 'x': 4, 'y': 4, 'w': 4, 'h': 4, 'minW': 4},
-          {'id': 'Smart Trades Ticker', 'x': 8, 'y': 4, 'w': 4, 'h': 4, 'minW': 4},
-          {'id': 'Drift vs You', 'x': 0, 'y': 8, 'w': 4, 'h': 4, 'minW': 4},
-          {'id': 'Wallet Clusters', 'x': 4, 'y': 8, 'w': 4, 'h': 4, 'minW': 4},
-          {'id': 'Rotations Map', 'x': 8, 'y': 8, 'w': 4, 'h': 4, 'minW': 4},
-          {'id': 'Conviction Radar', 'x': 0, 'y': 12, 'w': 12, 'h': 4, 'minW': 4},
+          {'id': 'Wallet Leaderboard', 'x': 0, 'y': 0, 'w': 4, 'h': 3, 'minW': 4},
+          {'id': 'Conviction Radar', 'x': 4, 'y': 0, 'w': 8, 'h': 3, 'minW': 4},
+          {'id': 'Mirror Strategy', 'x': 0, 'y': 3, 'w': 4, 'h': 5, 'minW': 4},
+          {'id': 'Wallet Strategy Card', 'x': 4, 'y': 3, 'w': 4, 'h': 5, 'minW': 4},
+          {'id': 'Drift vs You', 'x': 8, 'y': 3, 'w': 4, 'h': 5, 'minW': 4},
+          {'id': 'Rotations Map', 'x': 0, 'y': 8, 'w': 4, 'h': 6, 'minW': 4},
+          {'id': 'Wallet Clusters', 'x': 4, 'y': 8, 'w': 8, 'h': 6, 'minW': 4},
+          {'id': 'Smart Trades Ticker', 'x': 0, 'y': 14, 'w': 12, 'h': 3, 'minW': 4},
         ]);
+
       case 'Signals':
         return createItems([
-          {'id': 'Signal Feed', 'x': 0, 'y': 0, 'w': 12, 'h': 4,'minW': 12},
-          {'id': 'Top Gainers / Losers', 'x': 0, 'y': 4, 'w': 6, 'h': 4, 'minW': 6},
-          {'id': 'My Relevant Alerts', 'x': 6, 'y': 4, 'w': 6, 'h': 4,'minW': 6},
-          {'id': 'Correlation Matrix', 'x': 0, 'y': 8, 'w': 12, 'h': 4, 'minW': 8},
-          {'id': 'Whale Alerts Timeline', 'x': 0, 'y': 12, 'w': 6, 'h': 4, 'minW': 4},
-          {'id': 'Anomaly Map','x': 6, 'y': 12, 'w': 6, 'h': 4, 'minW': 4},
-          {'id': 'Sector Movers', 'x': 0, 'y': 16, 'w': 12, 'h': 4, 'minW': 4},
-          {'id': 'Signal Accuracy Leaderboard', 'x': 0, 'y': 20, 'w': 12, 'h': 4, 'minW': 4},
-          {'id': 'Smart News Strip','x': 0, 'y': 24, 'w': 12, 'h': 4, 'minW': 4},
+          {'id': 'Signal Feed', 'x': 0, 'y': 0, 'w': 12, 'h': 3, 'minW': 12},
+          {'id': 'Top Gainers / Losers', 'x': 0, 'y': 3, 'w': 6, 'h': 6, 'minW': 6},
+          {'id': 'My Relevant Alerts', 'x': 6, 'y': 3, 'w': 6, 'h': 6, 'minW': 6},
+          {'id': 'Correlation Matrix', 'x': 0, 'y': 9, 'w': 12, 'h': 5, 'minW': 8},
+          {'id': 'Whale Alerts Timeline', 'x': 0, 'y': 14, 'w': 6, 'h': 5, 'minW': 4},
+          {'id': 'Anomaly Map', 'x': 6, 'y': 14, 'w': 6, 'h': 5, 'minW': 4},
+          {'id': 'Sector Movers', 'x': 0, 'y': 19, 'w': 12, 'h': 4, 'minW': 4},
+          {'id': 'Signal Accuracy Leaderboard', 'x': 0, 'y': 23, 'w': 12, 'h': 4, 'minW': 4},
+          {'id': 'Smart News Strip', 'x': 0, 'y': 27, 'w': 12, 'h': 3, 'minW': 4},
         ]);
+
       default:
         return [];
     }
   }
+
+  final noTap = {
+    'Capital Movement Map',
+    'Compare Intelligence',
+    'Macro Insights',
+    'Narrative Intelligence Feed',
+    'Narrative Momentum Heatmap',
+    'Rotations Map',
+    'Smart Trades Ticker',
+    'Wallet Leaderboard',
+    'Conviction Radar',
+    'Wallet Strategy Card',
+//    'Drift vs You',
+    'Signal Feed',
+    'Top Gainers / Losers',
+    'My Relevant Alerts',
+    'Whale Alerts Timeline',
+    'Anomaly Map',
+    'Sector Movers',
+    'Signal Accuracy Leaderboard',
+    'Smart News Strip',
+  };
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -391,6 +418,7 @@ class _MarketIntelligenceScreenState extends State<MarketIntelligenceScreen>
                         },
                         modalTitle: id,
                         modalSize: WidgetModalSize.medium,
+                        enableCardTap: !noTap.contains(id),
                       );
                     },
                   );

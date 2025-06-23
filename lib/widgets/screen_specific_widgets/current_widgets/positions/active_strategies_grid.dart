@@ -1,17 +1,80 @@
-// lib\widgets\screen_specific_widgets\current_widgets\positions\active_strategies_grid.dart
+// lib/widgets/screen_specific_widgets/current_widgets/positions/active_strategies_grid.dart
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class ActiveStrategiesGrid extends StatelessWidget {
   final List<StrategyPosition> strategies;
-  final void Function(StrategyPosition)? onTap;
 
   const ActiveStrategiesGrid({
     super.key,
     required this.strategies,
-    this.onTap,
   });
+
+  void _showStrategyModal(BuildContext context, StrategyPosition strategy) {
+    final formatter = NumberFormat.compactCurrency(symbol: '\$');
+    final changeColor =
+        strategy.change >= 0 ? Colors.green : Colors.red;
+    showNewReusableModal(
+      context,
+      title: strategy.name,
+      size: WidgetModalSize.medium,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Capital: ${formatter.format(strategy.capital)}',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Portfolio %: ${strategy.percentOfPortfolio.toStringAsFixed(1)}%',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Change: ${strategy.change >= 0 ? '+' : ''}${strategy.change.toStringAsFixed(2)}%',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: changeColor, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Last Action: ${strategy.lastAction}',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Tokens:',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: strategy.tokenIcons.take(5).map((iconUrl) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(iconUrl),
+                  backgroundColor: Colors.transparent,
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Here you can add more detailed analytics, performance charts, or action buttons.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,29 +84,36 @@ class ActiveStrategiesGrid extends StatelessWidget {
     final formatter = NumberFormat.compactCurrency(symbol: '\$');
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       color: theme.colorScheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("📊 Active Strategies",
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    )),
-                const Icon(Icons.auto_graph, color: Colors.indigoAccent),
+                Text(
+                  "📊 Active Strategies",
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Icon(Icons.auto_graph,
+                    color: Colors.indigoAccent),
               ],
             ),
             const SizedBox(height: 16),
+            // Grid
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               padding: EdgeInsets.zero,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: isMobile ? 1 : 2,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
@@ -52,7 +122,9 @@ class ActiveStrategiesGrid extends StatelessWidget {
               itemCount: strategies.length,
               itemBuilder: (context, index) {
                 final strategy = strategies[index];
-                final changeColor = strategy.change >= 0 ? Colors.green : Colors.red;
+                final changeColor = strategy.change >= 0
+                    ? Colors.green
+                    : Colors.red;
                 final tileColor = strategy.change >= 5
                     ? Colors.green.withOpacity(0.05)
                     : strategy.change <= -5
@@ -60,29 +132,37 @@ class ActiveStrategiesGrid extends StatelessWidget {
                         : theme.colorScheme.surface;
 
                 return GestureDetector(
-                  onTap: () => onTap?.call(strategy),
+                  onTap: () =>
+                      _showStrategyModal(context, strategy),
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
+                    duration:
+                        const Duration(milliseconds: 300),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: tileColor,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius:
+                          BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: theme.shadowColor.withOpacity(0.05),
+                          color: theme.shadowColor
+                              .withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 6),
                         ),
                       ],
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
                       children: [
                         Text(
                           strategy.name,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: theme.textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                fontWeight:
+                                    FontWeight.bold,
+                              ),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -94,29 +174,39 @@ class ActiveStrategiesGrid extends StatelessWidget {
                           children: [
                             Text(
                               '${strategy.change >= 0 ? '+' : ''}${strategy.change.toStringAsFixed(2)}%',
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: changeColor,
-                              ),
+                              style: theme.textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    fontWeight:
+                                        FontWeight.bold,
+                                    color: changeColor,
+                                  ),
                             ),
                             const SizedBox(width: 8),
                             Text(
                               strategy.lastAction,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.hintColor,
-                              ),
+                              style: theme.textTheme.bodySmall
+                                  ?.copyWith(
+                                      color:
+                                          theme.hintColor),
                             ),
                           ],
                         ),
                         const Spacer(),
                         Row(
-                          children: strategy.tokenIcons.take(3).map((iconUrl) {
+                          children: strategy.tokenIcons
+                              .take(3)
+                              .map((iconUrl) {
                             return Padding(
-                              padding: const EdgeInsets.only(right: 6),
+                              padding:
+                                  const EdgeInsets.only(
+                                      right: 6),
                               child: CircleAvatar(
                                 radius: 14,
-                                backgroundImage: NetworkImage(iconUrl),
-                                backgroundColor: Colors.transparent,
+                                backgroundImage:
+                                    NetworkImage(iconUrl),
+                                backgroundColor:
+                                    Colors.transparent,
                               ),
                             );
                           }).toList(),

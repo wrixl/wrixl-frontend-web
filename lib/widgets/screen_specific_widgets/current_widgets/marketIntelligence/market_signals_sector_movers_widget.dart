@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/widgets/toggle_filter_icon_row_widget.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 /// Data model for a sector mover with extra fields.
 class SectorMover {
@@ -121,33 +122,66 @@ class _MarketSignalsSectorMoversWidgetState
   }
 
   void _showOptionsModal() {
-    final theme = Theme.of(context);
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: theme.colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    showNewReusableModal(
+      context,
+      title: "Sector Movers Options",
+      size: WidgetModalSize.small,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Additional options for Sector Movers can be placed here.",
+                style: Theme.of(context).textTheme.bodyMedium),
+            // add your option controls here...
+          ],
+        ),
       ),
-      builder: (_) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          height: 200,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Sector Movers Options",
-                style: theme.textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                "Additional options for Sector Movers can be placed here.",
-                style: theme.textTheme.bodyMedium,
-              ),
-            ],
+    );
+  }
+
+  void _showDetailsModal(SectorMover mover) {
+    final topTokens =
+        List<String>.generate(5, (i) => "Token ${i + 1}");
+    final bottomTokens = mover.tokensCount >= 10
+        ? List<String>.generate(
+            5, (i) => "Token ${mover.tokensCount - 5 + i + 1}")
+        : <String>[];
+
+    showNewReusableModal(
+      context,
+      title: mover.sectorName,
+      size: WidgetModalSize.medium,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Dev Activity: ${mover.devActivity}%\n"
+            "Wallet Growth: ${mover.walletGrowth}%\n"
+            "TX Volume: ${mover.txVolume}%\n"
+            "Market Cap Delta: ${mover.marketCapDelta}%\n\n"
+            "Market Cap: \$${mover.marketCap.toStringAsFixed(1)}M",
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
-        );
-      },
+          const SizedBox(height: 12),
+          Text("Top 5 Tokens:", style: Theme.of(context).textTheme.bodyMedium),
+          Text(topTokens.join(', '),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontWeight: FontWeight.bold)),
+          if (bottomTokens.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text("Bottom 5 Tokens:",
+                style: Theme.of(context).textTheme.bodyMedium),
+            Text(bottomTokens.join(', '),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+          ],
+        ],
+      ),
     );
   }
 
@@ -155,13 +189,10 @@ class _MarketSignalsSectorMoversWidgetState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final primary = scheme.primary;
-    final surface = scheme.surface;
-    final onSurface = scheme.onSurface;
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      color: surface,
+      color: scheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -173,7 +204,8 @@ class _MarketSignalsSectorMoversWidgetState
               children: [
                 Text("Sector Movers", style: theme.textTheme.titleMedium),
                 IconButton(
-                  icon: Icon(Icons.more_vert, color: onSurface.withOpacity(0.7)),
+                  icon: Icon(Icons.more_vert,
+                      color: scheme.onSurface.withOpacity(0.7)),
                   onPressed: _showOptionsModal,
                   tooltip: "Options",
                 ),
@@ -225,20 +257,19 @@ class _MarketSignalsSectorMoversWidgetState
                               ? Icons.arrow_downward
                               : Icons.remove,
                       size: 16,
-                      color: value > 0
-                          ? color
-                          : value < 0
-                              ? color
-                              : onSurface.withOpacity(0.6),
+                      color: value != 0 ? color : scheme.onSurface.withOpacity(0.6),
                     );
 
                     return Padding(
                       padding: const EdgeInsets.only(right: 20),
-                      child: _SectorMoverCard(
-                        mover: mover,
-                        metricValue: value,
-                        metricLabel: selectedMetric,
-                        trendIcon: trendIcon,
+                      child: InkWell(
+                        onTap: () => _showDetailsModal(mover),
+                        child: _SectorMoverCard(
+                          mover: mover,
+                          metricValue: value,
+                          metricLabel: selectedMetric,
+                          trendIcon: trendIcon,
+                        ),
                       ),
                     );
                   }).toList(),
@@ -248,63 +279,6 @@ class _MarketSignalsSectorMoversWidgetState
           ],
         ),
       ),
-    );
-  }
-
-  void _showDetailsDialog(SectorMover mover) {
-    final theme = Theme.of(context);
-    final topTokens = List<String>.generate(5, (i) => "Token ${i + 1}");
-    final bottomTokens = mover.tokensCount >= 10
-        ? List<String>.generate(
-            5, (i) => "Token ${mover.tokensCount - 5 + i + 1}")
-        : <String>[];
-
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          backgroundColor: theme.colorScheme.surface,
-          title: Text(mover.sectorName, style: theme.textTheme.titleLarge),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Detailed stats:\n\n"
-                  "Dev Activity: ${mover.devActivity}%\n"
-                  "Wallet Growth: ${mover.walletGrowth}%\n"
-                  "TX Volume: ${mover.txVolume}%\n"
-                  "Market Cap Delta: ${mover.marketCapDelta}%\n\n"
-                  "Market Cap: \$${mover.marketCap.toStringAsFixed(1)}M",
-                  style: theme.textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 12),
-                Text("Top 5 Tokens:", style: theme.textTheme.bodyMedium),
-                Text(
-                  topTokens.join(', '),
-                  style: theme.textTheme.bodyMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                if (bottomTokens.isNotEmpty) ...[
-                  Text("Bottom 5 Tokens:", style: theme.textTheme.bodyMedium),
-                  Text(
-                    bottomTokens.join(', '),
-                    style: theme.textTheme.bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("Close", style: theme.textTheme.labelLarge),
-            ),
-          ],
-        );
-      },
     );
   }
 }
@@ -345,122 +319,106 @@ class _SectorMoverCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = theme.colorScheme.primary;
-    final surfaceColor = theme.colorScheme.surface;
-    final onSurfaceColor = theme.colorScheme.onSurface;
-    final positiveColor = theme.colorScheme.secondary;
-    final negativeColor = theme.colorScheme.error;
-    final neutralColor = onSurfaceColor.withOpacity(0.6);
+    final scheme = theme.colorScheme;
 
-    return InkWell(
-      onTap: () {
-        (context.findAncestorStateOfType<
-                _MarketSignalsSectorMoversWidgetState>())
-            ?._showDetailsDialog(mover);
-      },
-      child: Container(
-        width: 300,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: surfaceColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: primaryColor.withOpacity(0.4)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top row: Icon and sector name.
-            Row(
-              children: [
-                Icon(mover.icon, color: primaryColor, size: 24),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    mover.sectorName,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Metric value row.
-            Row(
-              children: [
-                Text(
-                  "${metricValue.toStringAsFixed(1)}%",
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    color: metricValue >= 0 ? positiveColor : negativeColor,
+    return Container(
+      width: 300,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.primary.withOpacity(0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top row: Icon and sector name.
+          Row(
+            children: [
+              Icon(mover.icon, color: scheme.primary, size: 24),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  mover.sectorName,
+                  style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
-                ),
-                const SizedBox(width: 8),
-                trendIcon,
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Sparkline chart.
-            SizedBox(
-              height: 80,
-              child: LineChart(
-                LineChartData(
-                  titlesData: FlTitlesData(show: false),
-                  gridData: FlGridData(show: false),
-                  borderData: FlBorderData(show: false),
-                  lineTouchData: LineTouchData(enabled: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: getChartSpots(),
-                      isCurved: true,
-                      gradient: LinearGradient(
-                        colors: [
-                          primaryColor,
-                          primaryColor.withOpacity(0.7),
-                        ],
-                      ),
-                      barWidth: 2,
-                      isStrokeCapRound: true,
-                      dotData: FlDotData(show: false),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        gradient: LinearGradient(
-                          colors: [
-                            primaryColor.withOpacity(0.3),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                    LineChartBarData(
-                      spots: getAverageSpots(),
-                      isCurved: false,
-                      color: neutralColor,
-                      barWidth: 1,
-                      dotData: FlDotData(show: false),
-                    ),
-                  ],
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            // Bottom row: Tokens count & market cap.
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Tokens: ${mover.tokensCount}",
-                  style: theme.textTheme.bodyMedium,
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Metric value row.
+          Row(
+            children: [
+              Text(
+                "${metricValue.toStringAsFixed(1)}%",
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  color: metricValue >= 0 ? scheme.secondary : scheme.error,
+                  fontWeight: FontWeight.bold,
                 ),
-                Text(
-                  "\$${mover.marketCap.toStringAsFixed(1)}M",
-                  style: theme.textTheme.bodyMedium,
-                ),
-              ],
+              ),
+              const SizedBox(width: 8),
+              trendIcon,
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Sparkline chart.
+          SizedBox(
+            height: 80,
+            child: LineChart(
+              LineChartData(
+                titlesData: FlTitlesData(show: false),
+                gridData: FlGridData(show: false),
+                borderData: FlBorderData(show: false),
+                lineTouchData: LineTouchData(enabled: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: getChartSpots(),
+                    isCurved: true,
+                    gradient: LinearGradient(
+                      colors: [
+                        scheme.primary,
+                        scheme.primary.withOpacity(0.7),
+                      ],
+                    ),
+                    barWidth: 2,
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: [
+                          scheme.primary.withOpacity(0.3),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                  LineChartBarData(
+                    spots: getAverageSpots(),
+                    isCurved: false,
+                    color: scheme.onSurface.withOpacity(0.6),
+                    barWidth: 1,
+                    dotData: FlDotData(show: false),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 12),
+          // Bottom row: Tokens count & market cap.
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Tokens: ${mover.tokensCount}",
+                  style: theme.textTheme.bodyMedium),
+              Text("\$${mover.marketCap.toStringAsFixed(1)}M",
+                  style: theme.textTheme.bodyMedium),
+            ],
+          ),
+        ],
       ),
     );
   }

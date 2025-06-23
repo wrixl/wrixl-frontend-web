@@ -111,7 +111,6 @@ class SidebarXNavigation extends StatelessWidget {
                 SidebarXItem(icon: Icons.emoji_events, label: 'Community'), // 4
                 SidebarXItem(icon: Icons.history, label: 'Activity'), // 5
                 SidebarXItem(icon: Icons.person, label: 'Profile'), // 6
-                SidebarXItem(icon: Icons.square, label: 'Intelligence2'), // 7
               ],
             ),
           ),

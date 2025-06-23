@@ -1,7 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\missed_opportunities_widget.dart
 
-// lib/widgets/screen_specific_widgets/current_widgets/missed_opportunities_widget.dart
-
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -13,7 +11,8 @@ class MissedOpportunitiesWidget extends StatefulWidget {
       _MissedOpportunitiesWidgetState();
 }
 
-class _MissedOpportunitiesWidgetState extends State<MissedOpportunitiesWidget> {
+class _MissedOpportunitiesWidgetState
+    extends State<MissedOpportunitiesWidget> {
   final List<MissedOpportunity> missed = [
     MissedOpportunity(
       token: "SOL",
@@ -45,22 +44,33 @@ class _MissedOpportunitiesWidgetState extends State<MissedOpportunitiesWidget> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Missed Opportunities",
-            style: theme.textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          Column(
-            children: missed.map((m) => _buildMissedCard(context, m)).toList(),
-          ),
-        ],
-      ),
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final bool bounded = constraints.maxHeight.isFinite;
+
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: bounded
+            ? ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: _buildContent(context),
+              )
+            : _buildContent(context),
+      );
+    },
+  );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Missed Opportunities",
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        ...missed.map((m) => _buildMissedCard(context, m)),
+      ],
     );
   }
 
@@ -87,21 +97,24 @@ class _MissedOpportunitiesWidgetState extends State<MissedOpportunitiesWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        "${m.token} missed +${m.regretScore.toStringAsFixed(1)}%",
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: scheme.onSurface,
-                            )),
+                      "${m.token} missed +${m.regretScore.toStringAsFixed(1)}%",
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w600),
+                    ),
                     Text("${m.exitReason} · ${m.removedDaysAgo}d ago",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            )),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: scheme.onSurfaceVariant)),
                   ],
                 ),
               ),
               _behaviorTag(m.behaviorScore),
               const SizedBox(width: 6),
-              Icon(Icons.play_circle_outline, color: scheme.primary, size: 28)
+              Icon(Icons.play_circle_outline,
+                  color: scheme.primary, size: 28)
             ],
           ),
         ),

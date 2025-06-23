@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class RotationsMapWidget extends StatefulWidget {
   const RotationsMapWidget({Key? key}) : super(key: key);
@@ -56,7 +57,10 @@ class _RotationsMapWidgetState extends State<RotationsMapWidget> {
           children: [
             _buildHeader(theme),
             const SizedBox(height: 16),
-            _buildSectorTiles(),
+            ...sectors.map((s) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: _buildSectorTile(s),
+                )),
           ],
         ),
       ),
@@ -71,88 +75,138 @@ class _RotationsMapWidgetState extends State<RotationsMapWidget> {
         ToggleButtons(
           isSelected: timeframes.map((t) => t == selectedTimeframe).toList(),
           onPressed: (index) {
-            setState(() {
-              selectedTimeframe = timeframes[index];
-            });
+            setState(() => selectedTimeframe = timeframes[index]);
           },
           borderRadius: BorderRadius.circular(8),
-          selectedColor: Theme.of(context).colorScheme.primary,
-          fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+          selectedColor: theme.colorScheme.primary,
+          fillColor: theme.colorScheme.primary.withOpacity(0.1),
           textStyle: const TextStyle(fontWeight: FontWeight.bold),
-          children: timeframes.map((t) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text(t),
-            );
-          }).toList(),
+          children: timeframes
+              .map((t) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(t),
+                  ))
+              .toList(),
         ),
       ],
     );
   }
 
-  Widget _buildSectorTiles() {
-    return Column(
-      children: sectors
-          .map((sector) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: _buildSectorTile(sector),
-              ))
-          .toList(),
-    );
-  }
-
   Widget _buildSectorTile(Map<String, dynamic> sector) {
     final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: sector['color'].withOpacity(0.06),
-        border: Border.all(color: sector['color'], width: 1.25),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(sector['label'],
-              style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600, color: sector['color'])),
-          const SizedBox(height: 4),
-          Text(
-            '${sector['inflow']}% net flow • ${sector['wallets']} wallets',
-            style: theme.textTheme.bodySmall,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            sector['behavior'],
-            style: theme.textTheme.bodySmall
-                ?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            height: 40,
-            child: LineChart(
-              LineChartData(
-                lineTouchData: LineTouchData(enabled: false),
-                titlesData: FlTitlesData(show: false),
-                gridData: FlGridData(show: false),
-                borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: List.generate(
-                      sector['sparkline'].length,
-                      (i) => FlSpot(i.toDouble(), sector['sparkline'][i]),
-                    ),
-                    isCurved: true,
-                    color: sector['color'],
-                    dotData: FlDotData(show: false),
-                    belowBarData: BarAreaData(show: false),
-                    barWidth: 2.5,
+    final color = sector['color'] as Color;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () {
+        // open modal with full details
+        showNewReusableModal(
+          context,
+          title: sector['label'],
+          size: WidgetModalSize.small,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                "${sector['inflow']}% net flow",
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(color: color, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "${sector['wallets']} wallets moving",
+                style: theme.textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                sector['behavior'],
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(fontStyle: FontStyle.italic),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 120,
+                child: LineChart(
+                  LineChartData(
+                    lineTouchData: const LineTouchData(enabled: false),
+                    titlesData: const FlTitlesData(show: false),
+                    gridData: const FlGridData(show: false),
+                    borderData: FlBorderData(show: false),
+                    lineBarsData: [
+                      LineChartBarData(
+                        spots: (sector['sparkline'] as List<double>)
+                            .asMap()
+                            .entries
+                            .map((e) => FlSpot(e.key.toDouble(), e.value))
+                            .toList(),
+                        isCurved: true,
+                        color: color,
+                        barWidth: 3,
+                        dotData: const FlDotData(show: false),
+                        belowBarData: BarAreaData(show: false),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: color.withOpacity(0.06),
+          border: Border.all(color: color, width: 1.25),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              sector['label'],
+              style: theme.textTheme.titleSmall
+                  ?.copyWith(color: color, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${sector['inflow']}% net flow • ${sector['wallets']} wallets',
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              sector['behavior'],
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 40,
+              child: LineChart(
+                LineChartData(
+                  lineTouchData: const LineTouchData(enabled: false),
+                  titlesData: const FlTitlesData(show: false),
+                  gridData: const FlGridData(show: false),
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: (sector['sparkline'] as List<double>)
+                          .asMap()
+                          .entries
+                          .map((e) => FlSpot(e.key.toDouble(), e.value))
+                          .toList(),
+                      isCurved: true,
+                      color: color,
+                      dotData: const FlDotData(show: false),
+                      belowBarData: BarAreaData(show: false),
+                      barWidth: 2.5,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

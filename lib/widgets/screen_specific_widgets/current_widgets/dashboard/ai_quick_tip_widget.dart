@@ -145,82 +145,99 @@ class _AIQuickTipWidgetState extends State<AIQuickTipWidget> {
     final scheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(12), // Outer edge padding
-      child: Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: scheme.surfaceVariant,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: scheme.outline.withOpacity(0.08)),
-              boxShadow: [
-                BoxShadow(
-                  color: scheme.shadow.withOpacity(0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 5),
-            child: SizedBox(
-              height: 110,
-              child: PageView.builder(
-                controller: _controller,
-                itemCount: tips.length,
-                onPageChanged: _onTipChanged,
-                itemBuilder: (_, index) {
-                  final tip = tips[index];
-                  return GestureDetector(
-                    onTap: () => _showModal(tip),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(tip.icon, color: scheme.primary, size: 28),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("${tip.emoji} ${tip.category}",
-                                  style: theme.textTheme.labelSmall?.copyWith(
-                                    color: scheme.primary,
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                              const SizedBox(height: 6),
-                              Text(tip.summary,
-                                  style: theme.textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  )),
-                              const SizedBox(height: 6),
-                              Text(tip.highlightLine,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: scheme.onSurface.withOpacity(0.75),
-                                  )),
-                            ],
-                          ),
-                        ),
-                      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double maxHeight = constraints.maxHeight;
+        final double tipCardHeight = (maxHeight * 0.3).clamp(90, 140);
+
+        return Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Shrink-wrap instead of infinite height
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: scheme.surfaceVariant,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: scheme.outline.withOpacity(0.08)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: scheme.shadow.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
                     ),
-                  );
-                },
+                  ],
+                ),
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 5),
+                child: SizedBox(
+                  height: tipCardHeight,
+                  child: PageView.builder(
+                    controller: _controller,
+                    itemCount: tips.length,
+                    onPageChanged: _onTipChanged,
+                    itemBuilder: (_, index) {
+                      final tip = tips[index];
+                      return GestureDetector(
+                        onTap: () => _showModal(tip),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(tip.icon, color: scheme.primary, size: 28),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "${tip.emoji} ${tip.category}",
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: scheme.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    tip.summary,
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    tip.highlightLine,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: scheme.onSurface.withOpacity(0.75),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: 12),
+              SmoothPageIndicator(
+                controller: _controller,
+                count: tips.length,
+                effect: WormEffect(
+                  dotHeight: 6,
+                  dotWidth: 6,
+                  spacing: 6,
+                  activeDotColor: scheme.primary,
+                  dotColor: scheme.onSurface.withOpacity(0.3),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          SmoothPageIndicator(
-            controller: _controller,
-            count: tips.length,
-            effect: WormEffect(
-              dotHeight: 6,
-              dotWidth: 6,
-              spacing: 6,
-              activeDotColor: scheme.primary,
-              dotColor: scheme.onSurface.withOpacity(0.3),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
+
+
 }

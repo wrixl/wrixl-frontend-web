@@ -111,214 +111,252 @@ class _PortfolioSnapshotWidgetState extends State<PortfolioSnapshotWidget> {
   void _openDetailsModal(BuildContext context) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (_) => NewWidgetModal(
         title: "Detailed Portfolio Breakdown",
         size: WidgetModalSize.medium,
         onClose: () => Navigator.of(context).pop(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("View: $selectedView"),
-            const SizedBox(height: 8),
-            Text("Duration: $selectedRange"),
-            const SizedBox(height: 16),
-            ...allocations[selectedView]![selectedRange]!.entries.map((e) {
-              final value = getCurrentValue(e.key, e.value);
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Text(
-                  "${e.key}: ${e.value.toStringAsFixed(1)}%  →  "
-                  "${showUsd ? "\$${value.toStringAsFixed(2)}" : "Ξ${(value / 4700).toStringAsFixed(2)}"}",
-                  style: const TextStyle(fontSize: 14),
+        child: StatefulBuilder(
+          builder: (context, setModalState) {
+            final alloc = allocations[selectedView]![selectedRange]!;
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Cycle controls live in the modal now:
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () => setModalState(cycleRange),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.timeline),
+                              const SizedBox(width: 4),
+                              Text(selectedRange),
+                            ],
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => setModalState(cycleView),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.view_module),
+                              const SizedBox(width: 4),
+                              Text(selectedView),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Breakdown list:
+                    ...alloc.entries.map((e) {
+                      final value = getCurrentValue(e.key, e.value);
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Text(
+                          "${e.key}: ${e.value.toStringAsFixed(1)}% → "
+                          "${showUsd ? "\$${value.toStringAsFixed(2)}" : "Ξ${(value / 4700).toStringAsFixed(2)}"}",
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      );
+                    }),
+                  ],
                 ),
-              );
-            }).toList(),
-          ],
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final allocation = allocations[selectedView]![selectedRange]!;
-    final pieData = allocation.entries.toList();
-    final List<Color> pieColors =
-        Colors.primaries.take(pieData.length).toList();
 
-    final selectedKey = touchedIndex >= 0 && touchedIndex < pieData.length
-        ? pieData[touchedIndex].key
-        : null;
-    final double displayValue = selectedKey != null
-        ? getCurrentValue(selectedKey, allocation[selectedKey]!)
-        : 128342;
-    final List<double> displayTrend =
-        selectedKey != null && trends.containsKey(selectedKey)
-            ? trends[selectedKey]![selectedRange] ?? [128000, 128500]
-            : [128000, 128500];
-    final double trendDelta =
-        ((displayTrend.last - displayTrend.first) / displayTrend.first);
-    final Color trendColor = trendDelta >= 0 ? Colors.green : Colors.red;
 
-    final maxHeight = MediaQuery.of(context).size.height;
-    final chartRadius = maxHeight * 0.28;
-    final innerHole = chartRadius * 0.55;
-    final outerRadius = chartRadius * 0.32;
+    @override
+    Widget build(BuildContext context) {
+      final scheme = Theme.of(context).colorScheme;
+      final alloc = allocations[selectedView]![selectedRange]!;
+      final pieData = alloc.entries.toList();
+      final pieColors = Colors.primaries.take(pieData.length).toList();
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Toggling header (leave this untouched)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      // center value + trend
+      final selectedKey = (touchedIndex >= 0 && touchedIndex < pieData.length)
+          ? pieData[touchedIndex].key
+          : null;
+      final displayValue = selectedKey != null
+          ? getCurrentValue(selectedKey, alloc[selectedKey]!)
+          : 128342;
+      final displayTrend = (selectedKey != null && trends.containsKey(selectedKey))
+          ? trends[selectedKey]![selectedRange]!
+          : [128000, 128500];
+      final trendDelta =
+          (displayTrend.last - displayTrend.first) / displayTrend.first;
+      final trendColor = trendDelta >= 0 ? Colors.green : Colors.red;
+
+      return LayoutBuilder(builder: (context, constraints) {
+        final chartRadius = constraints.maxWidth * 0.4;
+        final innerHole = chartRadius * 0.55;
+        final sliceR = chartRadius * 0.32;
+
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min, // ← shrink-wrap in a scrollable
             children: [
-              Text("Portfolio Snapshot",
-                  style: Theme.of(context).textTheme.titleMedium),
+              // — header —
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(
-                    onTap: cycleRange,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.timeline),
-                        const SizedBox(width: 4),
-                        Text(selectedRange),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: cycleView,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.view_module),
-                        const SizedBox(width: 4),
-                        Text(selectedView),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-
-          // Stack with pie + center donut touch area
-          Expanded(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                PieChart(
-                  PieChartData(
-                    pieTouchData: PieTouchData(
-                      touchCallback: (event, response) {
-                        setState(() {
-                          if (!event.isInterestedForInteractions ||
-                              response?.touchedSection == null) {
-                            touchedIndex = -1;
-                          } else {
-                            touchedIndex =
-                                response!.touchedSection!.touchedSectionIndex;
-                          }
-                        });
-                      },
-                    ),
-                    borderData: FlBorderData(show: false),
-                    centerSpaceRadius: innerHole,
-                    sectionsSpace: 1.5,
-                    sections: List.generate(pieData.length, (i) {
-                      final isTouched = i == touchedIndex;
-                      final entry = pieData[i];
-                      return PieChartSectionData(
-                        color: pieColors[i].withOpacity(0.9),
-                        value: entry.value,
-                        title: '${entry.key} ${entry.value.toInt()}%',
-                        titleStyle: TextStyle(
-                          fontSize: isTouched ? 14 : 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                        radius: outerRadius,
-                      );
-                    }),
-                  ),
-                ),
-
-                // 🟢 This is now the modal trigger only
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => _openDetailsModal(context),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Text("Portfolio Snapshot",
+                      style: Theme.of(context).textTheme.titleMedium),
+                  Row(
                     children: [
-                      Text(
-                        showUsd
-                            ? "\$${displayValue.toStringAsFixed(0)}"
-                            : "Ξ${(displayValue / 4700).toStringAsFixed(2)}",
-                        style: const TextStyle(
-                            fontSize: 26, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      SizedBox(
-                        height: 40,
-                        width: 100,
-                        child: LineChart(
-                          LineChartData(
-                            titlesData: FlTitlesData(show: false),
-                            gridData: FlGridData(show: false),
-                            borderData: FlBorderData(show: false),
-                            lineBarsData: [
-                              LineChartBarData(
-                                spots: displayTrend
-                                    .asMap()
-                                    .entries
-                                    .map((e) =>
-                                        FlSpot(e.key.toDouble(), e.value))
-                                    .toList(),
-                                isCurved: true,
-                                color: trendColor,
-                                barWidth: 2,
-                                isStrokeCapRound: true,
-                                dotData: FlDotData(show: false),
-                              )
-                            ],
-                          ),
+                      GestureDetector(
+                        onTap: cycleRange,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.timeline),
+                            const SizedBox(width: 4),
+                            Text(selectedRange),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        trendDelta >= 0
-                            ? "+${(trendDelta * 100).toStringAsFixed(1)}%"
-                            : "${(trendDelta * 100).toStringAsFixed(1)}%",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: trendColor,
-                        ),
-                      ),
-                      Text(
-                        "Past $selectedRange",
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: scheme.onSurface.withOpacity(0.6),
+                      const SizedBox(width: 12),
+                      GestureDetector(
+                        onTap: cycleView,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.view_module),
+                            const SizedBox(width: 4),
+                            Text(selectedView),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-          ),
+                ],
+              ),
+              const SizedBox(height: 4),
 
-          const SizedBox(height: 8),
-          // Top movers
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+              // — chart area —
+              Flexible(
+                fit: FlexFit.loose, // ← no crash in unbounded height
+                child: Center(
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        PieChart(
+                          PieChartData(
+                            pieTouchData: PieTouchData(
+                              touchCallback: (e, resp) {
+                                setState(() {
+                                  if (!e.isInterestedForInteractions ||
+                                      resp?.touchedSection == null) {
+                                    touchedIndex = -1;
+                                  } else {
+                                    touchedIndex = resp!
+                                        .touchedSection!.touchedSectionIndex;
+                                  }
+                                });
+                              },
+                            ),
+                            borderData: FlBorderData(show: false),
+                            centerSpaceRadius: innerHole,
+                            sectionsSpace: 1.5,
+                            sections: List.generate(pieData.length, (i) {
+                              final isTouched = i == touchedIndex;
+                              final e = pieData[i];
+                              return PieChartSectionData(
+                                color: pieColors[i].withOpacity(0.9),
+                                value: e.value,
+                                title: '${e.key} ${e.value.toInt()}%',
+                                titleStyle: TextStyle(
+                                  fontSize: isTouched ? 14 : 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                                radius: sliceR,
+                              );
+                            }),
+                          ),
+                        ),
+
+                        // center label + sparkline
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => _openDetailsModal(context),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                showUsd
+                                    ? "\$${displayValue.toStringAsFixed(0)}"
+                                    : "Ξ${(displayValue / 4700).toStringAsFixed(2)}",
+                                style: const TextStyle(
+                                    fontSize: 26, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              SizedBox(
+                                height: 40,
+                                width: 100,
+                                child: LineChart(
+                                  LineChartData(
+                                    titlesData: FlTitlesData(show: false),
+                                    gridData: FlGridData(show: false),
+                                    borderData: FlBorderData(show: false),
+                                    lineBarsData: [
+                                      LineChartBarData(
+                                        spots: displayTrend
+                                            .asMap()
+                                            .entries
+                                            .map((e) => FlSpot(e.key.toDouble(), e.value.toDouble()))
+                                            .toList(),
+                                        isCurved: true,
+                                        color: trendColor,
+                                        barWidth: 2,
+                                        isStrokeCapRound: true,
+                                        dotData: FlDotData(show: false),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                (trendDelta >= 0 ? "+" : "") +
+                                    (trendDelta * 100).toStringAsFixed(1) +
+                                    "%",
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: trendColor),
+                              ),
+                              Text(
+                                "Past $selectedRange",
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color:
+                                        scheme.onSurface.withOpacity(0.6)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 8),
+              // — footer —
               Text("Top Movers",
                   style: Theme.of(context)
                       .textTheme
@@ -334,8 +372,9 @@ class _PortfolioSnapshotWidgetState extends State<PortfolioSnapshotWidget> {
               ),
             ],
           ),
-        ],
-      ),
-    );
+        );
+      });
+    }
   }
-}
+
+

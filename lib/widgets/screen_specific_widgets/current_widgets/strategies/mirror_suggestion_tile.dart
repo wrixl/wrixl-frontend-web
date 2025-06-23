@@ -1,6 +1,7 @@
-// lib\widgets\screen_specific_widgets\miror_insights_widgets\mirror_suggestion_tile.dart
+// lib/widgets/screen_specific_widgets/mirror_insights_widgets/mirror_suggestion_tile.dart
 
 import 'package:flutter/material.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class MirrorSuggestionData {
   final String name;
@@ -49,7 +50,7 @@ class MirrorSuggestionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<MirrorSuggestionData> suggestions = _demoSuggestions;
+    final suggestions = _demoSuggestions;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
@@ -62,21 +63,19 @@ class MirrorSuggestionTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            /// App bar-style section title
+            // Title row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   "Suggested Strategies",
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const Icon(Icons.auto_graph_rounded, size: 20),
               ],
             ),
             const SizedBox(height: 12),
-            /// Horizontal scrollable cards
+            // Horizontal list
             SizedBox(
               height: 500,
               child: ListView.separated(
@@ -84,8 +83,88 @@ class MirrorSuggestionTile extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 itemCount: suggestions.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 16),
-                itemBuilder: (_, i) =>
-                    _MirrorSuggestionTileCard(data: suggestions[i]),
+                itemBuilder: (_, i) => Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () {
+                      final data = suggestions[i];
+                      final dateFormatted =
+                          "${data.initialRecommendationDate.month}/${data.initialRecommendationDate.day}/${data.initialRecommendationDate.year}";
+                      showNewReusableModal(
+                        context,
+                        title: data.name,
+                        size: WidgetModalSize.large,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
+                              child: Text(data.name,
+                                  style: theme.textTheme.headlineSmall
+                                      ?.copyWith(fontWeight: FontWeight.bold)),
+                            ),
+                            const SizedBox(height: 12),
+                            Text("Strategy Tag: ${data.strategyTag}"),
+                            Text("Similarity: ${data.similarityScore}"),
+                            Text("Confidence: ${(data.confidence * 100).toStringAsFixed(0)}%"),
+                            const SizedBox(height: 8),
+                            Text("Projected ROI: ${data.projectedRoi}"),
+                            Text("Volatility: ${data.volatility}"),
+                            Text("Sharpe Ratio: ${data.sharpe}"),
+                            const SizedBox(height: 8),
+                            Text("Top Holdings: ${data.topHoldings.join(", ")}"),
+                            Text("Dominant Chain: ${data.dominantChain}"),
+                            Text("Asset Mix: ${data.assetTypeMix}"),
+                            const SizedBox(height: 8),
+                            Text("Initial Recommendation: $dateFormatted"),
+                            const SizedBox(height: 8),
+                            Text("Goal: ${data.investmentGoal}"),
+                            Text("Achieved: ${data.goalAchieved}"),
+                            Text("Horizon: ${data.horizon}"),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: data.onBookmark,
+                                    style: OutlinedButton.styleFrom(
+                                      side: BorderSide(color: scheme.primary),
+                                    ),
+                                    child: Text(
+                                      data.isBookmarked ? "Unbookmark" : "Bookmark",
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(color: scheme.primary),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: data.onPreview,
+                                    style: OutlinedButton.styleFrom(
+                                      side: BorderSide(color: scheme.primary),
+                                    ),
+                                    child: Text("Preview",
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(color: scheme.primary)),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: data.onAdopt,
+                                    child: const Text("Adopt Strategy"),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: _MirrorSuggestionTileCard(data: suggestions[i]),
+                  ),
+                ),
               ),
             ),
           ],
@@ -95,12 +174,10 @@ class MirrorSuggestionTile extends StatelessWidget {
   }
 }
 
-
 class _MirrorSuggestionTileCard extends StatelessWidget {
   final MirrorSuggestionData data;
 
-  const _MirrorSuggestionTileCard({Key? key, required this.data})
-      : super(key: key);
+  const _MirrorSuggestionTileCard({Key? key, required this.data}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +185,34 @@ class _MirrorSuggestionTileCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     final dateFormatted =
         "${data.initialRecommendationDate.month}/${data.initialRecommendationDate.day}/${data.initialRecommendationDate.year}";
+
+    Widget _stat(String label, String value) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(value, style: theme.textTheme.bodyMedium),
+            Text(label,
+                style: theme.textTheme.labelSmall
+                    ?.copyWith(color: scheme.onSurface.withOpacity(0.6))),
+          ],
+        );
+
+    Widget _badge(String text) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: scheme.primary.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(text,
+              style: theme.textTheme.labelSmall
+                  ?.copyWith(color: scheme.primary, fontWeight: FontWeight.w600)),
+        );
+
+    Widget _confidenceBar(double score) => LinearProgressIndicator(
+          value: score,
+          backgroundColor: scheme.primary.withOpacity(0.25),
+          valueColor: AlwaysStoppedAnimation(scheme.primary),
+          minHeight: 6,
+        );
 
     return Container(
       width: 360,
@@ -127,16 +232,11 @@ class _MirrorSuggestionTileCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // header bar
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Based on Your Holdings",
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: scheme.primary.withOpacity(0.7),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              _badge("Similarity: ${data.similarityScore}"),
               IconButton(
                 icon: Icon(
                   data.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
@@ -147,139 +247,72 @@ class _MirrorSuggestionTileCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            data.name,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: scheme.onSurface,
-            ),
-          ),
-          Text(
-            data.strategyTag,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontStyle: FontStyle.italic,
-              color: scheme.onSurface.withOpacity(0.7),
-            ),
-          ),
+          const SizedBox(height: 4),
+          Text(data.name,
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold)),
+          Text(data.strategyTag,
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(fontStyle: FontStyle.italic)),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              _badge("Similarity: ${data.similarityScore}", theme, scheme),
-              const SizedBox(width: 8),
-              Expanded(child: _confidenceBar(data.confidence, scheme)),
-            ],
-          ),
+          Row(children: [
+            _badge("Confidence ${(data.confidence * 100).toStringAsFixed(0)}%"),
+            const SizedBox(width: 8),
+            Expanded(child: _confidenceBar(data.confidence)),
+          ]),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(child: _stat("ROI", data.projectedRoi, theme, scheme)),
-              Expanded(
-                  child: _stat("Volatility", data.volatility, theme, scheme)),
-              Expanded(child: _stat("Sharpe", data.sharpe, theme, scheme)),
-            ],
-          ),
+          Row(children: [
+            Expanded(child: _stat("ROI", data.projectedRoi)),
+            Expanded(child: _stat("Volatility", data.volatility)),
+            Expanded(child: _stat("Sharpe", data.sharpe)),
+          ]),
           const SizedBox(height: 10),
-          _stat("Top Holdings", data.topHoldings.join(", "), theme, scheme),
+          _stat("Top Holdings", data.topHoldings.join(", ")),
           const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(
-                  child: _stat("Chain", data.dominantChain, theme, scheme)),
-              Expanded(
-                  child: _stat("Asset Mix", data.assetTypeMix, theme, scheme)),
-            ],
-          ),
+          Row(children: [
+            Expanded(child: _stat("Chain", data.dominantChain)),
+            Expanded(child: _stat("Asset Mix", data.assetTypeMix)),
+          ]),
           const SizedBox(height: 10),
-          _stat("Goal", data.investmentGoal, theme, scheme),
+          _stat("Goal", data.investmentGoal),
           const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(child: _stat("Since", dateFormatted, theme, scheme)),
-              Expanded(
-                  child: _stat("Achieved", data.goalAchieved, theme, scheme)),
-              Expanded(child: _stat("Horizon", data.horizon, theme, scheme)),
-            ],
-          ),
+          Row(children: [
+            Expanded(child: _stat("Since", dateFormatted)),
+            Expanded(child: _stat("Achieved", data.goalAchieved)),
+            Expanded(child: _stat("Horizon", data.horizon)),
+          ]),
           const Spacer(),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: data.onPreview,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: scheme.primary),
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                  ),
-                  child: Text("Preview",
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: scheme.primary, fontSize: 12)),
+          Row(children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: data.onPreview,
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: scheme.primary),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                 ),
+                child: Text("Preview",
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: scheme.primary, fontSize: 12)),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: data.onAdopt,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: scheme.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                  ),
-                  child: Text("Adopt Strategy",
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: scheme.onPrimary, fontSize: 12)),
-                ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: data.onAdopt,
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 8)),
+                child: Text("Adopt Strategy",
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: scheme.onPrimary, fontSize: 12)),
               ),
-            ],
-          ),
+            ),
+          ]),
         ],
       ),
-    );
-  }
-
-  Widget _stat(
-      String label, String value, ThemeData theme, ColorScheme scheme) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(value,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: scheme.onSurface)),
-          Text(label,
-              style: theme.textTheme.labelSmall
-                  ?.copyWith(color: scheme.onSurface.withOpacity(0.6))),
-        ],
-      ),
-    );
-  }
-
-  Widget _badge(String text, ThemeData theme, ColorScheme scheme) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: scheme.primary.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: scheme.primary,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
-  Widget _confidenceBar(double score, ColorScheme scheme) {
-    return LinearProgressIndicator(
-      value: score,
-      backgroundColor: scheme.primary.withOpacity(0.25),
-      valueColor: AlwaysStoppedAnimation(scheme.primary),
-      minHeight: 6,
     );
   }
 }
+
+// Demo data
 
 final List<MirrorSuggestionData> _demoSuggestions = [
   MirrorSuggestionData(

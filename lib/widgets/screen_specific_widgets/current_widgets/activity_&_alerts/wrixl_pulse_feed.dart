@@ -1,6 +1,7 @@
-// lib\widgets\screen_specific_widgets\current_widgets\activity_&_alerts\wrixl_pulse_feed.dart
+// lib/widgets/screen_specific_widgets/current_widgets/activity_&_alerts/wrixl_pulse_feed.dart
 
 import 'package:flutter/material.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class WrixlPulseFeedWidget extends StatefulWidget {
   const WrixlPulseFeedWidget({super.key});
@@ -11,6 +12,66 @@ class WrixlPulseFeedWidget extends StatefulWidget {
 
 class _WrixlPulseFeedWidgetState extends State<WrixlPulseFeedWidget> {
   final List<Map<String, dynamic>> _feedItems = _dummyPulseFeedItems;
+
+  void _showFeedItemModal(Map<String, dynamic> item) {
+    showNewReusableModal(
+      context,
+      title: item['headline'],
+      size: WidgetModalSize.small,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(item['icon'], color: item['color'], size: 28),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  item['headline'],
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            item['subtext'],
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.75)),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Actions:',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 12,
+            children: List.generate(item['actions'].length, (i) {
+              final action = item['actions'][i] as String;
+              return ElevatedButton(
+                onPressed: () {
+                  // TODO: implement individual action
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                  textStyle: const TextStyle(fontSize: 13),
+                ),
+                child: Text(action),
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,69 +110,69 @@ class _WrixlPulseFeedWidgetState extends State<WrixlPulseFeedWidget> {
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final item = _feedItems[index];
-                  return _buildFeedCard(item);
+                  return GestureDetector(
+                    onTap: () => _showFeedItemModal(item),
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(item['icon'], color: item['color']),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    item['headline'],
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: theme.colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              item['subtext'],
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface.withOpacity(0.75),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 12,
+                              children: List.generate(item['actions'].length, (i) {
+                                final action = item['actions'][i] as String;
+                                return ElevatedButton(
+                                  onPressed: () {
+                                    // TODO: immediate action
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 8),
+                                    backgroundColor:
+                                        theme.colorScheme.primaryContainer,
+                                    foregroundColor:
+                                        theme.colorScheme.onPrimaryContainer,
+                                    textStyle: const TextStyle(fontSize: 13),
+                                  ),
+                                  child: Text(action),
+                                );
+                              }),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
                 },
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFeedCard(Map<String, dynamic> item) {
-    final theme = Theme.of(context);
-
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(item['icon'], color: item['color']),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    item['headline'],
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              item['subtext'],
-              style: TextStyle(
-                color: theme.colorScheme.onSurface.withOpacity(0.75),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 12,
-              children: List.generate(item['actions'].length, (i) {
-                final action = item['actions'][i];
-                return ElevatedButton(
-                  onPressed: () {
-                    // Handle action callback
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    backgroundColor: theme.colorScheme.primaryContainer,
-                    foregroundColor: theme.colorScheme.onPrimaryContainer,
-                    textStyle: const TextStyle(fontSize: 13),
-                  ),
-                  child: Text(action),
-                );
-              }),
             ),
           ],
         ),

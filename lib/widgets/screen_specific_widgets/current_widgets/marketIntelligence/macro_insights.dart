@@ -1,9 +1,10 @@
-// lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\macro_insights.dart
+// lib/widgets/screen_specific_widgets/current_widgets/marketIntelligence/macro_insights.dart
 
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/widgets/toggle_filter_icon_row_widget.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 /// Types of charts supported.
 enum ChartType { line, bar, pie }
@@ -16,7 +17,6 @@ class MacroCardData {
   final ChartType chartType;
   final String tag;
   final Color tagColor;
-  final VoidCallback onTap;
   final IconData icon;
 
   MacroCardData({
@@ -26,7 +26,6 @@ class MacroCardData {
     required this.chartType,
     required this.tag,
     required this.tagColor,
-    required this.onTap,
     required this.icon,
   });
 }
@@ -50,18 +49,16 @@ class _MarketSignalsMacroIntelligenceCardsWidgetState
   };
 
   List<MacroCardData> get _dummyCards {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
+    final scheme = Theme.of(context).colorScheme;
     return [
       MacroCardData(
         title: "Crypto vs Traditional",
         snapshotMetric: "BTC +4.1% vs S&P −0.3%",
         chartData: [0.9, 1.1, 1.0, 1.2, 1.1, 1.3, 1.4],
         chartType: ChartType.line,
-        tag: "Risk‑On",
+        tag: "Risk-On",
         tagColor: scheme.primary,
         icon: Icons.show_chart,
-        onTap: () {},
       ),
       MacroCardData(
         title: "Volatility Index",
@@ -71,7 +68,6 @@ class _MarketSignalsMacroIntelligenceCardsWidgetState
         tag: "Volatile",
         tagColor: scheme.error,
         icon: Icons.trending_up,
-        onTap: () {},
       ),
       MacroCardData(
         title: "Stablecoin Flows",
@@ -81,7 +77,6 @@ class _MarketSignalsMacroIntelligenceCardsWidgetState
         tag: "Liquidity",
         tagColor: scheme.secondary,
         icon: Icons.water_drop,
-        onTap: () {},
       ),
       MacroCardData(
         title: "Global Money Supply",
@@ -91,7 +86,6 @@ class _MarketSignalsMacroIntelligenceCardsWidgetState
         tag: "Expansion",
         tagColor: scheme.primary,
         icon: Icons.public,
-        onTap: () {},
       ),
     ];
   }
@@ -127,83 +121,103 @@ class _MarketSignalsMacroIntelligenceCardsWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-
+    final scheme = Theme.of(context).colorScheme;
     final visibleCards = _selectedFilter == 'All'
         ? _dummyCards
         : _dummyCards.where((c) => c.tag.toLowerCase().contains('ai')).toList();
+    const spacing = 24.0;
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      color: scheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // App bar row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Card(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          color: scheme.surface,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Macro Intelligence',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: _showOptionsModal,
-                  tooltip: 'Options',
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Filter + description
-            Row(
-              children: [
-                ToggleFilterIconRowWidget(
-                  options: filters,
-                  optionIcons: filterIcons,
-                  activeOption: _selectedFilter,
-                  onSelected: (opt) => setState(() => _selectedFilter = opt),
-                ),
-                const Spacer(),
-                Flexible(
-                  child: Text(
-                    'AI-generated snapshot of global macro trends.',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontStyle: FontStyle.italic,
-                      color: scheme.onSurface.withOpacity(0.7),
+                // — header row —
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Macro Intelligence',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    textAlign: TextAlign.right,
+                    IconButton(
+                      icon: const Icon(Icons.more_vert),
+                      onPressed: _showOptionsModal,
+                      tooltip: 'Options',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // — filter row —
+                Row(
+                  children: [
+                    ToggleFilterIconRowWidget(
+                      options: filters,
+                      optionIcons: filterIcons,
+                      activeOption: _selectedFilter,
+                      onSelected: (opt) =>
+                          setState(() => _selectedFilter = opt),
+                    ),
+                    const Spacer(),
+                    Flexible(
+                      child: Text(
+                        'AI-generated snapshot of global macro trends.',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontStyle: FontStyle.italic,
+                              color: scheme.onSurface.withOpacity(0.7),
+                            ),
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // — horizontal scroller fills remaining space —
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (ctx, inner) {
+                      final count = visibleCards.length;
+                      final totalSpacing = spacing * (count - 1);
+                      final cardWidth = ((inner.maxWidth - totalSpacing) /
+                              count)
+                          .clamp(200.0, 300.0);
+
+                      return ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(width: spacing),
+                        itemCount: count,
+                        itemBuilder: (_, i) {
+                          return SizedBox(
+                            width: cardWidth,
+                            child: MacroCard(cardData: visibleCards[i]),
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-
-            // Macro Cards Grid
-            LayoutBuilder(
-              builder: (ctx, cons) => Wrap(
-                spacing: 24,
-                runSpacing: 16,
-                children: visibleCards.map((data) {
-                  return SizedBox(
-                    width: min(300, cons.maxWidth / 2 - 20),
-                    child: MacroCard(cardData: data),
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
-
 }
 
+/// The individual card widget — now taps open a detail modal.
 class MacroCard extends StatelessWidget {
   final MacroCardData cardData;
   const MacroCard({Key? key, required this.cardData}) : super(key: key);
@@ -211,14 +225,13 @@ class MacroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final surface = theme.colorScheme.surface;
-    final primary = theme.colorScheme.primary;
-    final secondary = theme.colorScheme.secondary;
-    final error = theme.colorScheme.error;
-    final neutral = theme.colorScheme.onSurface.withOpacity(0.6);
-    final onSurface = theme.colorScheme.onSurface;
-
-    final colors = [primary, secondary, error, neutral];
+    final scheme = theme.colorScheme;
+    final colors = [
+      scheme.primary,
+      scheme.secondary,
+      scheme.error,
+      scheme.onSurface.withOpacity(0.6),
+    ];
 
     Widget buildChart() {
       final data = cardData.chartData;
@@ -248,6 +261,7 @@ class MacroCard extends StatelessWidget {
               ),
             ),
           );
+
         case ChartType.bar:
           final maxY = data.reduce(max) * 1.2;
           return SizedBox(
@@ -275,6 +289,7 @@ class MacroCard extends StatelessWidget {
               ),
             ),
           );
+
         case ChartType.pie:
           final total = data.fold(0.0, (sum, v) => sum + v);
           return SizedBox(
@@ -301,60 +316,83 @@ class MacroCard extends StatelessWidget {
     }
 
     return InkWell(
-      onTap: cardData.onTap,
+      onTap: () {
+        showNewReusableModal(
+          context,
+          title: cardData.title,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(cardData.snapshotMetric,
+                    style: theme.textTheme.headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                SizedBox(height: 150, child: buildChart()),
+                const SizedBox(height: 12),
+                Text("Tag: ${cardData.tag}",
+                    style: theme.textTheme.bodyMedium),
+                const SizedBox(height: 12),
+                const Text(
+                  "Here you can add any further details, commentary, or actions for this macro card.",
+                  style: TextStyle(fontStyle: FontStyle.italic),
+                ),
+              ],
+            ),
+          ),
+          size: WidgetModalSize.medium,
+        );
+      },
       child: Card(
-
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(color: cardData.tagColor.withOpacity(0.4)),
         ),
-        color: Theme.of(context).colorScheme.surface,
+        color: scheme.surface,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // title + icon
               Row(
                 children: [
                   Icon(cardData.icon, color: cardData.tagColor),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      cardData.title,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
+                    child: Text(cardData.title,
+                        style: theme.textTheme.titleSmall
+                            ?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: scheme.primary,
+                            )),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              Text(
-                cardData.snapshotMetric,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
+              // snapshot metric
+              Text(cardData.snapshotMetric,
+                  style: theme.textTheme.bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
+              // chart
               buildChart(),
               const SizedBox(height: 8),
+              // tag chip
               Chip(
-                label: Text(
-                  cardData.tag,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                ),
+                label: Text(cardData.tag,
+                    style: theme.textTheme.labelLarge
+                        ?.copyWith(color: scheme.onPrimary)),
                 backgroundColor: cardData.tagColor,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               ),
             ],
           ),
         ),
-      )
+      ),
     );
   }
 }

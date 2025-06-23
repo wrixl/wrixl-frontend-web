@@ -1,7 +1,8 @@
-// lib\widgets\screen_specific_widgets\current_widgets\positions\token_holdings_strip.dart
+// lib/widgets/screen_specific_widgets/current_widgets/positions/token_holdings_strip.dart
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class TokenHoldingsStrip extends StatelessWidget {
   final List<TokenHolding>? holdings;
@@ -13,6 +14,60 @@ class TokenHoldingsStrip extends StatelessWidget {
     this.onTap,
   });
 
+  void _showHoldingModal(BuildContext context, TokenHolding holding) {
+    final formatter = NumberFormat.compactCurrency(symbol: '\$');
+    showNewReusableModal(
+      context,
+      title: holding.symbol,
+      size: WidgetModalSize.small,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.grey.shade200,
+                backgroundImage: NetworkImage(holding.iconUrl),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                holding.symbol,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Value: ${formatter.format(holding.usdValue)}',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '24h Change: ${holding.change24h >= 0 ? '+' : ''}${holding.change24h.toStringAsFixed(1)}%',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(
+                  color: holding.change24h >= 0 ? Colors.green : Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Portfolio: ${holding.portfolioPercentage.toStringAsFixed(1)}%',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Here you can display charts, deeper analytics, or action buttons.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -20,7 +75,9 @@ class TokenHoldingsStrip extends StatelessWidget {
     final data = holdings ?? dummyHoldings;
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
       color: theme.colorScheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -30,8 +87,7 @@ class TokenHoldingsStrip extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("💰 Token Holdings",
-                    style: theme.textTheme.titleMedium),
+                Text("💰 Token Holdings", style: theme.textTheme.titleMedium),
                 const Icon(Icons.pie_chart_outline),
               ],
             ),
@@ -50,7 +106,7 @@ class TokenHoldingsStrip extends StatelessWidget {
                   final formattedValue = formatter.format(holding.usdValue);
 
                   return GestureDetector(
-                    onTap: () => onTap?.call(holding),
+                    onTap: () => _showHoldingModal(context, holding),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       width: 140,
@@ -102,8 +158,7 @@ class TokenHoldingsStrip extends StatelessWidget {
                                 height: 6,
                                 width: double.infinity,
                                 decoration: BoxDecoration(
-                                  color:
-                                      theme.dividerColor.withOpacity(0.2),
+                                  color: theme.dividerColor.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               ),

@@ -1,9 +1,7 @@
-// lib\widgets\screen_specific_widgets\current_widgets\community_&_gamification\signals_dao_voting.dart
-
-// lib\widgets\screen_specific_widgets\current_widgets\community_\&_gamification\signals_dao_voting.dart
+// lib/widgets/screen_specific_widgets/current_widgets/community_&_gamification/signals_dao_voting.dart
 
 import 'package:flutter/material.dart';
-import 'dart:math';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class SignalsDAOVotingWidget extends StatefulWidget {
   const SignalsDAOVotingWidget({Key? key}) : super(key: key);
@@ -54,6 +52,88 @@ class _SignalsDAOVotingWidgetState extends State<SignalsDAOVotingWidget> {
     });
   }
 
+  void _showProposalModal(int index) {
+    final proposal = _proposals[index];
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final total = proposal['yes'] + proposal['no'];
+    final yesPct = (proposal['yes'] / total) * 100;
+    final noPct = 100 - yesPct;
+
+    showNewReusableModal(
+      context,
+      title: proposal['title'],
+      size: WidgetModalSize.medium,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(proposal['title'],
+              style: theme.textTheme.titleLarge),
+          const SizedBox(height: 8),
+          Text(proposal['description'],
+              style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: yesPct / 100,
+              minHeight: 12,
+              backgroundColor: scheme.surface.withOpacity(0.3),
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.teal),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('👍 ${yesPct.toStringAsFixed(1)}%', style: theme.textTheme.bodySmall),
+              Text('👎 ${noPct.toStringAsFixed(1)}%', style: theme.textTheme.bodySmall),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text('Time left: ${proposal['timeLeft']}',
+              style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 24),
+          if (proposal['userVote'] == null)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _vote(index, 'yes');
+                  },
+                  icon: const Icon(Icons.thumb_up),
+                  label: const Text('Yes'),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _vote(index, 'no');
+                  },
+                  icon: const Icon(Icons.thumb_down),
+                  label: const Text('No'),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                ),
+              ],
+            )
+          else
+            Center(
+              child: Text(
+                'You voted ${proposal['userVote'].toUpperCase()}',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: scheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -79,85 +159,88 @@ class _SignalsDAOVotingWidgetState extends State<SignalsDAOVotingWidget> {
             Expanded(
               child: ListView.separated(
                 itemCount: _proposals.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (_, __) => const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final proposal = _proposals[index];
-                  final totalVotes = proposal['yes'] + proposal['no'];
-                  final yesPercent = (proposal['yes'] / totalVotes) * 100;
-                  final noPercent = 100 - yesPercent;
+                  final total = proposal['yes'] + proposal['no'];
+                  final yesPct = (proposal['yes'] / total) * 100;
+                  final noPct = 100 - yesPct;
 
-                  return Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: scheme.surfaceVariant.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: scheme.primary.withOpacity(0.15),
+                  return GestureDetector(
+                    onTap: () => _showProposalModal(index),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: scheme.surfaceVariant.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: scheme.primary.withOpacity(0.15),
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.analytics_outlined, color: scheme.secondary),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(proposal['title'], style: theme.textTheme.titleSmall),
-                            ),
-                            Text(proposal['timeLeft'], style: theme.textTheme.labelMedium),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(proposal['description'], style: theme.textTheme.bodyMedium),
-                        const SizedBox(height: 16),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: LinearProgressIndicator(
-                            value: yesPercent / 100,
-                            minHeight: 12,
-                            backgroundColor: scheme.surface.withOpacity(0.3),
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('👍 ${yesPercent.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 12)),
-                            Text('👎 ${noPercent.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 12)),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        if (proposal['userVote'] == null)
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              ElevatedButton.icon(
-                                onPressed: () => _vote(index, 'yes'),
-                                icon: const Icon(Icons.thumb_up),
-                                label: const Text('Yes'),
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+                              Icon(Icons.analytics_outlined, color: scheme.secondary),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(proposal['title'], style: theme.textTheme.titleSmall),
                               ),
-                              ElevatedButton.icon(
-                                onPressed: () => _vote(index, 'no'),
-                                icon: const Icon(Icons.thumb_down),
-                                label: const Text('No'),
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                              ),
+                              Text(proposal['timeLeft'], style: theme.textTheme.labelMedium),
                             ],
-                          )
-                        else
-                          Center(
-                            child: Text(
-                              'You voted ${proposal['userVote'].toUpperCase()}',
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                color: scheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(proposal['description'], style: theme.textTheme.bodyMedium),
+                          const SizedBox(height: 16),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: LinearProgressIndicator(
+                              value: yesPct / 100,
+                              minHeight: 12,
+                              backgroundColor: scheme.surface.withOpacity(0.3),
+                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.teal),
                             ),
                           ),
-                      ],
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('👍 ${yesPct.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 12)),
+                              Text('👎 ${noPct.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          if (proposal['userVote'] == null)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () => _vote(index, 'yes'),
+                                  icon: const Icon(Icons.thumb_up),
+                                  label: const Text('Yes'),
+                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+                                ),
+                                ElevatedButton.icon(
+                                  onPressed: () => _vote(index, 'no'),
+                                  icon: const Icon(Icons.thumb_down),
+                                  label: const Text('No'),
+                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                                ),
+                              ],
+                            )
+                          else
+                            Center(
+                              child: Text(
+                                'You voted ${proposal['userVote'].toUpperCase()}',
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  color: scheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   );
                 },

@@ -1,10 +1,11 @@
-// lib\widgets\screen_specific_widgets\current_widgets\strategies\featured_portfolio_grid.dart
+// lib/widgets/screen_specific_widgets/current_widgets/strategies/featured_portfolio_grid.dart
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class FeaturedPortfolioGrid extends StatelessWidget {
-  const FeaturedPortfolioGrid({super.key});
+  const FeaturedPortfolioGrid({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +22,7 @@ class FeaturedPortfolioGrid extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -30,6 +32,7 @@ class FeaturedPortfolioGrid extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
+            // Grid of cards
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -42,7 +45,75 @@ class FeaturedPortfolioGrid extends StatelessWidget {
               ),
               itemBuilder: (context, index) {
                 final portfolio = portfolios[index];
-                return _PortfolioCard(portfolio: portfolio);
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () {
+                      showNewReusableModal(
+                        context,
+                        title: portfolio.name,
+                        size: WidgetModalSize.medium,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(portfolio.name,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 4,
+                              children: portfolio.tags
+                                  .map((tag) => Chip(
+                                        label: Text(tag,
+                                            style:
+                                                const TextStyle(fontSize: 12)),
+                                        padding: EdgeInsets.zero,
+                                        visualDensity:
+                                            VisualDensity.compact,
+                                      ))
+                                  .toList(),
+                            ),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              height: 60,
+                              child: LineChart(LineChartData(
+                                gridData: FlGridData(show: false),
+                                titlesData: FlTitlesData(show: false),
+                                borderData: FlBorderData(show: false),
+                                lineBarsData: [
+                                  LineChartBarData(
+                                    spots: portfolio.sparkline,
+                                    isCurved: true,
+                                    color: Colors.blueAccent,
+                                    dotData: FlDotData(show: false),
+                                    belowBarData: BarAreaData(show: false),
+                                  ),
+                                ],
+                              )),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                                "Sharpe Ratio: ${portfolio.sharpe.toStringAsFixed(2)}"),
+                            Text(
+                                "CAGR: ${(portfolio.cagr * 100).toStringAsFixed(1)}%"),
+                            const SizedBox(height: 16),
+                            Center(
+                              child: ElevatedButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text("Close"),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: _PortfolioCard(portfolio: portfolio),
+                  ),
+                );
               },
             ),
           ],
@@ -55,12 +126,12 @@ class FeaturedPortfolioGrid extends StatelessWidget {
 class _PortfolioCard extends StatelessWidget {
   final _DemoPortfolio portfolio;
 
-  const _PortfolioCard({required this.portfolio});
+  const _PortfolioCard({Key? key, required this.portfolio})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       color: scheme.background,
@@ -70,6 +141,7 @@ class _PortfolioCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Title row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -83,23 +155,26 @@ class _PortfolioCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Icon(Icons.trending_up, color: Colors.green, size: 20),
+                const Icon(Icons.trending_up,
+                    color: Colors.green, size: 20),
               ],
             ),
             const SizedBox(height: 6),
+            // Tags
             Wrap(
               spacing: 6,
               runSpacing: -8,
               children: portfolio.tags
                   .map((tag) => Chip(
-                        label: Text(tag,
-                            style: const TextStyle(fontSize: 11)),
+                        label:
+                            Text(tag, style: const TextStyle(fontSize: 11)),
                         padding: EdgeInsets.zero,
                         visualDensity: VisualDensity.compact,
                       ))
                   .toList(),
             ),
             const SizedBox(height: 6),
+            // Sparkline
             SizedBox(
               height: 40,
               child: LineChart(
@@ -120,11 +195,14 @@ class _PortfolioCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
+            // Stats
             Text("Sharpe: ${portfolio.sharpe.toStringAsFixed(2)}",
                 style: Theme.of(context).textTheme.bodySmall),
-            Text("CAGR: ${(portfolio.cagr * 100).toStringAsFixed(1)}%",
+            Text(
+                "CAGR: ${(portfolio.cagr * 100).toStringAsFixed(1)}%",
                 style: Theme.of(context).textTheme.bodySmall),
             const Spacer(),
+            // Actions
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -177,15 +255,15 @@ final _demoPortfolios = [
     sparkline: [
       FlSpot(0, 1),
       FlSpot(1, 1.02),
-      FlSpot(2, 1.1),
+      FlSpot(2, 1.10),
       FlSpot(3, 1.25),
-      FlSpot(4, 1.3),
+      FlSpot(4, 1.30),
     ],
   ),
   _DemoPortfolio(
     name: "Stable Yield",
     tags: ["Yield", "Low Vol"],
-    sharpe: 1.2,
+    sharpe: 1.20,
     cagr: 0.22,
     sparkline: [
       FlSpot(0, 1),
@@ -198,14 +276,14 @@ final _demoPortfolios = [
   _DemoPortfolio(
     name: "AI Native",
     tags: ["AI", "Smart"],
-    sharpe: 1.9,
+    sharpe: 1.90,
     cagr: 0.53,
     sparkline: [
       FlSpot(0, 1),
       FlSpot(1, 1.05),
       FlSpot(2, 1.08),
       FlSpot(3, 1.13),
-      FlSpot(4, 1.2),
+      FlSpot(4, 1.20),
     ],
   ),
 ];

@@ -1,4 +1,4 @@
-// lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\narrative_filter.dart
+// lib/widgets/screen_specific_widgets/current_widgets/marketIntelligence/narrative_filter.dart
 
 import 'package:flutter/material.dart';
 
@@ -20,48 +20,83 @@ class _NarrativeFilterWidgetState extends State<NarrativeFilterWidget> {
     "My Watchlist": ["WIF", "JUP", "TAO"],
   };
 
+  String _activeCategory = "Narratives";
   final Set<String> _selectedFilters = {};
 
-  void _toggleFilter(String value) {
+  void _toggleFilter(String tag) {
     setState(() {
-      if (_selectedFilters.contains(value)) {
-        _selectedFilters.remove(value);
-      } else {
-        _selectedFilters.add(value);
+      if (!_selectedFilters.add(tag)) {
+        _selectedFilters.remove(tag);
       }
     });
     widget.onFilterChanged(_selectedFilters.toList());
   }
 
   void _clearAll() {
-    setState(() {
-      _selectedFilters.clear();
-    });
+    setState(() => _selectedFilters.clear());
     widget.onFilterChanged([]);
+  }
+
+  void _openAllFiltersSheet() {
+    final theme = Theme.of(context);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Container(
+          height: MediaQuery.of(ctx).size.height * 0.6,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text("All Filters", style: theme.textTheme.titleLarge),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: ListView(
+                  children: _filters.entries
+                      .map((e) => Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _buildFilterGroup(e.key, e.value),
+                          ))
+                      .toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
+    final categories = _filters.keys.toList();
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      color: scheme.surface,
-      margin: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14)),
+      color: theme.colorScheme.surface,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           children: [
+            // Title + clear
             Row(
               children: [
-                Text("🎯 Narrative Filter", style: theme.textTheme.titleMedium),
-                const SizedBox(width: 8),
-                Tooltip(
-                  message: "Select the themes you want to track",
-                  child: const Icon(Icons.info_outline, size: 18),
-                ),
+                Text("🎯 Narrative Filter",
+                    style: theme.textTheme.titleMedium),
                 const Spacer(),
                 if (_selectedFilters.isNotEmpty)
                   TextButton.icon(
@@ -71,8 +106,59 @@ class _NarrativeFilterWidgetState extends State<NarrativeFilterWidget> {
                   ),
               ],
             ),
-            const SizedBox(height: 16),
-            ..._filters.entries.map((entry) => _buildFilterGroup(entry.key, entry.value)).toList(),
+            const SizedBox(height: 8),
+
+            // Tier 1: category chips
+            SizedBox(
+              height: 32,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: categories.length,
+                separatorBuilder: (_, __) =>
+                    const SizedBox(width: 8),
+                itemBuilder: (ctx, i) {
+                  final cat = categories[i];
+                  return ChoiceChip(
+                    label: Text(cat),
+                    selected: cat == _activeCategory,
+                    onSelected: (_) =>
+                        setState(() => _activeCategory = cat),
+                    selectedColor:
+                        theme.colorScheme.primary.withOpacity(0.2),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Tier 2: chips for active category + “All” button
+            SizedBox(
+              height: 32,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount:
+                    _filters[_activeCategory]!.length + 1,
+                separatorBuilder: (_, __) =>
+                    const SizedBox(width: 8),
+                itemBuilder: (ctx, i) {
+                  if (i == _filters[_activeCategory]!.length) {
+                    return ActionChip(
+                      label: const Text("+ All"),
+                      onPressed: _openAllFiltersSheet,
+                    );
+                  }
+                  final tag = _filters[_activeCategory]![i];
+                  final sel = _selectedFilters.contains(tag);
+                  return FilterChip(
+                    label: Text(tag),
+                    selected: sel,
+                    onSelected: (_) => _toggleFilter(tag),
+                    selectedColor: theme.colorScheme.primary
+                        .withOpacity(0.2),
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -84,27 +170,24 @@ class _NarrativeFilterWidgetState extends State<NarrativeFilterWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(group, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+        Text(group,
+            style: theme.textTheme.titleSmall
+                ?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: items.map((item) {
-            final selected = _selectedFilters.contains(item);
+          children: items.map((tag) {
+            final sel = _selectedFilters.contains(tag);
             return FilterChip(
-              label: Text(item),
-              selected: selected,
-              onSelected: (_) => _toggleFilter(item),
-              selectedColor: theme.colorScheme.primary.withOpacity(0.2),
-              backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.2),
-              checkmarkColor: theme.colorScheme.primary,
-              labelStyle: TextStyle(
-                color: selected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
-              ),
+              label: Text(tag),
+              selected: sel,
+              onSelected: (_) => _toggleFilter(tag),
+              selectedColor: theme.colorScheme.primary
+                  .withOpacity(0.2),
             );
           }).toList(),
         ),
-        const SizedBox(height: 16),
       ],
     );
   }

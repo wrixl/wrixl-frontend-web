@@ -90,31 +90,32 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
   List<DashboardItem> _getItemsForTab(String tab) {
     final configsByTab = {
       'Predict': [
-        {'id': 'Signal Arena','x': 0, 'y': 0, 'w': 6, 'h': 4, 'minW': 6},
-        {'id': 'Portfolio Arena', 'x': 0, 'y': 4, 'w': 12, 'h': 4,'minW': 6},
+        {'id': 'Signal Arena', 'x': 0, 'y': 0, 'w': 12, 'h': 3, 'minW': 6},
+        {'id': 'Portfolio Arena', 'x': 0, 'y': 3, 'w': 12, 'h': 3, 'minW': 6},
       ],
       'Vote': [
         {'id': 'Signals DAO Voting', 'x': 0, 'y': 0, 'w': 12, 'h': 4, 'minW': 6},
         {'id': 'Signal Curation Feed', 'x': 0, 'y': 4, 'w': 8, 'h': 4, 'minW': 6},
-        {'id': 'Referral Impact Tracker', 'x': 8, 'y': 4, 'w': 4, 'h': 3, 'minW': 3},
+        {'id': 'Referral Impact Tracker', 'x': 8, 'y': 4, 'w': 4, 'h': 4, 'minW': 3},
       ],
       'Earn': [
-        {'id': 'Rewards Dashboard', 'x': 0, 'y': 0, 'w': 8, 'h': 4,'minW': 6},
-        {'id': 'Rewards Inventory', 'x': 8, 'y': 0, 'w': 4, 'h': 3, 'minW': 3},
-        {'id': 'Claimable Perks', 'x': 0, 'y': 4, 'w': 6, 'h': 2, 'minW': 4},
-        {'id': 'User Impact Score', 'x': 6, 'y': 4, 'w': 6, 'h': 2, 'minW': 4},
+        {'id': 'Rewards Dashboard', 'x': 0, 'y': 0, 'w': 6, 'h': 4, 'minW': 6},
+        {'id': 'Claimable Perks', 'x': 0, 'y': 4, 'w': 6, 'h': 4, 'minW': 4},
+        {'id': 'User Impact Score', 'x': 6, 'y': 0, 'w': 6, 'h': 8, 'minW': 4},
+        {'id': 'Rewards Inventory', 'x': 0, 'y': 8, 'w': 12, 'h': 3, 'minW': 3},
       ],
       'Rank': [
-        {'id': 'User Leaderboard', 'x': 0, 'y': 0, 'w': 4, 'h': 3, 'minW': 3},
-        {'id': 'Community Challenges', 'x': 4, 'y': 0, 'w': 8, 'h': 3, 'minW': 6},
-        {'id': 'My Badge Collection', 'x': 0, 'y': 3, 'w': 4, 'h': 3, 'minW': 3},
-        {'id': 'XP & Level Progress', 'x': 4, 'y': 3, 'w': 4, 'h': 2, 'minW': 3},
-        {'id': 'Weekly Quest Progress', 'x': 0, 'y': 6, 'w': 8, 'h': 3, 'minW': 6},
-        {'id': 'Wrixler Rank Tier', 'x': 8, 'y': 3, 'w': 4, 'h': 3, 'minW': 3},
-        {'id': 'Top Sector Rankings', 'x': 0, 'y': 9, 'w': 8, 'h': 3, 'minW': 6},
-        {'id': 'Community Threads', 'x': 0, 'y': 12, 'w': 12, 'h': 6, 'minW': 6},
+        {'id': 'User Leaderboard', 'x': 0, 'y': 0, 'w': 4, 'h': 4, 'minW': 3},
+        {'id': 'Wrixler Rank Tier', 'x': 4, 'y': 0, 'w': 4, 'h': 4, 'minW': 3},
+        {'id': 'XP & Level Progress', 'x': 8, 'y': 0, 'w': 4, 'h': 4, 'minW': 3},
+        {'id': 'Community Challenges', 'x': 0, 'y': 4, 'w': 6, 'h': 6, 'minW': 6},
+        {'id': 'My Badge Collection', 'x': 6, 'y': 4, 'w': 6, 'h': 6, 'minW': 3},
+        {'id': 'Top Sector Rankings', 'x': 0, 'y': 10, 'w': 6, 'h': 6, 'minW': 6},
+        {'id': 'Weekly Quest Progress', 'x': 6, 'y': 10, 'w': 6, 'h': 6, 'minW': 6},
+        {'id': 'Community Threads', 'x': 0, 'y': 16, 'w': 12, 'h': 4, 'minW': 6},
       ]
     };
+
 
     return (configsByTab[tab] ?? [])
         .map((cfg) => DashboardItem(
@@ -315,7 +316,14 @@ class _CommunityGameScreenState extends State<CommunityGameScreen>
                         onToggleVisibility: () => setState(() => controller.toggleVisibility(id)),
                         modalTitle: 'Widget $id',
                         modalSize: WidgetModalSize.medium,
+                        // only enable the tap for these specific cards
+                        enableCardTap: id == 'Referral Impact Tracker'
+                                    || id == 'Rewards Dashboard'
+                                    || id == 'User Impact Score'
+                                    || id == 'Wrixler Rank Tier'
+                                    || id == 'XP & Level Progress',
                       );
+
                     }
 
                   );

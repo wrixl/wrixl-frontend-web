@@ -1,13 +1,15 @@
-// lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\whale_alerts_timeline.dart
+// lib/widgets/screen_specific_widgets/current_widgets/marketIntelligence/whale_alerts_timeline.dart
 
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class WhaleAlertsTimelineWidget extends StatefulWidget {
   const WhaleAlertsTimelineWidget({super.key});
 
   @override
-  State<WhaleAlertsTimelineWidget> createState() => _WhaleAlertsTimelineWidgetState();
+  State<WhaleAlertsTimelineWidget> createState() =>
+      _WhaleAlertsTimelineWidgetState();
 }
 
 class _WhaleSignal {
@@ -36,14 +38,20 @@ class _WhaleSignal {
   });
 }
 
-class _WhaleAlertsTimelineWidgetState extends State<WhaleAlertsTimelineWidget> {
+class _WhaleAlertsTimelineWidgetState
+    extends State<WhaleAlertsTimelineWidget> {
   final List<_WhaleSignal> _signals = List.generate(8, (i) {
     final now = DateTime.now();
     final t = now.subtract(Duration(minutes: i * 47));
     final token = ['WIF', 'PYTH', 'JUP', 'ARB'][i % 4];
     final emoji = ['🐳', '🧠', '🔥', '📢'][i % 4];
     final tag = ['Exit', 'Buy Cluster', 'Sent to CEX', 'Whale Buy'][i % 4];
-    final confidence = ['Strong Conviction', 'Slow Wallet', 'Fast Mover', 'High Confidence'][i % 4];
+    final confidence = [
+      'Strong Conviction',
+      'Slow Wallet',
+      'Fast Mover',
+      'High Confidence'
+    ][i % 4];
     return _WhaleSignal(
       time: t,
       token: token,
@@ -60,83 +68,153 @@ class _WhaleAlertsTimelineWidgetState extends State<WhaleAlertsTimelineWidget> {
 
   String _selectedDuration = '4h';
 
+  void _showSignalModal(_WhaleSignal s) {
+    showNewReusableModal(
+      context,
+      title: "${s.token} Whale Alert",
+      size: WidgetModalSize.medium,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Time: ${_formatTime(s.time)}",
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          Text("Action: ${s.action}",
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          Text("Amount: ${s.amount.toStringAsFixed(2)} ${s.token}",
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          Text("Price: \$${s.price.toStringAsFixed(2)}",
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          Text(
+            "Price Change: ${s.priceChange > 0 ? '+' : ''}"
+            "${s.priceChange.toStringAsFixed(2)}%",
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(
+                  color: s.priceChange >= 0
+                      ? Colors.green
+                      : Colors.red,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text("Tag: ${s.tag}",
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          Text("Confidence: ${s.confidenceTag}",
+              style: Theme.of(context).textTheme.bodyMedium),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       color: scheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Header row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Whale Alerts Timeline", style: theme.textTheme.titleMedium),
+                Text("Whale Alerts Timeline",
+                    style: theme.textTheme.titleMedium),
                 DropdownButton<String>(
                   value: _selectedDuration,
                   onChanged: (val) {
-                    if (val != null) setState(() => _selectedDuration = val);
+                    if (val != null) {
+                      setState(() => _selectedDuration = val);
+                    }
                   },
-                  items: ['1h', '4h', '24h'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                  items: ['1h', '4h', '24h']
+                      .map((e) =>
+                          DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
                 ),
               ],
             ),
             const SizedBox(height: 12),
+            // Signals list
             Expanded(
               child: ListView.builder(
                 itemCount: _signals.length,
                 itemBuilder: (_, i) {
                   final s = _signals[i];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: s.color.withOpacity(0.06),
-                        border: Border.all(color: s.color.withOpacity(0.4)),
-                      ),
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: s.color.withOpacity(0.2),
-                            child: Text(s.emoji, style: const TextStyle(fontSize: 18)),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${s.token} — ${s.amount.toStringAsFixed(2)} ${s.action} @ \$${s.price.toStringAsFixed(2)}',
-                                  style: theme.textTheme.titleSmall,
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${s.confidenceTag} • ${s.tag} • ${_formatTime(s.time)}',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: scheme.onSurface.withOpacity(0.7),
+                  return InkWell(
+                    onTap: () => _showSignalModal(s),
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 6),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(12),
+                          color: s.color.withOpacity(0.06),
+                          border: Border.all(
+                              color: s.color.withOpacity(0.4)),
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor:
+                                  s.color.withOpacity(0.2),
+                              child: Text(s.emoji,
+                                  style:
+                                      const TextStyle(fontSize: 18)),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${s.token} — ${s.amount.toStringAsFixed(2)} ${s.action} @ \$${s.price.toStringAsFixed(2)}',
+                                    style:
+                                        theme.textTheme.titleSmall,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '${s.confidenceTag} • ${s.tag} • ${_formatTime(s.time)}',
+                                    style: theme.textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: scheme.onSurface
+                                              .withOpacity(0.7),
+                                        ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${s.priceChange > 0 ? '+' : ''}${s.priceChange.toStringAsFixed(2)}%',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: s.priceChange > 0 ? Colors.green : Colors.red,
-                              fontSize: 13,
+                            const SizedBox(width: 8),
+                            Text(
+                              '${s.priceChange > 0 ? '+' : ''}'
+                              '${s.priceChange.toStringAsFixed(2)}%',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: s.priceChange > 0
+                                    ? Colors.green
+                                    : Colors.red,
+                                fontSize: 13,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   );

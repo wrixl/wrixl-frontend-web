@@ -1,7 +1,8 @@
-// lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\my_relevant_alerts.dart
+// lib/widgets/screen_specific_widgets/current_widgets/marketIntelligence/my_relevant_alerts.dart
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class MyRelevantAlertsWidget extends StatefulWidget {
   const MyRelevantAlertsWidget({super.key});
@@ -45,12 +46,73 @@ class _MyRelevantAlertsWidgetState extends State<MyRelevantAlertsWidget> {
   String selectedSource = 'All';
   String selectedSort = 'Urgency';
 
+  void _showAlertModal(_Alert alert) {
+    showNewReusableModal(
+      context,
+      title: '${alert.emoji} ${alert.token} Alert',
+      size: WidgetModalSize.small,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            alert.context,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Confidence: ${alert.confidence}%',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Exposure: ${alert.exposure}',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Time: ${_formatTimestamp(alert.timestamp)}',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Actions:',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: alert.actions.map((action) {
+              return OutlinedButton(
+                onPressed: () {
+                  // TODO: implement action handler
+                },
+                style: OutlinedButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text(action, style: const TextStyle(fontSize: 12)),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       color: theme.colorScheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -59,7 +121,13 @@ class _MyRelevantAlertsWidgetState extends State<MyRelevantAlertsWidget> {
           children: [
             _buildHeader(theme),
             const SizedBox(height: 16),
-            ...alerts.map((alert) => _buildAlertCard(alert)).toList(),
+            ...alerts.map((alert) {
+              return InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => _showAlertModal(alert),
+                child: _buildAlertCard(alert),
+              );
+            }).toList(),
           ],
         ),
       ),
@@ -81,12 +149,18 @@ class _MyRelevantAlertsWidgetState extends State<MyRelevantAlertsWidget> {
           spacing: 12,
           runSpacing: 8,
           children: [
-            _buildDropdown('Timeframe', selectedTimeframe, ['1h', '4h', '24h', '7d'],
-                (v) => setState(() => selectedTimeframe = v!)),
-            _buildDropdown('Source', selectedSource, ['All', 'Holdings', 'Watchlist'],
-                (v) => setState(() => selectedSource = v!)),
-            _buildDropdown('Sort', selectedSort, ['Urgency', 'Confidence', 'Time'],
-                (v) => setState(() => selectedSort = v!)),
+            _buildDropdown('Timeframe', selectedTimeframe,
+                ['1h', '4h', '24h', '7d'], (v) {
+              setState(() => selectedTimeframe = v!);
+            }),
+            _buildDropdown('Source', selectedSource,
+                ['All', 'Holdings', 'Watchlist'], (v) {
+              setState(() => selectedSource = v!);
+            }),
+            _buildDropdown('Sort', selectedSort,
+                ['Urgency', 'Confidence', 'Time'], (v) {
+              setState(() => selectedSort = v!);
+            }),
           ],
         ),
       ],
@@ -97,7 +171,7 @@ class _MyRelevantAlertsWidgetState extends State<MyRelevantAlertsWidget> {
       ValueChanged<String?> onChanged) {
     return DropdownButton<String>(
       value: value,
-      onChanged: (v) => onChanged(v),
+      onChanged: onChanged,
       borderRadius: BorderRadius.circular(10),
       underline: const SizedBox(),
       style: Theme.of(context).textTheme.bodyMedium,
@@ -124,7 +198,8 @@ class _MyRelevantAlertsWidgetState extends State<MyRelevantAlertsWidget> {
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: confidenceColor.withOpacity(0.4), width: 1),
+        border: Border.all(
+            color: confidenceColor.withOpacity(0.4), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,7 +217,8 @@ class _MyRelevantAlertsWidgetState extends State<MyRelevantAlertsWidget> {
           LinearProgressIndicator(
             value: alert.confidence / 100,
             backgroundColor: Colors.grey[200],
-            valueColor: AlwaysStoppedAnimation(confidenceColor),
+            valueColor:
+                AlwaysStoppedAnimation(confidenceColor),
             minHeight: 6,
           ),
           const SizedBox(height: 8),
@@ -158,7 +234,8 @@ class _MyRelevantAlertsWidgetState extends State<MyRelevantAlertsWidget> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: Text(action, style: const TextStyle(fontSize: 12)),
+                      child:
+                          Text(action, style: const TextStyle(fontSize: 12)),
                     ))
                 .toList(),
           ),

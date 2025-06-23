@@ -1,6 +1,7 @@
 // lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\wallet_leaderboard.dart
 
 import 'package:flutter/material.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class WalletLeaderboardWidget extends StatefulWidget {
   const WalletLeaderboardWidget({super.key});
@@ -34,6 +35,28 @@ class _WalletLeaderboardWidgetState extends State<WalletLeaderboardWidget> {
     },
   ];
 
+  void _showWalletDetailsModal(Map<String, dynamic> wallet) {
+    showNewReusableModal(
+      context,
+      title: wallet["alias"],
+      size: WidgetModalSize.medium,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Wallet Type: ${wallet["type"]}"),
+          const SizedBox(height: 8),
+          Text("Smart Score: ${wallet["score"]}"),
+          const SizedBox(height: 8),
+          Text("ROI ($_selectedTimeframe): +${wallet["roi"]}%"),
+          const SizedBox(height: 8),
+          Text("Rank Δ: ${wallet["delta"] > 0 ? '+' : ''}${wallet["delta"]}"),
+          const SizedBox(height: 8),
+          Text("Top Holdings: ${wallet["holdings"].join(', ')}"),
+        ],
+      ),
+    );
+  }
+
   Widget _buildWalletRow(Map<String, dynamic> wallet, ThemeData theme) {
     final deltaColor = wallet["delta"] > 0
         ? Colors.green
@@ -41,49 +64,66 @@ class _WalletLeaderboardWidgetState extends State<WalletLeaderboardWidget> {
             ? Colors.red
             : Colors.grey;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        leading: Text("🥇 ${wallet["rank"]}",
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-        title: Text(wallet["alias"],
-            style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("${wallet["type"]} • ROI: +${wallet["roi"]}% ${_selectedTimeframe}",
-                style: theme.textTheme.bodySmall),
-            Text("Top: ${wallet["holdings"].join(', ')}", style: theme.textTheme.bodySmall),
-          ],
+    return GestureDetector(
+      onTap: () => _showWalletDetailsModal(wallet),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceVariant.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
         ),
-        trailing: Wrap(
-          spacing: 4,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  wallet["delta"] > 0
-                      ? Icons.arrow_upward
-                      : wallet["delta"] < 0
-                          ? Icons.arrow_downward
-                          : Icons.horizontal_rule,
-                  color: deltaColor,
-                  size: 20,
-                ),
-                Text("Δ ${wallet["delta"]}", style: TextStyle(color: deltaColor, fontSize: 12)),
-              ],
-            ),
-            IconButton(icon: const Icon(Icons.show_chart), onPressed: () {}),
-            IconButton(icon: const Icon(Icons.copy), onPressed: () {}),
-            IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
-          ],
+        child: ListTile(
+          dense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          minVerticalPadding: 0,
+          leading: Text(
+            "🥇 ${wallet["rank"]}",
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          title: Text(
+            wallet["alias"],
+            style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "${wallet["type"]} • ROI: +${wallet["roi"]}% ${_selectedTimeframe}",
+                style: theme.textTheme.bodySmall,
+              ),
+              Text(
+                "Top: ${wallet["holdings"].join(', ')}",
+                style: theme.textTheme.bodySmall,
+              ),
+            ],
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    wallet["delta"] > 0
+                        ? Icons.arrow_upward
+                        : wallet["delta"] < 0
+                            ? Icons.arrow_downward
+                            : Icons.horizontal_rule,
+                    color: deltaColor,
+                    size: 20,
+                  ),
+                  Text(
+                    "Δ ${wallet["delta"]}",
+                    style: TextStyle(color: deltaColor, fontSize: 12),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+              IconButton(icon: const Icon(Icons.show_chart), onPressed: () {}),
+              IconButton(icon: const Icon(Icons.copy), onPressed: () {}),
+              IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
+            ],
+          ),
         ),
       ),
     );
@@ -100,12 +140,15 @@ class _WalletLeaderboardWidgetState extends State<WalletLeaderboardWidget> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
-                Text("🏆 Wallet Leaderboard",
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  "🏆 Wallet Leaderboard",
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(width: 6),
                 const Tooltip(
                   message: "Ranked smart money wallets by ROI, conviction, and inflows.",

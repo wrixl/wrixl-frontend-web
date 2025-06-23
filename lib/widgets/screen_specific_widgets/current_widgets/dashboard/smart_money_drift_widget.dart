@@ -34,6 +34,7 @@ class _SmartMoneyDriftWidgetState extends State<SmartMoneyDriftWidget> {
         size: WidgetModalSize.medium,
         onClose: () => Navigator.pop(context),
         child: Column(
+          mainAxisSize: MainAxisSize.min,        // ← ADD THIS
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -66,6 +67,7 @@ class _SmartMoneyDriftWidgetState extends State<SmartMoneyDriftWidget> {
       ),
     );
   }
+
 
   Widget _buildDetailedDriftItem(
       BuildContext context, _DriftDeviation deviation) {
@@ -117,82 +119,90 @@ class _SmartMoneyDriftWidgetState extends State<SmartMoneyDriftWidget> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
 
-    return GestureDetector(
-      onTap: () => _showFullDriftModal(context),
-      behavior: HitTestBehavior.deferToChild, // important
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: scheme.surface,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Smart Money Drift",
-                      style: Theme.of(context).textTheme.titleMedium),
-                  GestureDetector(
-                    onTap: () {
-                      // whatever logic your button should do
-                    },
-                    child: Icon(Icons.compass_calibration_outlined,
-                        color: scheme.primary),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Center(
-                child: SizedBox(
-                  height: 320,
-                  width: 320,
-                  child: CustomPaint(
-                    painter: _DriftScopePainter(
-                        score: alignmentScore, offset: driftOffset),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text("${alignmentScore.toInt()}%",
-                              style: TextStyle(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          color: scheme.surface,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 🧭 Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Smart Money Drift", style: theme.textTheme.titleMedium),
+                    Icon(Icons.compass_calibration_outlined, color: scheme.primary),
+                  ],
+                ),
+                const SizedBox(height: 8),
+
+                // 🎯 Responsive radar chart
+                Flexible(
+                  fit: FlexFit.loose, // ← allow the child to size itself instead of forcing it to fill
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: CustomPaint(
+                        painter: _DriftScopePainter(
+                          score: alignmentScore,
+                          offset: driftOffset,
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "${alignmentScore.toInt()}%",
+                                style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
-                                  color: scheme.primary)),
-                          Text(
-                              alignmentScore > 70
-                                  ? "Aligned"
-                                  : (alignmentScore > 40
-                                      ? "Drifting"
-                                      : "Off Course"),
-                              style: TextStyle(
+                                  color: scheme.primary,
+                                ),
+                              ),
+                              Text(
+                                alignmentScore > 70
+                                    ? "Aligned"
+                                    : (alignmentScore > 40 ? "Drifting" : "Off Course"),
+                                style: TextStyle(
                                   fontSize: 11,
-                                  color: scheme.onSurface.withOpacity(0.6))),
-                        ],
+                                  color: scheme.onSurface.withOpacity(0.6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: deviations
-                      .map((d) => Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: SmartMoneyDriftStrip(deviation: d),
-                          ))
-                      .toList(),
+
+                const SizedBox(height: 12),
+
+                // 📊 Strip (fixed height horizontal scroll)
+                SizedBox(
+                  height: 28,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: deviations.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (context, index) =>
+                        SmartMoneyDriftStrip(deviation: deviations[index]),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
+
 }
 
 class _DriftDeviation {

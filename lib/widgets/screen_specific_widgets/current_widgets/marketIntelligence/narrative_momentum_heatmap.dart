@@ -63,80 +63,100 @@ class _NarrativeMomentumHeatmapState extends State<NarrativeMomentumHeatmap> {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      color: scheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          color: scheme.surface,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("🔥 Narrative Momentum Heatmap", style: textTheme.titleMedium),
-                    const SizedBox(width: 6),
-                    const Tooltip(
-                      message: "Visualizes velocity of narrative momentum",
-                      child: Icon(Icons.info_outline, size: 18),
+                    Row(
+                      children: [
+                        Text("🔥 Narrative Momentum Heatmap", style: textTheme.titleMedium),
+                        const SizedBox(width: 6),
+                        const Tooltip(
+                          message: "Visualizes velocity of narrative momentum",
+                          child: Icon(Icons.info_outline, size: 18),
+                        ),
+                      ],
+                    ),
+                    DropdownButton<String>(
+                      value: selectedTimeframe,
+                      underline: const SizedBox(),
+                      onChanged: (v) => setState(() => selectedTimeframe = v!),
+                      items: timeframes.map((tf) => DropdownMenuItem(value: tf, child: Text(tf))).toList(),
                     ),
                   ],
                 ),
-                DropdownButton<String>(
-                  value: selectedTimeframe,
-                  underline: const SizedBox(),
-                  onChanged: (value) => setState(() => selectedTimeframe = value ?? "1H"),
-                  items: timeframes.map((tf) => DropdownMenuItem(value: tf, child: Text(tf))).toList(),
-                )
+                const SizedBox(height: 12),
+                // Grid layout with 3 columns
+                Expanded(
+                  child: GridView.builder(
+                    itemCount: dummyData.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.4,
+                    ),
+                    itemBuilder: (context, index) {
+                      final data = dummyData[index];
+                      return InkWell(
+                        onTap: () => _showNarrativeDetails(context, data),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: _getColor(data.velocity).withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: _getColor(data.velocity), width: 1.2),
+                          ),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.topLeft,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      data.label,
+                                      style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(_getTrendIcon(data.trend), size: 18, color: _getColor(data.velocity)),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text("${data.velocity > 0 ? '+' : ''}${data.velocity.toStringAsFixed(0)}%",
+                                    style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+                                Text(data.trend, style: textTheme.bodySmall),
+                                const SizedBox(height: 4),
+                                Text("Tokens: ${data.topTokens.join(', ')}",
+                                    style: textTheme.labelSmall?.copyWith(
+                                      color: scheme.onSurface.withOpacity(0.6),
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: dummyData.map((data) {
-                return InkWell(
-                  onTap: () => _showNarrativeDetails(context, data),
-                  child: Container(
-                    width: 180,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: _getColor(data.velocity).withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: _getColor(data.velocity), width: 1.2),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Text(data.label,
-                                  style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-                                  overflow: TextOverflow.ellipsis),
-                            ),
-                            Icon(_getTrendIcon(data.trend), size: 18, color: _getColor(data.velocity)),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text("${data.velocity > 0 ? "+" : ""}${data.velocity.toStringAsFixed(0)}%",
-                            style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
-                        Text(data.trend, style: textTheme.bodySmall),
-                        const SizedBox(height: 4),
-                        Text("Tokens: ${data.topTokens.join(", ")}",
-                            style: textTheme.labelSmall?.copyWith(color: scheme.onSurface.withOpacity(0.6))),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            )
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -146,8 +166,14 @@ class _NarrativeMomentumHeatmapState extends State<NarrativeMomentumHeatmap> {
       builder: (ctx) => AlertDialog(
         title: Text(data.label),
         content: Text(
-          "Velocity: ${data.velocity}%\nTrend: ${data.trend}\nTokens involved: ${data.topTokens.join(", ")}\n\nThis narrative is ${data.trend.toLowerCase()} with significant velocity shift."),
-        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Close"))],
+          "Velocity: ${data.velocity}%\nTrend: ${data.trend}\nTokens involved: ${data.topTokens.join(", ")}\n\nThis narrative is ${data.trend.toLowerCase()} with significant velocity shift.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Close"),
+          )
+        ],
       ),
     );
   }

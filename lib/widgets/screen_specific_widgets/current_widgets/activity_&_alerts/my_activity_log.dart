@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 enum ActivityType { trade, simulation, signal, vote }
 
@@ -15,10 +16,139 @@ class MyActivityLogWidget extends StatefulWidget {
 class _MyActivityLogWidgetState extends State<MyActivityLogWidget> {
   String _selectedFilter = 'All';
 
+  final List<Map<String, dynamic>> _dummyActivityData = [
+    {
+      'timestamp': DateTime.now().subtract(const Duration(minutes: 20)),
+      'type': ActivityType.simulation,
+      'typeLabel': 'Simulations',
+      'title': 'Simulated “L2 Yield Rotator”',
+      'description': 'Projected gain: +3.2% at 85% confidence.',
+    },
+    {
+      'timestamp': DateTime.now().subtract(const Duration(hours: 3)),
+      'type': ActivityType.trade,
+      'typeLabel': 'Trades',
+      'title': 'Traded ARB for ENA',
+      'description': 'Rebalanced 12% of portfolio.',
+    },
+    {
+      'timestamp': DateTime.now().subtract(const Duration(days: 1, hours: 1)),
+      'type': ActivityType.vote,
+      'typeLabel': 'Votes',
+      'title': 'Voted on “Signal DAO L2 Drift”',
+      'description': 'Supported risk rotation proposal.',
+    },
+    {
+      'timestamp': DateTime.now().subtract(const Duration(days: 4)),
+      'type': ActivityType.signal,
+      'typeLabel': 'Signals',
+      'title': 'Activated “Narrative AI Surge”',
+      'description': 'Signal added to mirrored portfolio.',
+    },
+  ];
+
+  Map<String, List<Map<String, dynamic>>> _groupActivities() {
+    final now = DateTime.now();
+    final todayList = <Map<String, dynamic>>[];
+    final yesterdayList = <Map<String, dynamic>>[];
+    final thisWeekList = <Map<String, dynamic>>[];
+    final earlierList = <Map<String, dynamic>>[];
+
+    for (var a in _dummyActivityData) {
+      final ts = a['timestamp'] as DateTime;
+      final diff = now.difference(ts);
+
+      if (diff.inDays == 0 && ts.day == now.day) {
+        todayList.add(a);
+      } else if (diff.inDays == 1 ||
+          (diff.inDays == 0 && ts.day != now.day)) {
+        yesterdayList.add(a);
+      } else if (diff.inDays <= 7) {
+        thisWeekList.add(a);
+      } else {
+        earlierList.add(a);
+      }
+    }
+
+    final Map<String, List<Map<String, dynamic>>> result = {};
+    if (todayList.isNotEmpty) result['Today'] = todayList;
+    if (yesterdayList.isNotEmpty) result['Yesterday'] = yesterdayList;
+    if (thisWeekList.isNotEmpty) result['This Week'] = thisWeekList;
+    if (earlierList.isNotEmpty) result['Earlier'] = earlierList;
+    return result;
+  }
+
+  IconData _getIcon(ActivityType t) {
+    switch (t) {
+      case ActivityType.trade:
+        return Icons.swap_horiz_rounded;
+      case ActivityType.simulation:
+        return Icons.auto_graph_rounded;
+      case ActivityType.signal:
+        return Icons.campaign_rounded;
+      case ActivityType.vote:
+        return Icons.how_to_vote_rounded;
+    }
+  }
+
+  Color _getColor(ActivityType t) {
+    switch (t) {
+      case ActivityType.trade:
+        return Colors.green;
+      case ActivityType.simulation:
+        return Colors.blue;
+      case ActivityType.signal:
+        return Colors.deepPurple;
+      case ActivityType.vote:
+        return Colors.orange;
+    }
+  }
+
+  String _formatDate(DateTime dt) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final d = DateTime(dt.year, dt.month, dt.day);
+
+    if (d == today) return 'Today';
+    if (d == yesterday) return 'Yesterday';
+    return DateFormat.yMMMd().format(dt);
+  }
+
+  void _openActivityModal(Map<String, dynamic> a) {
+    showDialog(
+      context: context,
+      builder: (_) => NewWidgetModal(
+        title: a['title'],
+        size: WidgetModalSize.small,
+        onClose: () => Navigator.of(context).pop(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(_getIcon(a['type']), size: 48, color: _getColor(a['type'])),
+            const SizedBox(height: 12),
+            Text(a['description'], style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 8),
+            Text(_formatDate(a['timestamp']),
+                style: TextStyle(color: Colors.grey.shade600)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // TODO: details action
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final groupedActivities = _groupActivities(_dummyActivityData);
+    final grouped = _groupActivities();
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -28,6 +158,7 @@ class _MyActivityLogWidgetState extends State<MyActivityLogWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Header + filter dropdown
             Row(
               children: [
                 Expanded(
@@ -40,37 +171,40 @@ class _MyActivityLogWidgetState extends State<MyActivityLogWidget> {
                   dropdownColor: theme.cardColor,
                   borderRadius: BorderRadius.circular(8),
                   underline: const SizedBox(),
-                  items: ['All', 'Trades', 'Simulations', 'Signals', 'Votes']
-                      .map((f) =>
-                          DropdownMenuItem(value: f, child: Text(f)))
+                  items: const [
+                    'All',
+                    'Trades',
+                    'Simulations',
+                    'Signals',
+                    'Votes'
+                  ]
+                      .map((f) => DropdownMenuItem(value: f, child: Text(f)))
                       .toList(),
-                  onChanged: (val) =>
-                      setState(() => _selectedFilter = val!),
-                )
+                  onChanged: (v) => setState(() => _selectedFilter = v!),
+                ),
               ],
             ),
+
             const SizedBox(height: 12),
+
+            // Grouped list
             Expanded(
               child: ListView(
-                children: groupedActivities.entries.map((entry) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Text(entry.key,
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: theme.colorScheme.secondary)),
-                      ),
-                      ...entry.value
-                          .where((a) =>
-                              _selectedFilter == 'All' ||
-                              a['typeLabel'] == _selectedFilter)
-                          .map((activity) => _buildActivityCard(activity))
-                    ],
-                  );
+                children: grouped.entries.expand((e) {
+                  return [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(e.key,
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.secondary)),
+                    ),
+                    ...e.value.where((a) =>
+                        _selectedFilter == 'All' ||
+                        a['typeLabel'] == _selectedFilter)
+                      .map((a) => _buildActivityCard(a))
+                  ];
                 }).toList(),
               ),
             ),
@@ -80,118 +214,33 @@ class _MyActivityLogWidgetState extends State<MyActivityLogWidget> {
     );
   }
 
-  Widget _buildActivityCard(Map<String, dynamic> activity) {
-    final iconData = _getIcon(activity['type']);
-    final color = _getColor(activity['type']);
+  Widget _buildActivityCard(Map<String, dynamic> act) {
+    final icon = _getIcon(act['type']);
+    final color = _getColor(act['type']);
 
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 6),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: color.withOpacity(0.1),
-          child: Icon(iconData, color: color),
-        ),
-        title: Text(activity['title'],
-            style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(activity['description']),
-        trailing: TextButton(
-          onPressed: () {
-            // Navigate to view details
-          },
-          child: const Text('View'),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _openActivityModal(act),
+        child: ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          leading: CircleAvatar(
+            backgroundColor: color.withOpacity(0.1),
+            child: Icon(icon, color: color),
+          ),
+          title:
+              Text(act['title'], style: const TextStyle(fontWeight: FontWeight.w600)),
+          subtitle: Text(act['description']),
+          trailing: TextButton(
+            onPressed: () => _openActivityModal(act),
+            child: const Text('View'),
+          ),
         ),
       ),
     );
   }
-
-  Map<String, List<Map<String, dynamic>>> _groupActivities(
-      List<Map<String, dynamic>> activities) {
-    final now = DateTime.now();
-    final today = <Map<String, dynamic>>[];
-    final yesterday = <Map<String, dynamic>>[];
-    final thisWeek = <Map<String, dynamic>>[];
-    final earlier = <Map<String, dynamic>>[];
-
-    for (var activity in activities) {
-      final ts = activity['timestamp'] as DateTime;
-      final diff = now.difference(ts);
-
-      if (diff.inDays == 0 && ts.day == now.day) {
-        today.add(activity);
-      } else if (diff.inDays == 1 || (diff.inDays == 0 && ts.day != now.day)) {
-        yesterday.add(activity);
-      } else if (diff.inDays <= 7) {
-        thisWeek.add(activity);
-      } else {
-        earlier.add(activity);
-      }
-    }
-
-    return {
-      if (today.isNotEmpty) 'Today': today,
-      if (yesterday.isNotEmpty) 'Yesterday': yesterday,
-      if (thisWeek.isNotEmpty) 'This Week': thisWeek,
-      if (earlier.isNotEmpty) 'Earlier': earlier,
-    };
-  }
-
-  IconData _getIcon(ActivityType type) {
-    switch (type) {
-      case ActivityType.trade:
-        return Icons.swap_horiz_rounded;
-      case ActivityType.simulation:
-        return Icons.auto_graph_rounded;
-      case ActivityType.signal:
-        return Icons.campaign_rounded;
-      case ActivityType.vote:
-        return Icons.how_to_vote_rounded;
-    }
-  }
-
-  Color _getColor(ActivityType type) {
-    switch (type) {
-      case ActivityType.trade:
-        return Colors.green;
-      case ActivityType.simulation:
-        return Colors.blue;
-      case ActivityType.signal:
-        return Colors.deepPurple;
-      case ActivityType.vote:
-        return Colors.orange;
-    }
-  }
 }
-
-final List<Map<String, dynamic>> _dummyActivityData = [
-  {
-    'timestamp': DateTime.now().subtract(const Duration(minutes: 20)),
-    'type': ActivityType.simulation,
-    'typeLabel': 'Simulations',
-    'title': 'Simulated “L2 Yield Rotator”',
-    'description': 'Projected gain: +3.2% at 85% confidence.',
-  },
-  {
-    'timestamp': DateTime.now().subtract(const Duration(hours: 3)),
-    'type': ActivityType.trade,
-    'typeLabel': 'Trades',
-    'title': 'Traded ARB for ENA',
-    'description': 'Rebalanced 12% of portfolio.',
-  },
-  {
-    'timestamp': DateTime.now().subtract(const Duration(days: 1, hours: 1)),
-    'type': ActivityType.vote,
-    'typeLabel': 'Votes',
-    'title': 'Voted on “Signal DAO L2 Drift”',
-    'description': 'Supported risk rotation proposal.',
-  },
-  {
-    'timestamp': DateTime.now().subtract(const Duration(days: 4)),
-    'type': ActivityType.signal,
-    'typeLabel': 'Signals',
-    'title': 'Activated “Narrative AI Surge”',
-    'description': 'Signal added to mirrored portfolio.',
-  },
-];

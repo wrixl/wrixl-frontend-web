@@ -318,6 +318,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   },
                   modalTitle: id,
                   modalSize: WidgetModalSize.small,
+                  // disable the outer-card tap for _all_ activity widgets
+                  enableCardTap: false,
                 );
               },
             ),

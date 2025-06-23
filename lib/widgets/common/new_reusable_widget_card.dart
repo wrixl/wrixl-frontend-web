@@ -14,6 +14,9 @@ class WidgetCard extends StatefulWidget {
   final String? modalTitle;
   final WidgetModalSize modalSize;
 
+  /// NEW: if false, tapping the card won't open the default modal.
+  final bool enableCardTap;
+
   const WidgetCard({
     Key? key,
     required this.item,
@@ -23,6 +26,7 @@ class WidgetCard extends StatefulWidget {
     this.onToggleVisibility,
     this.modalTitle,
     this.modalSize = WidgetModalSize.medium,
+    this.enableCardTap = true,  // <-- new param
   }) : super(key: key);
 
   @override
@@ -51,7 +55,6 @@ class _WidgetCardState extends State<WidgetCard> {
 
     final card = AnimatedContainer(
       duration: const Duration(milliseconds: 150),
-//      margin: const EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.zero,
       decoration: BoxDecoration(
         color: widget.isHidden
@@ -138,10 +141,15 @@ class _WidgetCardState extends State<WidgetCard> {
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      child:
-          (!widget.isEditMode && widget.modalSize != WidgetModalSize.fullscreen)
-              ? GestureDetector(onTap: () => _openModal(context), child: card)
-              : card,
+      child: 
+        // Only wrap in GestureDetector if tapping is enabled AND
+        // we're not in edit mode AND not forcing fullscreen.
+        (widget.enableCardTap && !widget.isEditMode && widget.modalSize != WidgetModalSize.fullscreen)
+          ? GestureDetector(
+              onTap: () => _openModal(context),
+              child: card,
+            )
+          : card,
     );
   }
 }

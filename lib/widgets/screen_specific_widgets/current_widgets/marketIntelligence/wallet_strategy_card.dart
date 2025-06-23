@@ -75,92 +75,92 @@ class _WalletStrategyCardState extends State<WalletStrategyCard>
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      color: scheme.surface,
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // App bar
-            Row(
-              children: [
-                Text("@${widget.walletAlias}", style: theme.textTheme.titleMedium),
-                const SizedBox(width: 8),
-                Tooltip(
-                  message: 'Wallet tagged as ${widget.walletType}.',
-                  child: const Icon(Icons.info_outline, size: 18),
-                ),
-                const Spacer(),
-                Chip(
-                  label: Text(widget.walletType, style: theme.textTheme.labelLarge),
-                  avatar: const Icon(Icons.star, size: 16),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  backgroundColor: scheme.primary.withOpacity(0.1),
-                )
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Tab bar
-            TabBar(
-              controller: _tabController,
-              labelColor: scheme.primary,
-              unselectedLabelColor: scheme.onSurface.withOpacity(0.5),
-              labelStyle: theme.textTheme.labelLarge,
-              indicatorColor: scheme.primary,
-              isScrollable: true,
-              tabs: const [
-                Tab(text: 'Holdings'),
-                Tab(text: 'Trades'),
-                Tab(text: 'Conviction'),
-                Tab(text: 'Activity'),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Tab views
-            SizedBox(
-              height: 260,
-              child: TabBarView(
-                controller: _tabController,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          color: scheme.surface,
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: IntrinsicHeight(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildHoldingsTab(theme),
-                  Center(child: Text('Trades tab coming soon...', style: theme.textTheme.bodySmall)),
-                  Center(child: Text('Conviction heatmap coming soon...', style: theme.textTheme.bodySmall)),
-                  Center(child: Text('Activity chart coming soon...', style: theme.textTheme.bodySmall)),
+                  Row(
+                    children: [
+                      Text("@${widget.walletAlias}", style: theme.textTheme.titleMedium),
+                      const SizedBox(width: 8),
+                      Tooltip(
+                        message: 'Wallet tagged as ${widget.walletType}.',
+                        child: const Icon(Icons.info_outline, size: 18),
+                      ),
+                      const Spacer(),
+                      Chip(
+                        label: Text(widget.walletType, style: theme.textTheme.labelLarge),
+                        avatar: const Icon(Icons.star, size: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        backgroundColor: scheme.primary.withOpacity(0.1),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TabBar(
+                    controller: _tabController,
+                    labelColor: scheme.primary,
+                    unselectedLabelColor: scheme.onSurface.withOpacity(0.5),
+                    labelStyle: theme.textTheme.labelLarge,
+                    indicatorColor: scheme.primary,
+                    isScrollable: true,
+                    tabs: const [
+                      Tab(text: 'Holdings'),
+                      Tab(text: 'Trades'),
+                      Tab(text: 'Conviction'),
+                      Tab(text: 'Activity'),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Flexible(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildHoldingsTab(theme),
+                        Center(child: Text('Trades tab coming soon...', style: theme.textTheme.bodySmall)),
+                        Center(child: Text('Conviction heatmap coming soon...', style: theme.textTheme.bodySmall)),
+                        Center(child: Text('Activity chart coming soon...', style: theme.textTheme.bodySmall)),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 32),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.square),
+                        label: const Text("Mirror"),
+                        onPressed: () {},
+                      ),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.visibility),
+                        label: const Text("Watch Wallet"),
+                        onPressed: () {},
+                      ),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.sync_alt),
+                        label: const Text("Simulate Drift"),
+                        onPressed: () {},
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-
-            const Divider(height: 32),
-
-            // Actions
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.square),
-                  label: const Text("Mirror"),
-                  onPressed: () {},
-                ),
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.visibility),
-                  label: const Text("Watch Wallet"),
-                  onPressed: () {},
-                ),
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.sync_alt),
-                  label: const Text("Simulate Drift"),
-                  onPressed: () {},
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

@@ -1,9 +1,10 @@
-// lib\widgets\screen_specific_widgets\current_widgets\strategies\published_strategy_hall_of_fame.dart
+// lib/widgets/screen_specific_widgets/current_widgets/strategies/published_strategy_hall_of_fame.dart
 
 import 'package:flutter/material.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class PublishedStrategyHallOfFame extends StatelessWidget {
-  const PublishedStrategyHallOfFame({super.key});
+  const PublishedStrategyHallOfFame({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +21,7 @@ class PublishedStrategyHallOfFame extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -29,17 +31,54 @@ class PublishedStrategyHallOfFame extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            _FilterBar(),
+            const _FilterBar(),
             const SizedBox(height: 16),
+            // Horizontal list of strategy cards
             SizedBox(
               height: 300,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: 6,
-                separatorBuilder: (context, index) => const SizedBox(width: 12),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(width: 12),
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 itemBuilder: (context, index) {
-                  return _StrategyCard(index: index);
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {
+                        // Show modal with details for this strategy
+                        showNewReusableModal(
+                          context,
+                          title: "Strategy #$index",
+                          size: WidgetModalSize.medium,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Strategy #$index",
+                                  style: theme.textTheme.titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 12),
+                              Text("Sharpe Ratio: 1.40"),
+                              Text("CAGR: 18%"),
+                              Text("Max Drawdown: -12%"),
+                              Text("WRX Burn: 420"),
+                              const SizedBox(height: 16),
+                              Center(
+                                child: ElevatedButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text("Close"),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: _StrategyCard(index: index),
+                    ),
+                  );
                 },
               ),
             ),
@@ -51,6 +90,8 @@ class PublishedStrategyHallOfFame extends StatelessWidget {
 }
 
 class _FilterBar extends StatefulWidget {
+  const _FilterBar();
+
   @override
   State<_FilterBar> createState() => _FilterBarState();
 }
@@ -72,7 +113,10 @@ class _FilterBarState extends State<_FilterBar> {
         'Top Rated',
         'Longest Surviving',
         'By Theme'
-      ].map((label) => DropdownMenuItem(value: label, child: Text(label))).toList(),
+      ]
+          .map((label) =>
+              DropdownMenuItem(value: label, child: Text(label)))
+          .toList(),
       onChanged: (value) {
         if (value != null) setState(() => selected = value);
       },
@@ -104,7 +148,9 @@ class _StrategyCard extends StatelessWidget {
           children: [
             Text("Strategy #$index",
                 style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white)),
             const SizedBox(height: 8),
             const Text("Sharpe: 1.4 | CAGR: 18%",
                 style: TextStyle(color: Colors.white70)),
@@ -125,7 +171,8 @@ class _StrategyCard extends StatelessWidget {
                   tooltip: "Fork",
                 ),
                 IconButton(
-                  icon: const Icon(Icons.bookmark_border, color: Colors.white),
+                  icon:
+                      const Icon(Icons.bookmark_border, color: Colors.white),
                   onPressed: () {},
                   tooltip: "Bookmark",
                 ),

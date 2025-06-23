@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:wrixl_frontend/profile/user_profile.dart';
-import 'package:wrixl_frontend/screens/main_app_screens/market_intelligence2.dart' show MarketIntelligenceScreen2;
 import '../../utils/responsive.dart';
 import '../../widgets/sidebarx_navigation.dart';
 import 'package:wrixl_frontend/utils/constants.dart';
@@ -11,7 +10,7 @@ import 'strategies_screen.dart';
 import 'market_intelligence.dart';
 import 'activity_screen.dart';
 import 'community_game_screen.dart';
-import 'dashboard_screen2.dart';
+import '../archive/dashboard_screen2.dart';
 import 'my_positions_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -33,7 +32,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     const CommunityGameScreen(), // 4: New Community & Gamification
     const ActivityScreen(), // 5: New Activity & Alerts
     const UserProfileScreen(), // 6: Profile
-    const MarketIntelligenceScreen2(), // 6: Intelligence2
   ];
 
   @override
@@ -88,8 +86,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     icon: Icon(Icons.history), label: 'Activity'), // 5
                 BottomNavigationBarItem(
                     icon: Icon(Icons.person), label: 'Profile'), // 6
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.square), label: 'Intelligence2'), // 7
               ],
             )
           : null,

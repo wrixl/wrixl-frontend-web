@@ -1,8 +1,8 @@
-
 // lib/widgets/screen_specific_widgets/current_widgets/marketIntelligence/anomaly_map.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class AnomalyMapWidget extends StatefulWidget {
   const AnomalyMapWidget({Key? key}) : super(key: key);
@@ -46,6 +46,33 @@ class _AnomalyMapWidgetState extends State<AnomalyMapWidget> {
       'color': Colors.redAccent,
     },
   ];
+
+  void _showAnomalyModal(Map<String, dynamic> anomaly) {
+    showNewReusableModal(
+      context,
+      title: "${anomaly['token']} Anomaly",
+      size: WidgetModalSize.medium,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Type: ${anomaly['type']}",
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          Text("Change: ${anomaly['change']}",
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          Text("Badge: ${anomaly['badge']}",
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 16),
+          Text(
+            "Here you can provide more detailed insights or charts related to this anomaly. "
+            "For example, historical spikes, on-chain transaction details, social sentiment graphs, etc.",
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +122,13 @@ class _AnomalyMapWidgetState extends State<AnomalyMapWidget> {
                 itemCount: anomalies.length,
                 itemBuilder: (context, index) {
                   final anomaly = anomalies[index];
-                  return _buildAnomalyTile(anomaly).animate().fadeIn().slideY();
+                  return InkWell(
+                    onTap: () => _showAnomalyModal(anomaly),
+                    child: _buildAnomalyTile(anomaly)
+                        .animate()
+                        .fadeIn()
+                        .slideY(),
+                  );
                 },
               ),
             ),

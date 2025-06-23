@@ -38,99 +38,118 @@ class _AIStrategyBuilderPromptState extends State<AIStrategyBuilderPrompt> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      margin: const EdgeInsets.all(16),
-      elevation: 3,
-      color: theme.colorScheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("AI Strategy Builder",
-                    style: theme.textTheme.titleMedium),
-                const Icon(Icons.smart_toy_outlined, color: Colors.deepPurple),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text("Describe Your Strategy Idea",
-                style: theme.textTheme.labelLarge),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _controller,
-              minLines: 3,
-              maxLines: 6,
-              decoration: InputDecoration(
-                hintText: "e.g. High momentum DeFi strategy with medium volatility",
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                contentPadding: const EdgeInsets.all(16),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: () => _simulateAIResponse(_controller.text),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              children: suggestions.map((s) {
-                return ActionChip(
-                  label: Text(s),
-                  onPressed: () {
-                    _controller.text = s;
-                    _simulateAIResponse(s);
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 20),
-            if (isLoading) const Center(child: CircularProgressIndicator()),
-            if (generatedOutput != null && !isLoading)
-              Container(
-                margin: const EdgeInsets.only(top: 16),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: IntrinsicHeight(
+            child: Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              margin: const EdgeInsets.all(16),
+              elevation: 3,
+              color: theme.colorScheme.surface,
+              child: Padding(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceVariant,
-                  borderRadius: BorderRadius.circular(12),
-                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(generatedOutput!,
-                        style: theme.textTheme.bodyMedium?.copyWith(fontSize: 15)),
-                    const SizedBox(height: 12),
+                    // Title
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.analytics),
-                          label: const Text("Simulate"),
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 8),
-                        OutlinedButton.icon(
-                          icon: const Icon(Icons.bar_chart),
-                          label: const Text("Backtest"),
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 8),
-                        TextButton.icon(
-                          icon: const Icon(Icons.bookmark_border),
-                          label: const Text("Save"),
-                          onPressed: () {},
-                        )
+                        Text("AI Strategy Builder", style: theme.textTheme.titleMedium),
+                        const Icon(Icons.smart_toy_outlined, color: Colors.deepPurple),
                       ],
-                    )
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Prompt label + input
+                    Text("Describe Your Strategy Idea", style: theme.textTheme.labelLarge),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _controller,
+                      minLines: 3,
+                      maxLines: 6,
+                      decoration: InputDecoration(
+                        hintText: "e.g. High momentum DeFi strategy with medium volatility",
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.all(16),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.send),
+                          onPressed: () => _simulateAIResponse(_controller.text),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Suggestions
+                    Wrap(
+                      spacing: 8,
+                      children: suggestions.map((s) {
+                        return ActionChip(
+                          label: Text(s),
+                          onPressed: () {
+                            _controller.text = s;
+                            _simulateAIResponse(s);
+                          },
+                        );
+                      }).toList(),
+                    ),
+
+                    const Spacer(),
+
+                    // Output section
+                    if (isLoading)
+                      const Center(child: CircularProgressIndicator()),
+                    if (generatedOutput != null && !isLoading)
+                      Container(
+                        margin: const EdgeInsets.only(top: 16),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceVariant,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              generatedOutput!,
+                              style: theme.textTheme.bodyMedium?.copyWith(fontSize: 15),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                ElevatedButton.icon(
+                                  icon: const Icon(Icons.analytics),
+                                  label: const Text("Simulate"),
+                                  onPressed: () {},
+                                ),
+                                const SizedBox(width: 8),
+                                OutlinedButton.icon(
+                                  icon: const Icon(Icons.bar_chart),
+                                  label: const Text("Backtest"),
+                                  onPressed: () {},
+                                ),
+                                const SizedBox(width: 8),
+                                TextButton.icon(
+                                  icon: const Icon(Icons.bookmark_border),
+                                  label: const Text("Save"),
+                                  onPressed: () {},
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
-          ],
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
+
 }

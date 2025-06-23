@@ -114,45 +114,62 @@ class _StrategiesScreenState extends State<StrategiesScreen>
     switch (tab) {
       case 'Mirror':
         return createItems([
-          {'id': 'Mirrored Wallet Summary', 'x': 0, 'y': 0, 'w': 12, 'h': 2, 'minW': 12}, // was: Mirror Summary Strip
-          {'id': 'Smart Wallet Leaderboard', 'x': 0, 'y': 2, 'w': 12, 'h': 4, 'minW': 12}, // was: Wallet Leaderboard
-          {'id': 'Smart Money Ticker', 'x': 0, 'y': 6, 'w': 12, 'h': 2, 'minW': 12}, // was: Live Smart Money Ticker
-          {'id': 'Top Fit Wallets', 'x': 0, 'y': 8, 'w': 12, 'h': 3, 'minW': 12}, // was: Mirror My Fit Recommender
-          {'id': 'Mirroring Drift Radar', 'x': 0, 'y': 11, 'w': 12, 'h': 3, 'minW': 12}, // was: Drift vs You Radar
-          {'id': 'Mirror Strategy Composer', 'x': 0, 'y': 14, 'w': 12, 'h': 1, 'minW': 4, 'minH': 1}, // was: Mirror Strategy Builder
-          {'id': 'Top Wallet Today', 'x': 0, 'y': 16, 'w': 12, 'h': 5, 'minW': 4, 'minH': 3}, // was: Mirror Suggestion Tile
-          {'id': 'Wallet Performance Tracker', 'x': 0, 'y': 21, 'w': 12, 'h': 4, 'minW': 4, 'minH': 3}, // was: Profit Line Chart
-          {'id': 'Mirrorable Wallet Explorer', 'x': 0, 'y': 25, 'w': 12, 'h': 6, 'minW': 4, 'minH': 4}, // was: Wallet Tile List
+          {'id': 'Mirrored Wallet Summary', 'x': 0, 'y': 0, 'w': 8, 'h': 2, 'minW': 4},
+          {'id': 'Smart Money Ticker', 'x': 8, 'y': 0, 'w': 4, 'h': 2, 'minW': 4},
+          {'id': 'Smart Wallet Leaderboard', 'x': 0, 'y': 2, 'w': 6, 'h': 4, 'minW': 4},
+          {'id': 'Top Fit Wallets', 'x': 6, 'y': 2, 'w': 6, 'h': 4, 'minW': 4},
+          {'id': 'Mirror Strategy Composer', 'x': 0, 'y': 6, 'w': 12, 'h': 2, 'minW': 4, 'minH': 1},
+          {'id': 'Top Wallet Today', 'x': 0, 'y': 8, 'w': 6, 'h': 6, 'minW': 4, 'minH': 3},
+          {'id': 'Mirrorable Wallet Explorer', 'x': 6, 'y': 8, 'w': 6, 'h': 6, 'minW': 4, 'minH': 4},
+          {'id': 'Mirroring Drift Radar', 'x': 0, 'y': 14, 'w': 5, 'h': 4, 'minW': 4},
+          {'id': 'Wallet Performance Tracker', 'x': 5, 'y': 14, 'w': 7, 'h': 4, 'minW': 4, 'minH': 3},
         ]);
 
       case 'Portfolios':
         return createItems([
-          {'id': 'Portfolio Summary Overview', 'x': 0, 'y': 0, 'w': 12, 'h': 2, 'minW': 12}, // was: Portfolios Summary Strip
-          {'id': 'AI Recommended Portfolios', 'x': 0, 'y': 2, 'w': 12, 'h': 2, 'minW': 12}, // was: AI Curation Card
-          {'id': 'Portfolio Explorer Filters', 'x': 0, 'y': 4, 'w': 12, 'h': 3, 'minW': 12}, // was: Portfolio Filter Bar + Portfolio Filters
-          {'id': 'Featured Portfolio Grid', 'x': 0, 'y': 7, 'w': 12, 'h': 5, 'minW': 12}, // was: Model Portfolio Grid
-          {'id': 'Compare Portfolio Models', 'x': 0, 'y': 12, 'w': 12, 'h': 4, 'minW': 12}, // was: Compare Models Widget
-          {'id': 'Portfolio Metrics Radar', 'x': 0, 'y': 16, 'w': 4, 'h': 3, 'minW': 4, 'minH': 3},
-          {'id': 'Compare to My Holdings', 'x': 0, 'y': 19, 'w': 4, 'h': 4, 'minW': 4, 'minH': 2}, // was: Compare to My Portfolio
-          {'id': 'Explore All Model Portfolios', 'x': 0, 'y': 23, 'w': 12, 'h': 6, 'minW': 4, 'minH': 3}, // was: Portfolio Strategies
+          {'id': 'Portfolio Summary Overview', 'x': 0, 'y': 0, 'w': 12, 'h': 4, 'minW': 12},
+          {'id': 'AI Recommended Portfolios', 'x': 0, 'y': 4, 'w': 12, 'h': 4, 'minW': 12},
+          {'id': 'Portfolio Explorer Filters', 'x': 0, 'y': 8, 'w': 12, 'h': 3, 'minW': 12},
+          {'id': 'Featured Portfolio Grid', 'x': 0, 'y': 11, 'w': 12, 'h': 10, 'minW': 12},
+          {'id': 'Compare Portfolio Models', 'x': 0, 'y': 21, 'w': 12, 'h': 4, 'minW': 12},
+          {'id': 'Compare to My Holdings', 'x': 0, 'y': 25, 'w': 6, 'h': 5, 'minW': 4},
+          {'id': 'Portfolio Metrics Radar', 'x': 6, 'y': 25, 'w': 6, 'h': 5, 'minW': 4},
+          {'id': 'Explore All Model Portfolios', 'x': 0, 'y': 30, 'w': 12, 'h': 8, 'minW': 4},
         ]);
 
       case 'Build':
         return createItems([
-          {'id': 'Build Overview Summary', 'x': 0, 'y': 0, 'w': 12, 'h': 2, 'minW': 12}, // was: Build Summary Strip
-          {'id': 'AI Strategy Builder Prompt', 'x': 0, 'y': 2, 'w': 12, 'h': 2, 'minW': 12}, // was: Prompt Input AI Builder
-          {'id': 'Token Intelligence Filters', 'x': 0, 'y': 4, 'w': 12, 'h': 3, 'minW': 12}, // was: Token Filter Panel
-          {'id': 'Risk & Return Sliders', 'x': 0, 'y': 7, 'w': 12, 'h': 2, 'minW': 12}, // was: Risk Return Sliders
-          {'id': 'Backtest Performance Results', 'x': 0, 'y': 9, 'w': 12, 'h': 4, 'minW': 12}, // was: Backtest Results Viewer
-          {'id': 'Mint Strategy Actions', 'x': 0, 'y': 13, 'w': 12, 'h': 2, 'minW': 12}, // was: Save or Mint Strategy
-          {'id': 'Published Strategy Hall of Fame', 'x': 0, 'y': 15, 'w': 12, 'h': 3, 'minW': 12}, // was: Published Strategy Leaderboard
+          {'id': 'Build Overview Summary', 'x': 0, 'y': 0, 'w': 12, 'h': 4, 'minW': 12},
+          {'id': 'AI Strategy Builder Prompt', 'x': 0, 'y': 4, 'w': 12, 'h': 3, 'minW': 12},
+          {'id': 'Token Intelligence Filters', 'x': 0, 'y': 7, 'w': 12, 'h': 2, 'minW': 12},
+          {'id': 'Risk & Return Sliders', 'x': 0, 'y': 9, 'w': 6, 'h': 6, 'minW': 6},
+          {'id': 'Backtest Performance Results', 'x': 6, 'y': 9, 'w': 6, 'h': 6, 'minW': 6},
+          {'id': 'Mint Strategy Actions', 'x': 0, 'y': 15, 'w': 12, 'h': 2, 'minW': 12},
+          {'id': 'Published Strategy Hall of Fame', 'x': 0, 'y': 17, 'w': 12, 'h': 5, 'minW': 12},
         ]);
 
       default:
         return [];
     }
-
   }
+
+  final noTap = {
+    'Smart Wallet Leaderboard',
+    'Top Fit Wallets',
+    'Mirror Strategy Composer',
+    'Top Wallet Today',
+    'Mirrorable Wallet Explorer',
+    'AI Recommended Portfolios',
+    'Portfolio Explorer Filters',
+    'Featured Portfolio Grid',
+    'Explore All Model Portfolios',
+    'Build Overview Summary',
+    'AI Strategy Builder Prompt',
+    'Token Intelligence Filters',
+    'Risk & Return Sliders',
+    'Mint Strategy Actions',
+    'Published Strategy Hall of Fame',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -445,6 +462,7 @@ class _StrategiesScreenState extends State<StrategiesScreen>
                           },
                           modalTitle: 'Widget $id',
                           modalSize: WidgetModalSize.medium,
+                          enableCardTap: !noTap.contains(id),
                         );
                       }
                   );

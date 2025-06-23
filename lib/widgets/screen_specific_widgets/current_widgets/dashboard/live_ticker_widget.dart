@@ -64,220 +64,241 @@ class _LiveTickerStreamerState extends State<LiveTickerStreamer> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Card(
-      color: colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 🔥 Header row with filters and search
-// 🔥 Header row with title → filters → search (right-aligned)
-            Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              runSpacing: 12,
-              spacing: 20,
-              children: [
-                // Title section
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.trending_up,
-                        color: colorScheme.primary, size: 20),
-                    const SizedBox(width: 6),
-                    Text(
-                      "Live Ticker Streamer",
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
 
-                // Toggle filters
-                ToggleFilterIconRowWidget(
-                  options: filters,
-                  optionIcons: filterIcons,
-                  activeOption: activeTickerType,
-                  onSelected: (option) {
-                    setState(() => activeTickerType = option);
-                  },
-                ),
+        final double availableHeight = constraints.maxHeight;
+        final double availableWidth = constraints.maxWidth;
+        final double tickerCardWidth =
+            availableWidth < 260 ? availableWidth : min(280, availableWidth * 0.85);
 
-                // Search bar aligned right
-                SizedBox(
-                  width: 200,
-                  height: 36,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Search Activity",
-                      prefixIcon: Icon(
-                        Icons.search,
-                        size: 18,
-                        color: colorScheme.onSurface.withOpacity(0.6),
-                      ),
-                      filled: true,
-                      fillColor: colorScheme.surfaceVariant.withOpacity(0.2),
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 10),
-                      hintStyle: TextStyle(
-                        color: colorScheme.onSurface.withOpacity(0.6),
-                        fontSize: 13,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: colorScheme.primary.withOpacity(0.3),
-                        ),
-                      ),
-                    ),
-                    onChanged: (value) => setState(() => searchQuery = value),
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ),
-              ],
+        return Card(
+          color: colorScheme.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          elevation: 3,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: availableHeight,
             ),
-
-            const SizedBox(height: 16),
-
-            // 🌀 Ticker stream
-            SizedBox(
-              height: 80,
-              child: Marqueer.builder(
-                itemCount: tickerMessages.length,
-                pps: 40,
-                direction: MarqueerDirection.rtl,
-                interaction: true,
-                restartAfterInteraction: true,
-                restartAfterInteractionDuration: const Duration(seconds: 3),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                separatorBuilder: (_, __) => const SizedBox(width: 40),
-                itemBuilder: (context, index) {
-                  final message = tickerMessages[index];
-                  final category = _randomCategory();
-                  final timestamp = _formattedNow();
-                  final trend = _generateTrend();
-                  final isPositive = trend.last > trend.first;
-
-                  if (activeTickerType != 'all' &&
-                      !category.toLowerCase().contains(activeTickerType)) {
-                    return const SizedBox.shrink();
-                  }
-                  if (!message
-                      .toLowerCase()
-                      .contains(searchQuery.toLowerCase())) {
-                    return const SizedBox.shrink();
-                  }
-
-                  return GestureDetector(
-                    onTap: () => _showTickerModal(context, message),
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: Container(
-                        width: 300,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: colorScheme.surface.withOpacity(0.9),
-                          border: Border.all(
-                            color: isPositive
-                                ? AppConstants.neonGreen
-                                : AppConstants.neonRed,
-                            width: 1.0,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    runSpacing: 12,
+                    spacing: 20,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.trending_up,
+                              color: colorScheme.primary, size: 20),
+                          const SizedBox(width: 6),
+                          Text(
+                            "Live Ticker Streamer",
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: (isPositive
-                                      ? AppConstants.neonGreen
-                                      : AppConstants.neonRed)
-                                  .withOpacity(0.12),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
+                        ],
+                      ),
+                      ToggleFilterIconRowWidget(
+                        options: filters,
+                        optionIcons: filterIcons,
+                        activeOption: activeTickerType,
+                        onSelected: (option) {
+                          setState(() => activeTickerType = option);
+                        },
+                      ),
+                      SizedBox(
+                        width: 200,
+                        height: 36,
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: "Search Activity",
+                            prefixIcon: Icon(
+                              Icons.search,
+                              size: 18,
+                              color: colorScheme.onSurface.withOpacity(0.6),
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(message,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color:
-                                      colorScheme.onSurface.withOpacity(0.95),
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis),
-                            const SizedBox(height: 6),
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6),
-                                    color: AppConstants.accentColor
-                                        .withOpacity(0.12),
-                                  ),
-                                  child: Text(
-                                    category,
-                                    style: theme.textTheme.labelLarge?.copyWith(
-                                        color: colorScheme.onSurface),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  timestamp,
-                                  style: theme.textTheme.labelLarge?.copyWith(
-                                    color:
-                                        colorScheme.onSurface.withOpacity(0.7),
-                                  ),
-                                ),
-                                const Spacer(),
-                                SizedBox(
-                                  height: 22,
-                                  width: 80,
-                                  child: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 600),
-                                    transitionBuilder: (child, animation) =>
-                                        FadeTransition(
-                                      opacity: animation,
-                                      child: SlideTransition(
-                                        position: Tween<Offset>(
-                                          begin: const Offset(0.2, 0),
-                                          end: Offset.zero,
-                                        ).animate(animation),
-                                        child: child,
-                                      ),
-                                    ),
-                                    child: TinyColumnChart(
-                                      key: ValueKey(index),
-                                      data: trend,
-                                      width: 80,
-                                      height: 22,
-                                      options: TinyColumnChartOptions(
-                                        positiveColor: AppConstants.neonGreen,
-                                        negativeColor: AppConstants.neonRed,
-                                        showAxis: false,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            filled: true,
+                            fillColor:
+                                colorScheme.surfaceVariant.withOpacity(0.2),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 10),
+                            hintStyle: TextStyle(
+                              color: colorScheme.onSurface.withOpacity(0.6),
+                              fontSize: 13,
                             ),
-                          ],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: colorScheme.primary.withOpacity(0.3),
+                              ),
+                            ),
+                          ),
+                          onChanged: (value) =>
+                              setState(() => searchQuery = value),
+                          style: theme.textTheme.bodyMedium,
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 80,
+                    child: Marqueer.builder(
+                      itemCount: tickerMessages.length,
+                      pps: 40,
+                      direction: MarqueerDirection.rtl,
+                      interaction: true,
+                      restartAfterInteraction: true,
+                      restartAfterInteractionDuration: const Duration(seconds: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      separatorBuilder: (_, __) => const SizedBox(width: 40),
+                      itemBuilder: (context, index) {
+                        final message = tickerMessages[index];
+                        final category = _randomCategory();
+                        final timestamp = _formattedNow();
+                        final trend = _generateTrend();
+                        final isPositive = trend.last > trend.first;
+
+                        if (activeTickerType != 'all' &&
+                            !category
+                                .toLowerCase()
+                                .contains(activeTickerType)) {
+                          return const SizedBox.shrink();
+                        }
+                        if (!message
+                            .toLowerCase()
+                            .contains(searchQuery.toLowerCase())) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return GestureDetector(
+                          onTap: () => _showTickerModal(context, message),
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: Container(
+                              width: tickerCardWidth,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: colorScheme.surface.withOpacity(0.9),
+                                border: Border.all(
+                                  color: isPositive
+                                      ? AppConstants.neonGreen
+                                      : AppConstants.neonRed,
+                                  width: 1.0,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (isPositive
+                                            ? AppConstants.neonGreen
+                                            : AppConstants.neonRed)
+                                        .withOpacity(0.12),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(message,
+                                      style:
+                                          theme.textTheme.bodyMedium?.copyWith(
+                                        color: colorScheme.onSurface
+                                            .withOpacity(0.95),
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(6),
+                                          color: AppConstants.accentColor
+                                              .withOpacity(0.12),
+                                        ),
+                                        child: Text(
+                                          category,
+                                          style: theme.textTheme.labelLarge
+                                              ?.copyWith(
+                                                  color:
+                                                      colorScheme.onSurface),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        timestamp,
+                                        style: theme.textTheme.labelLarge
+                                            ?.copyWith(
+                                          color: colorScheme.onSurface
+                                              .withOpacity(0.7),
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      SizedBox(
+                                        height: 22,
+                                        width: 80,
+                                        child: AnimatedSwitcher(
+                                          duration: const Duration(
+                                              milliseconds: 600),
+                                          transitionBuilder:
+                                              (child, animation) =>
+                                                  FadeTransition(
+                                            opacity: animation,
+                                            child: SlideTransition(
+                                              position: Tween<Offset>(
+                                                begin: const Offset(0.2, 0),
+                                                end: Offset.zero,
+                                              ).animate(animation),
+                                              child: child,
+                                            ),
+                                          ),
+                                          child: TinyColumnChart(
+                                            key: ValueKey(index),
+                                            data: trend,
+                                            width: 80,
+                                            height: 22,
+                                            options: TinyColumnChartOptions(
+                                              positiveColor:
+                                                  AppConstants.neonGreen,
+                                              negativeColor:
+                                                  AppConstants.neonRed,
+                                              showAxis: false,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
+
   }
 
   void _showTickerModal(BuildContext context, String message) {

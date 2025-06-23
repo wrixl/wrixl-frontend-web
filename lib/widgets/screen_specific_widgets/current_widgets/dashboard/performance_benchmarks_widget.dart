@@ -1,5 +1,3 @@
-// lib\widgets\screen_specific_widgets\current_widgets\performance_benchmarks_widget.dart
-
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
@@ -8,8 +6,7 @@ class PerformanceBenchmarksWidget extends StatefulWidget {
   const PerformanceBenchmarksWidget({super.key});
 
   @override
-  State<PerformanceBenchmarksWidget> createState() =>
-      _PerformanceBenchmarksWidgetState();
+  State<PerformanceBenchmarksWidget> createState() => _PerformanceBenchmarksWidgetState();
 }
 
 const labelColumnWidth = 120.0;
@@ -25,9 +22,7 @@ class _Benchmark {
   const _Benchmark(this.label, this.change, {this.isUser = false});
 }
 
-class _PerformanceBenchmarksWidgetState
-    extends State<PerformanceBenchmarksWidget>
-    with SingleTickerProviderStateMixin {
+class _PerformanceBenchmarksWidgetState extends State<PerformanceBenchmarksWidget> with SingleTickerProviderStateMixin {
   final List<String> _ranges = ['1D', '7D', '1M', '6M', '1Y'];
   int _rangeIndex = 0;
   late String _selectedRange;
@@ -37,9 +32,7 @@ class _PerformanceBenchmarksWidgetState
   void initState() {
     super.initState();
     _selectedRange = _ranges[_rangeIndex];
-    _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600))
-      ..forward();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 600))..forward();
   }
 
   @override
@@ -61,9 +54,7 @@ class _PerformanceBenchmarksWidgetState
     final you = rawData.firstWhere((b) => b.isUser);
     final sharpeRatios = {
       for (final b in rawData)
-        b.label: b.isUser
-            ? 1.0
-            : (0.6 + Random(b.label.hashCode).nextDouble() * 0.8),
+        b.label: b.isUser ? 1.0 : (0.6 + Random(b.label.hashCode).nextDouble() * 0.8),
     };
 
     showDialog(
@@ -74,10 +65,7 @@ class _PerformanceBenchmarksWidgetState
         onClose: () => Navigator.pop(context),
         child: Column(
           children: [
-            const Text(
-              'Performance vs Risk',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            const Text('Performance vs Risk', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             SizedBox(
               height: 300,
@@ -94,7 +82,7 @@ class _PerformanceBenchmarksWidgetState
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                '🧠 AI Insight: Focus on assets in the upper-right quadrant — strong returns with acceptable risk. Avoid bottom-left assets with both high risk and low returns.',
+                '🧠 AI Insight: Focus on assets in the upper-right quadrant...',
                 style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
                 textAlign: TextAlign.center,
               ),
@@ -111,10 +99,10 @@ class _PerformanceBenchmarksWidgetState
     final rawData = _mockData[_selectedRange]!;
     final you = rawData.firstWhere((b) => b.isUser);
     final normalized = rawData
-        .map(
-            (b) => _Benchmark(b.label, b.change - you.change, isUser: b.isUser))
+        .map((b) => _Benchmark(b.label, b.change - you.change, isUser: b.isUser))
         .toList()
       ..sort((a, b) => b.change.compareTo(a.change));
+
     final maxAbs = normalized.map((b) => b.change.abs()).reduce(max);
     final step = maxAbs / columnsPerSide;
     final percentLabels = List.generate(totalColumns, (i) {
@@ -122,142 +110,199 @@ class _PerformanceBenchmarksWidgetState
       return "${relative >= 0 ? '+' : ''}${relative.toStringAsFixed(1)}%";
     });
 
-    return GestureDetector(
-      onTap: _openQuadModal,
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+    final average = rawData
+        .where((b) => !b.isUser)
+        .map((b) => b.change)
+        .reduce((a, b) => a + b) /
+        (rawData.length - 1);
+    final performanceGap = you.change - average;
+    final assessment = performanceGap >= 2
+        ? "✅ You’re outperforming major benchmarks. Keep your allocation."
+        : performanceGap >= -1
+            ? "🟡 You're tracking benchmarks. Minor rebalancing may help."
+            : "🔻 You’re underperforming. Consider reviewing high-drag assets or rebalancing.";
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final labelWidth = (constraints.maxWidth * 0.18).clamp(80.0, 140.0);
+
+        return GestureDetector(
+          onTap: _openQuadModal,
+          child: Card(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: Text(
-                      'Relative Performance (vs You)',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                  ),
-                  Tooltip(
-                    message: 'Cycle range ($_selectedRange)',
-                    child: IconButton(
-                      icon: const Icon(Icons.schedule),
-                      onPressed: _cycleRange,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: List.generate(totalColumns, (i) {
-                  return Expanded(
-                    child: Center(
-                      child: Text(
-                        percentLabels[i],
-                        style:
-                            const TextStyle(fontSize: 10, color: Colors.grey),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 4),
-              Stack(
-                children: [
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: _GridLinePainter(),
-                    ),
-                  ),
-                  Column(
-                    children: normalized.map((b) {
-                      final ratio =
-                          maxAbs == 0 ? 0.0 : (b.change.abs() / maxAbs);
-                      final isPositive = b.change > 0;
-                      final blockSpan = (ratio * columnsPerSide).ceil();
-                      final color = b.isUser
-                          ? Colors.blue
-                          : isPositive
-                              ? Colors.green
-                              : Colors.redAccent;
-                      final rowCells = List<Widget>.generate(
-                        totalColumns,
-                        (_) => const Expanded(child: SizedBox()),
-                      );
-                      if (isPositive) {
-                        for (int i = columnsPerSide + 1;
-                            i <= columnsPerSide + blockSpan && i < totalColumns;
-                            i++) {
-                          rowCells[i] = Expanded(
-                            child: AnimatedBuilder(
-                              animation: _controller,
-                              builder: (_, __) => FractionallySizedBox(
-                                alignment: Alignment.centerLeft,
-                                widthFactor: _controller.value,
-                                child: Container(
-                                  height: barHeight,
-                                  decoration: BoxDecoration(
-                                    color: color,
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                      } else {
-                        for (int i = columnsPerSide - 1;
-                            i >= columnsPerSide - blockSpan && i >= 0;
-                            i--) {
-                          rowCells[i] = Expanded(
-                            child: AnimatedBuilder(
-                              animation: _controller,
-                              builder: (_, __) => FractionallySizedBox(
-                                alignment: Alignment.centerRight,
-                                widthFactor: _controller.value,
-                                child: Container(
-                                  height: barHeight,
-                                  decoration: BoxDecoration(
-                                    color: color,
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                      }
-                      rowCells[columnsPerSide] = SizedBox(
-                        width: labelColumnWidth,
-                        child: Center(
-                          child: Text(
-                            b.label,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontWeight: b.isUser
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: b.isUser ? Colors.blue : null,
-                            ),
-                          ),
+                  // 🔹 Header
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Relative Performance (vs You)',
+                          style: theme.textTheme.titleMedium,
                         ),
-                      );
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: Row(children: rowCells),
+                      ),
+                      Tooltip(
+                        message: 'Cycle range ($_selectedRange)',
+                        child: IconButton(
+                          icon: const Icon(Icons.schedule),
+                          onPressed: _cycleRange,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // 🔹 X-axis labels
+                  Row(
+                    children: percentLabels.map((lbl) {
+                      return Expanded(
+                        child: Center(
+                          child: Text(lbl,
+                              style: const TextStyle(
+                                  fontSize: 10, color: Colors.grey)),
+                        ),
                       );
                     }).toList(),
                   ),
+                  const SizedBox(height: 4),
+
+                  // 🔹 Chart area flexibly fills all extra vertical space
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                            child: CustomPaint(painter: _GridLinePainter())),
+                        SingleChildScrollView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: normalized.map((b) {
+                              final ratio =
+                                  maxAbs == 0 ? 0.0 : (b.change.abs() / maxAbs);
+                              final isPositive = b.change > 0;
+                              final blockSpan =
+                                  (ratio * columnsPerSide).ceil();
+                              final color = b.isUser
+                                  ? Colors.blue
+                                  : (isPositive
+                                      ? Colors.green
+                                      : Colors.redAccent);
+
+                              // build empty cells then fill
+                              final cells = List<Widget>.generate(
+                                totalColumns,
+                                (_) => const Expanded(child: SizedBox()),
+                              );
+                              if (isPositive) {
+                                for (int i = columnsPerSide + 1;
+                                    i <= columnsPerSide + blockSpan &&
+                                        i < totalColumns;
+                                    i++) {
+                                  cells[i] = Expanded(
+                                    child: AnimatedBuilder(
+                                      animation: _controller,
+                                      builder: (_, __) => FractionallySizedBox(
+                                        alignment: Alignment.centerLeft,
+                                        widthFactor: _controller.value,
+                                        child: Container(
+                                          height: barHeight,
+                                          decoration: BoxDecoration(
+                                            color: color,
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } else {
+                                for (int i = columnsPerSide - 1;
+                                    i >= columnsPerSide - blockSpan && i >= 0;
+                                    i--) {
+                                  cells[i] = Expanded(
+                                    child: AnimatedBuilder(
+                                      animation: _controller,
+                                      builder: (_, __) => FractionallySizedBox(
+                                        alignment: Alignment.centerRight,
+                                        widthFactor: _controller.value,
+                                        child: Container(
+                                          height: barHeight,
+                                          decoration: BoxDecoration(
+                                            color: color,
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+
+                              // center label
+                              cells[columnsPerSide] = SizedBox(
+                                width: labelWidth,
+                                child: Center(
+                                  child: Text(
+                                    b.label,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: b.isUser
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: b.isUser ? Colors.blue : null,
+                                    ),
+                                  ),
+                                ),
+                              );
+
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2),
+                                child: Row(children: cells),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+                  // 🔹 Fixed assessment at bottom
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceVariant
+                          .withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      assessment,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontStyle: FontStyle.italic,
+                        color: theme.colorScheme.onSurface
+                            .withOpacity(0.8),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 12),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
+
+
 
   final Map<String, List<_Benchmark>> _mockData = {
     '1D': [

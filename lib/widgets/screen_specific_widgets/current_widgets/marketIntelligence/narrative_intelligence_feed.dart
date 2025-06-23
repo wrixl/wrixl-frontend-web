@@ -1,6 +1,8 @@
-// lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\narrative_intelligence_feed.dart
+// lib/widgets/screen_specific_widgets/current_widgets/marketIntelligence/narrative_intelligence_feed.dart
 
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class NarrativeIntelligenceFeed extends StatefulWidget {
   const NarrativeIntelligenceFeed({super.key});
@@ -36,7 +38,8 @@ class _NarrativeIntelligenceFeedState extends State<NarrativeIntelligenceFeed> {
     _NarrativePost(
       username: '@blockalpha_bot',
       timestamp: '12m ago',
-      content: 'Narratives rotating to Telegram coins again: WIF, JUP, POPCAT all breaking 1D mention highs.',
+      content:
+          'Narratives rotating to Telegram coins again: WIF, JUP, POPCAT all breaking 1D mention highs.',
       tags: ['Telegram', 'Memecoins'],
       source: 'Twitter',
       trendScore: '↗ Medium',
@@ -123,33 +126,86 @@ class _NarrativeIntelligenceFeedState extends State<NarrativeIntelligenceFeed> {
       itemBuilder: (_, index) {
         final post = _posts[index];
         final theme = Theme.of(context);
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(post.icon, color: Colors.orange, size: 28),
-            const SizedBox(width: 12),
-            Expanded(
+        return InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {
+            showNewReusableModal(
+              context,
+              title: 'Detail: ${post.username}',
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${post.username} • ${post.timestamp}',
-                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(post.icon, color: Colors.orange, size: 32),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '${post.username} • ${post.timestamp}',
+                          style: theme.textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   Text(post.content, style: theme.textTheme.bodyMedium),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 12),
                   Wrap(
-                    spacing: 6,
-                    children: post.tags.map((tag) => Chip(label: Text(tag, style: const TextStyle(fontSize: 12)))).toList(),
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: post.tags
+                        .map((tag) => Chip(label: Text(tag)))
+                        .toList(),
                   ),
+                  const SizedBox(height: 12),
+                  Text('Source: ${post.source}',
+                      style: theme.textTheme.bodySmall),
                   const SizedBox(height: 4),
-                  Text(
-                    '💬 ${post.source} | 🧠 Trend Score: ${post.trendScore} | ${post.tokens.map((e) => '\$$e').join(" ")}',
-                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7)),
-                  ),
+                  Text('Trend Score: ${post.trendScore}',
+                      style: theme.textTheme.bodySmall),
+                  const SizedBox(height: 4),
+                  Text('Tokens: ${post.tokens.join(', ')}',
+                      style: theme.textTheme.bodySmall),
                 ],
               ),
-            ),
-          ],
+            );
+          },
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(post.icon, color: Colors.orange, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${post.username} • ${post.timestamp}',
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 4),
+                    Text(post.content, style: theme.textTheme.bodyMedium),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      children: post.tags
+                          .map((tag) => Chip(
+                                label: Text(tag,
+                                    style: const TextStyle(fontSize: 12)),
+                              ))
+                          .toList(),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '💬 ${post.source} | 🧠 Trend Score: ${post.trendScore} | ${post.tokens.map((e) => '\$$e').join(" ")}',
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         );
       },
     );

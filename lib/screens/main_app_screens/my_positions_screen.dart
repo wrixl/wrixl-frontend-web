@@ -26,76 +26,46 @@ class MyPositionsScreen extends StatefulWidget {
 
 class _MyPositionsScreenState extends State<MyPositionsScreen> {
   final String screenId = 'Positions';
-  final String preset = 'Default';
-  late final DashboardScreenController controller;
-  late Future<void> _initFuture;
+  late DashboardScreenController _screenController;
+  Future<void>? _initFuture;
+
   bool _isEditing = false;
+  String selectedPreset = 'Default';
   String _filter = 'All';
+
   final List<String> _filters = ['All', 'Portfolios', 'Mirrored'];
+  final List<String> _presets = ['Default', 'Alt', 'Custom'];
 
   @override
   void initState() {
     super.initState();
-    controller = DashboardScreenController(
+    _initFuture = _initController();
+  }
+
+  void _syncEditingState() {
+    _screenController.controller.isEditing = _isEditing;
+  }
+
+  Future<void> _initController() async {
+    _screenController = DashboardScreenController(
       screenId: screenId,
-      preset: preset,
+      preset: selectedPreset,
       context: context,
       getDefaultItems: _getDefaultItems,
     );
-    _initFuture = controller.initialize();
+    await _screenController.initialize();
+    _syncEditingState();
   }
 
   List<DashboardItem> _getDefaultItems(DeviceSizeClass sizeClass) {
     return [
-      DashboardItem(
-          identifier: 'Token Holdings Strip',
-          width: 12,
-          height: 2,
-          minWidth: 12,
-          startX: 0,
-          startY: 0),
-      DashboardItem(
-          identifier: 'Active Strategies Grid',
-          width: 12,
-          height: 5,
-          minWidth: 12,
-          startX: 0,
-          startY: 2),
-      DashboardItem(
-          identifier: 'Simulation Card Grid',
-          width: 12,
-          height: 4,
-          minWidth: 12,
-          startX: 0,
-          startY: 7),
-      DashboardItem(
-          identifier: 'Portfolio Pulse',
-          width: 6,
-          height: 3,
-          minWidth: 6,
-          startX: 0,
-          startY: 11),
-      DashboardItem(
-          identifier: 'Drift Meter Radar',
-          width: 6,
-          height: 3,
-          minWidth: 6,
-          startX: 6,
-          startY: 11),
-      DashboardItem(
-          identifier: 'Performance Comparison Strip',
-          width: 12,
-          height: 2,
-          minWidth: 12,
-          startX: 0,
-          startY: 14),
-      DashboardItem(
-          identifier: 'Next Best Action',
-          width: 12,
-          height: 2,
-          minWidth: 12,
-          startX: 0,
-          startY: 16),
+      DashboardItem(identifier: 'Token Holdings Strip', width: 12, height: 3, minWidth: 12, startX: 0, startY: 0),
+      DashboardItem(identifier: 'Active Strategies Grid', width: 12, height: 9, minWidth: 12, startX: 0, startY: 3),
+      DashboardItem(identifier: 'Simulation Card Grid', width: 12, height: 12, minWidth: 12, startX: 0, startY: 12),
+      DashboardItem(identifier: 'Portfolio Pulse', width: 4, height: 5, minWidth: 4, startX: 0, startY: 24),
+      DashboardItem(identifier: 'Drift Meter Radar', width: 4, height: 5, minWidth: 4, startX: 8, startY: 24),
+      DashboardItem(identifier: 'Performance Comparison Strip', width: 4, height: 5, minWidth: 4, startX: 4, startY: 24),
+      DashboardItem(identifier: 'Next Best Action', width: 12, height: 3, minWidth: 12, startX: 0, startY: 29),
     ];
   }
 
@@ -109,126 +79,161 @@ class _MyPositionsScreenState extends State<MyPositionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-      future: _initFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+    return DashboardScaffold(
+      title: 'Unified Positions',
+      presets: _presets,
+      selectedPreset: selectedPreset,
+      isEditing: _isEditing,
+      onPresetChanged: (value) async {
+        setState(() {
+          selectedPreset = value;
+          _isEditing = false;
+        });
+        _initFuture = _initController();
+        await _initFuture;
+        setState(() {});
+      },
+      onToggleEditing: () {
+        if (selectedPreset != 'Custom') {
+          setState(() {
+            selectedPreset = 'Custom';
+            _isEditing = false;
+          });
+          _initFuture = _initController();
+        } else {
+          setState(() {
+            _isEditing = !_isEditing;
+          });
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _syncEditingState();
+          });
         }
+      },
+      leadingActions: [
+        IconButton(
+          icon: Icon(
+            _filter == 'All'
+                ? Icons.layers
+                : _filter == 'Portfolios'
+                    ? Icons.auto_graph
+                    : Icons.wallet,
+          ),
+          tooltip: 'Filter: $_filter',
+          onPressed: _cycleFilter,
+        ),
+      ],
+      child: FutureBuilder<void>(
+        future: _initFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        return DashboardScaffold(
-          title: 'Unified Positions',
-          presets: ['Default', 'Alt', 'Custom'],
-          selectedPreset: preset,
-          isEditing: _isEditing,
-          onPresetChanged: (_) {},
-          onToggleEditing: () {
-            setState(() {
-              if (preset != 'Custom') {
-                _isEditing = false;
-              } else {
-                _isEditing = !_isEditing;
-              }
-              controller.controller.isEditing = _isEditing;
-            });
-          },
-          leadingActions: [
-            IconButton(
-              icon: Icon(
-                _filter == 'All'
-                    ? Icons.layers
-                    : _filter == 'Portfolios'
-                        ? Icons.auto_graph
-                        : Icons.wallet,
-              ),
-              tooltip: 'Filter: $_filter',
-              onPressed: _cycleFilter,
-            ),
-          ],
-          child: Dashboard<DashboardItem>(
-              dashboardItemController: controller.controller,
+          return SafeArea(
+            child: Dashboard<DashboardItem>(
+              key: ValueKey('$selectedPreset|$_isEditing'),
+              dashboardItemController: _screenController.controller,
               slotCount: 12,
               slotAspectRatio: 1,
               horizontalSpace: 40,
               verticalSpace: 40,
               padding: const EdgeInsets.all(16),
-              editModeSettings: EditModeSettings(),
-              itemBuilder: (item) {
-                final id = item.identifier;
-                final isHidden = !controller.isVisible(id);
-                if (!_isEditing && isHidden) return const SizedBox.shrink();
+              shrinkToPlace: false,
+              slideToTop: false,
+              absorbPointer: false,
+              animateEverytime: false,
+              physics: const BouncingScrollPhysics(),
+              slotBackgroundBuilder: SlotBackgroundBuilder.withFunction(
+                (_, __, ___, ____, _____) => null,
+              ),
+              editModeSettings: EditModeSettings(
+                longPressEnabled: true,
+                panEnabled: true,
+                draggableOutside: true,
+                autoScroll: true,
+                resizeCursorSide: 10,
+                backgroundStyle: EditModeBackgroundStyle(
+                  lineColor: Colors.grey,
+                  lineWidth: 0.5,
+                  dualLineHorizontal: true,
+                  dualLineVertical: true,
+                ),
+              ),
+              itemBuilder: _buildItem,
+            ),
+          );
+        },
+      ),
+    );
+  }
 
-                late final Widget child;
-                switch (id) {
-                  case 'Portfolio Pulse':
-                    child = const PortfolioPulse();
-                    break;
-                  case 'Token Holdings Strip':
-                    child = const TokenHoldingsStrip();
-                    break;
-                  case 'Active Strategies Grid':
-                    child = ActiveStrategiesGrid(strategies: dummyStrategies);
-                    break;
-                  case 'Simulation Card Grid':
-                    child = SimulationCardGrid(strategies: dummySimulations);
-                    break;
-                  case 'Drift Meter Radar':
-                    child = DriftMeterRadar(
-                      alignmentScore: 72.5,
-                      driftDirection: 'Risky',
-                      driftDrivers: dummyDriftDrivers,
-                    );
-                    break;
+  Widget _buildItem(DashboardItem item) {
+    final id = item.identifier;
+    final isHidden = !_screenController.isVisible(id);
+    if (!_isEditing && isHidden) return const SizedBox.shrink();
 
-                  case 'Performance Comparison Strip':
-                    child = PerformanceComparisonStrip(
-                      benchmarks: dummyBenchmarks,
-                      userPerformance: 4.0,
-                    );
-                    break;
-                  case 'Next Best Action':
-                    child = PositionNextBestAction(
-                      action: dummyNextBestAction,
-                      onAct: () {
-                        // Future: route to portfolio rebalancer or open modal
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Acting on suggestion...')),
-                        );
-                      },
-                      onSnooze: () {
-                        // Future: mark this action as snoozed
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Snoozed')),
-                        );
-                      },
-                    );
-                    break;
-                  default:
-                    child = Text(
-                      'Widget $id\n'
-                      'x:${item.layoutData?.startX} y:${item.layoutData?.startY}\n'
-                      'w:${item.layoutData?.width} h:${item.layoutData?.height}',
-                      textAlign: TextAlign.center,
-                    );
-                }
-
-                return WidgetCard(
-                  item: item,
-                  child: child,
-                  isEditMode: _isEditing,
-                  isHidden: isHidden,
-                  onToggleVisibility: () {
-                    setState(() => controller.toggleVisibility(id));
-                  },
-                  modalTitle: id,
-                  modalSize: WidgetModalSize.medium,
-                );
-              }),
+    Widget child;
+    switch (id) {
+      case 'Portfolio Pulse':
+        child = const PortfolioPulse();
+        break;
+      case 'Token Holdings Strip':
+        child = const TokenHoldingsStrip();
+        break;
+      case 'Active Strategies Grid':
+        child = ActiveStrategiesGrid(strategies: dummyStrategies);
+        break;
+      case 'Simulation Card Grid':
+        child = SimulationCardGrid(strategies: dummySimulations);
+        break;
+      case 'Drift Meter Radar':
+        child = DriftMeterRadar(
+          alignmentScore: 72.5,
+          driftDirection: 'Risky',
+          driftDrivers: dummyDriftDrivers,
         );
-      },
+        break;
+      case 'Performance Comparison Strip':
+        child = PerformanceComparisonStrip(
+          benchmarks: dummyBenchmarks,
+          userPerformance: 4.0,
+        );
+        break;
+      case 'Next Best Action':
+        child = PositionNextBestAction(
+          action: dummyNextBestAction,
+          onAct: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Acting on suggestion...')),
+            );
+          },
+          onSnooze: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Snoozed')),
+            );
+          },
+        );
+        break;
+      default:
+        child = Text(
+          'Widget $id\nx:${item.layoutData?.startX} y:${item.layoutData?.startY}\n'
+          'w:${item.layoutData?.width} h:${item.layoutData?.height}',
+          textAlign: TextAlign.center,
+        );
+    }
+
+    return WidgetCard(
+      item: item,
+      child: child,
+      isEditMode: _isEditing,
+      isHidden: isHidden,
+      onToggleVisibility: () => setState(() => _screenController.toggleVisibility(id)),
+      modalTitle: id,
+      modalSize: WidgetModalSize.medium,
+      enableCardTap: id != 'Token Holdings Strip' &&
+                     id != 'Active Strategies Grid' &&
+                     id != 'Simulation Card Grid' &&
+                     id != 'Next Best Action',
     );
   }
 }

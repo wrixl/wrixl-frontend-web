@@ -1,6 +1,7 @@
-// lib\widgets\screen_specific_widgets\current_widgets\marketIntelligence\signal_accuracy_leaderboard.dart
+// lib/widgets/screen_specific_widgets/current_widgets/marketIntelligence/signal_accuracy_leaderboard.dart
 
 import 'package:flutter/material.dart';
+import 'package:wrixl_frontend/widgets/common/new_reusable_modal.dart';
 
 class SignalAccuracyLeaderboard extends StatefulWidget {
   const SignalAccuracyLeaderboard({Key? key}) : super(key: key);
@@ -26,7 +27,8 @@ class _SignalData {
   });
 }
 
-class _SignalAccuracyLeaderboardState extends State<SignalAccuracyLeaderboard> {
+class _SignalAccuracyLeaderboardState
+    extends State<SignalAccuracyLeaderboard> {
   String selectedTimeframe = "4h";
   bool viewAccuracy = true;
 
@@ -63,13 +65,54 @@ class _SignalAccuracyLeaderboardState extends State<SignalAccuracyLeaderboard> {
     ),
   ];
 
+  void _showSignalDetails(_SignalData d) {
+    final theme = Theme.of(context);
+    showNewReusableModal(
+      context,
+      title: d.label,
+      size: WidgetModalSize.small,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            d.label,
+            style: theme.textTheme.titleLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            "Accuracy: ${(d.accuracy * 100).toStringAsFixed(1)}%",
+            style: theme.textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Average Return: ${d.avgReturn.toStringAsFixed(1)}%",
+            style: theme.textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Samples: ${d.sampleCount}",
+            style: theme.textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Detailed backtest results and charts could go here.",
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14)),
       color: scheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -78,7 +121,13 @@ class _SignalAccuracyLeaderboardState extends State<SignalAccuracyLeaderboard> {
           children: [
             _buildAppBar(theme),
             const SizedBox(height: 12),
-            ...signalData.map((d) => _buildSignalRow(d, theme, scheme)),
+            // ── each row tappable ─────────────────────────────
+            ...signalData.map((d) {
+              return InkWell(
+                onTap: () => _showSignalDetails(d),
+                child: _buildSignalRow(d, theme, scheme),
+              );
+            }).toList(),
             const SizedBox(height: 16),
             _buildSummaryBar(theme, scheme),
           ],
@@ -91,25 +140,35 @@ class _SignalAccuracyLeaderboardState extends State<SignalAccuracyLeaderboard> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text("Signal Accuracy Leaderboard", style: theme.textTheme.titleMedium),
+        Text("Signal Accuracy Leaderboard",
+            style: theme.textTheme.titleMedium),
         Row(
           children: [
             DropdownButton<String>(
               value: selectedTimeframe,
-              onChanged: (v) => setState(() => selectedTimeframe = v!),
+              onChanged: (v) =>
+                  setState(() => selectedTimeframe = v!),
               borderRadius: BorderRadius.circular(8),
               items: timeframeOptions
-                  .map((e) => DropdownMenuItem(value: e, child: Text("⏱ $e")))
+                  .map((e) => DropdownMenuItem(
+                        value: e,
+                        child: Text("⏱ $e"),
+                      ))
                   .toList(),
             ),
             const SizedBox(width: 8),
             ToggleButtons(
               isSelected: [viewAccuracy, !viewAccuracy],
-              onPressed: (i) => setState(() => viewAccuracy = i == 0),
+              onPressed: (i) =>
+                  setState(() => viewAccuracy = i == 0),
               borderRadius: BorderRadius.circular(8),
               children: const [
-                Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("Accuracy %")),
-                Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("ROI Δ")),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text("Accuracy %")),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text("ROI Δ")),
               ],
             ),
           ],
@@ -118,7 +177,8 @@ class _SignalAccuracyLeaderboardState extends State<SignalAccuracyLeaderboard> {
     );
   }
 
-  Widget _buildSignalRow(_SignalData d, ThemeData theme, ColorScheme scheme) {
+  Widget _buildSignalRow(
+      _SignalData d, ThemeData theme, ColorScheme scheme) {
     final Color labelColor = d.accuracy >= 0.7
         ? scheme.secondary
         : d.accuracy >= 0.5
@@ -143,24 +203,33 @@ class _SignalAccuracyLeaderboardState extends State<SignalAccuracyLeaderboard> {
                 Text(d.label, style: theme.textTheme.bodyLarge),
                 Row(
                   children: [
-                    Text(labelText,
-                        style: theme.textTheme.bodySmall
-                            ?.copyWith(fontWeight: FontWeight.bold, color: labelColor)),
+                    Text(
+                      labelText,
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: labelColor),
+                    ),
                     const SizedBox(width: 8),
-                    Text("(${d.sampleCount} samples)",
-                        style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.6))),
+                    Text(
+                      "(${d.sampleCount} samples)",
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(
+                              color: scheme.onSurface
+                                  .withOpacity(0.6)),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: () => _showSignalDetails(d),
             child: const Text("View"),
             style: TextButton.styleFrom(
               foregroundColor: scheme.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8),
             ),
           ),
         ],
@@ -177,9 +246,8 @@ class _SignalAccuracyLeaderboardState extends State<SignalAccuracyLeaderboard> {
       ),
       child: Text(
         "🧠 Summary: Whale alerts outperform across all timeframes",
-        style: theme.textTheme.bodyMedium?.copyWith(
-          fontStyle: FontStyle.italic,
-        ),
+        style: theme.textTheme.bodyMedium
+            ?.copyWith(fontStyle: FontStyle.italic),
         textAlign: TextAlign.center,
       ),
     );
