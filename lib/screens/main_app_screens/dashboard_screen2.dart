@@ -1,4 +1,4 @@
-// lib/screens/dashboard/dashboard_screen2.dart
+// lib\screens\main_app_screens\dashboard_screen2.dart
 
 import 'package:flutter/material.dart';
 import 'package:dashboard/dashboard.dart';

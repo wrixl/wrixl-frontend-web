@@ -1,7 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\all_eyes_widget.dart
 
-// lib\widgets\screen_specific_widgets\current_widgets\all_eyes_widget.dart
-
 import 'package:flutter/material.dart';
 
 class AllEyesWidget extends StatefulWidget {

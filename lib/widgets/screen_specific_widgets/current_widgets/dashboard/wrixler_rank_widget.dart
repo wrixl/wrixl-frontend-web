@@ -1,7 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\wrixler_rank_widget.dart
 
-// lib\widgets\screen_specific_widgets\current_widgets\wrixler_rank_widget.dart
-
 import 'package:flutter/material.dart';
 
 class WrixlerRankWidget extends StatelessWidget {

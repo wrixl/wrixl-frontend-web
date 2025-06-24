@@ -1,7 +1,5 @@
 // lib\widgets\screen_specific_widgets\current_widgets\streak_tracker_widget.dart
 
-// lib\widgets\screen_specific_widgets\current_widgets\streak_tracker_widget.dart
-
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

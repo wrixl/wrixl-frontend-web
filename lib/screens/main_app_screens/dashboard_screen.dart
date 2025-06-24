@@ -10,7 +10,7 @@ import 'strategies_screen.dart';
 import 'market_intelligence.dart';
 import 'activity_screen.dart';
 import 'community_game_screen.dart';
-import '../archive/dashboard_screen2.dart';
+import 'dashboard_screen2.dart';
 import 'my_positions_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
